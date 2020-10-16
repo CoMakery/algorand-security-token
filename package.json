@@ -1,0 +1,23 @@
+{
+  "name": "algorand_restricted_token",
+  "version": "0.1.0",
+  "description": "Restricted token definition and deployment for the Algorand blockchain",
+  "main": "index.js",
+  "author": "CoMakery, Inc. and Algorand Foundation",
+  "license": "AGPL",
+  "private": true,
+  "scripts": {
+    "dev:start": "./bin/devnet-clean-start devnet",
+    "dev:stop": "goal network stop -r devnet && goal kmd stop -d devnet/Primary",
+    "all:stop": "pgrep algod | xargs kill && pgrep kmd | xargs kill",
+    "test": "yarn dev:start && jest -i && yarn dev:stop"
+  },
+  "dependencies": {
+    "algod": "^1.0.0",
+    "algosdk": "^1.4.1",
+    "jest": "^24.9.0",
+    "shelljs": "^0.8.3",
+    "tweetnacl": "^1.0.2",
+    "wait-on": "^4.0.0"
+  }
+}
