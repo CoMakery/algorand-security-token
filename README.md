@@ -10,6 +10,8 @@ Although it is built on Algorand it follows the ERC-1404 security token standard
 * Install node.js from [Nodejs.org](https://nodejs.org)
 * Follow the Algorand blockchain node [setup instructions](https://developer.algorand.org/docs/run-a-node/setup/install/)
 * `git clone` this Algorand Security Token repository
+* install racket
+* install [jq](https://stedolan.github.io/jq/)
 
 From the root directory of this code repository run
 ```bash
