@@ -4,7 +4,7 @@ An Algorand security token compatible with CoMakery. It was originally authored 
 
 It is AGPL open source licensed.
 
-Although it is built on Algorand it follows the ERC-1404 security token standard. The contract is written as a Python PyTeal script that generates an Algorand TEAL Smart Contract.
+Although it is built on Algorand it follows the ERC-1404 security token standard. The contract is written as a Python [PyTeal](https://github.com/algorand/pyteal) script that generates an Algorand TEAL Smart Contract.
 
 ## Install
 * Install node.js from [Nodejs.org](https://nodejs.org)
