@@ -10,6 +10,7 @@
     "DeadlockDetection": 0,
     "DNSBootstrapID": "<network>.algorand.network",
     "EnableAgreementReporting": false,
+    "EnableDeveloperAPI": true,
     "EnableIncomingMessageFilter": false,
     "EnableMetricReporting": false,
     "EnableOutgoingNetworkMessageFiltering": true,

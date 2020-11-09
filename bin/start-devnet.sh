@@ -14,3 +14,4 @@ goal network create -r $NETWORK_DIR -n private -t $CONFIG_DIR
 goal network start -r $NETWORK_DIR -k $DEVNET_KMD -d $NETWORK_PRIMARY_KEY
 goal kmd start -d $NETWORK_PRIMARY_KEY
 echo $NETWORK_DIR
+goal account list -d devnet/Primary/
