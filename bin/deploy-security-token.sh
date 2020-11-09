@@ -20,4 +20,5 @@ goal app create --creator $ADDR_CREATOR \
 --local-byteslices $LOCAL_BYTESLICES \
 --local-ints $LOCAL_INTS \
 --app-arg "int:1000" \
+--on-completion optin \
 -d $ALGORAND_DATA
