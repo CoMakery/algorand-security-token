@@ -7,14 +7,14 @@
   "license": "AGPL",
   "private": true,
   "scripts": {
-    "dev:start": "./bin/devnet-clean-start devnet",
+    "dev:start": "./bin/start-devnet.sh",
     "dev:stop": "goal network stop -r devnet && goal kmd stop -d devnet/Primary",
     "all:stop": "pgrep algod | xargs kill && pgrep kmd | xargs kill",
-    "test": "yarn dev:start && jest -i && yarn dev:stop"
+    "test": "yarn dev:start && jest -i"
   },
   "dependencies": {
     "algod": "^1.0.0",
-    "algosdk": "^1.4.1",
+    "algosdk": "^1.8.0",
     "jest": "^24.9.0",
     "shelljs": "^0.8.3",
     "tweetnacl": "^1.0.2",

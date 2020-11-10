@@ -13,7 +13,7 @@ async function initAlgod() {
 }
 
 async function privateTestNetSetup() {
-    await shell.exec(`bin/devnet-clean-start`, {
+    await shell.exec(`bin/start-devnet.sh`, {
         async: false,
         silent: true
     })
