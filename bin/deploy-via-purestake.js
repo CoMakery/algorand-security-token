@@ -6,6 +6,7 @@ const algosdk = require('algosdk')
 const baseServer = process.env.BASE_SERVER
 const port = ""
 const mnemonic = process.env.PRIVATE_SEED
+const apiKey = process.env.PURESTAKE_API_KEY
 const numberOfTokens = '1000'
 
 const token = {
