@@ -23,21 +23,22 @@ let algodClient = new algosdk.Algodv2(token, baseServer, port)
 // read local state of application from user account
 async function readLocalState(client, account, index) {
     let accountInfoResponse = await client.accountInformation(account.addr).do()
-    let states = accountInfoResponse['apps-local-state'].find(e => e['id'] == index)
+    let states = accountInfoResponse['apps-local-state'].find(e => e['id'] === index)
     let localStates = states['key-value']
-    return localStates.map(state => {
-        state.value.bytes = Buffer.from(state.value.bytes, 'base64').toString()
-        state.key = Buffer.from(state.key, 'base64').toString()
-        return state
-    })
+    return decodeState(localStates)
+
 }
 
 // read global state of application
 async function readGlobalState(client, account, index) {
     let accountInfoResponse = await client.accountInformation(account.addr).do()
-    let states = accountInfoResponse['created-apps'].find(e => e['id'] == index)
+    let states = accountInfoResponse['created-apps'].find(e => e['id'] === index)
     let globalStates = states['params']['global-state']
-    return globalStates.map(state => {
+    return decodeState(globalStates)
+}
+
+function decodeState(appStateArray) {
+    return appStateArray.map(state => {
         state.value.bytes = Buffer.from(state.value.bytes, 'base64').toString()
         state.key = Buffer.from(state.key, 'base64').toString()
         return state
