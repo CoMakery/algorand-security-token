@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 require('dotenv').config()
-
 const algosdk = require('algosdk')
+const util = require('../lib/algoUtil')
+
 const baseServer = process.env.BASE_SERVER
 const port = ""
 const mnemonic = process.env.PRIVATE_SEED
 const apiKey = process.env.PURESTAKE_API_KEY
-const numberOfTokens = '1000'
-const util = require('../lib/algoUtil')
-
 const token = {
     'X-API-key' : apiKey,
 }
+
+let totalSupply = util.bigIntToUint8Array('8' + '0'.repeat(16))
 
 let algodClient = new algosdk.Algodv2(token, baseServer, port);
 
@@ -31,8 +31,7 @@ let algodClient = new algosdk.Algodv2(token, baseServer, port);
     let globalInts = 3
     let globalBytes = 0
     let appArgs = []
-    let arg1 = new Uint8Array(Buffer.from(numberOfTokens))
-    appArgs.push(arg1)
+    appArgs.push(totalSupply)
 
     let txn = algosdk.makeApplicationCreateTxn(sender, params, onComplete,
         approvalProgram, clearProgram,
