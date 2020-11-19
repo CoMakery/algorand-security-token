@@ -22,15 +22,14 @@ const token = {
 let algodClient = new algosdk.Algodv2(token, baseServer, port)
 // read local state of application from user account
 async function readLocalState(client, account, index) {
-    let accountInfoResponse = await client.accountInformation(account.addr).do();
-    for (let i = 0; i < accountInfoResponse['apps-local-state'].length; i++) {
-        if (accountInfoResponse['apps-local-state'][i].id == index) {
-            console.log("User's local state:");
-            for (let n = 0; n < accountInfoResponse['apps-local-state'][i][`key-value`].length; n++) {
-                console.log(JSON.stringify(accountInfoResponse['apps-local-state'][i][`key-value`][n], undefined, 4));
-            }
-        }
-    }
+    let accountInfoResponse = await client.accountInformation(account.addr).do()
+    let states = accountInfoResponse['apps-local-state'].find(e => e['id'] == index)
+    let localStates = states['key-value']
+    return localStates.map(state => {
+        state.value.bytes = Buffer.from(state.value.bytes, 'base64').toString()
+        state.key = Buffer.from(state.key, 'base64').toString()
+        return state
+    })
 }
 
 // read global state of application
@@ -43,13 +42,14 @@ async function readGlobalState(client, account, index) {
         state.key = Buffer.from(state.key, 'base64').toString()
         return state
     })
-    // }
 }
 
 (async () => {
     var recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic);
-    console.log(recoveredAccount.addr)
-    // readLocalState(algodClient, recoveredAccount, assetIndex)
+    console.log('local state for account ', recoveredAccount.addr, 'asset ', assetIndex)
+    console.log(await readLocalState(algodClient, recoveredAccount, assetIndex))
+
+    console.log('global state for asset ', assetIndex)
     console.log(await readGlobalState(algodClient, recoveredAccount, assetIndex))
 })().catch(e => {
     console.log(e)
