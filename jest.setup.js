@@ -9,6 +9,11 @@ const port = 8080
 
 async function initAlgod() {
     let token = await shell.cat(`${privTestNet}/Primary/algod.token`).stdout
+    return new algosdk.Algodv2(token, server, port)
+}
+
+async function initAlgodV1() {
+    let token = await shell.cat(`${privTestNet}/Primary/algod.token`).stdout
     return new algosdk.Algod(token, server, port)
 }
 
@@ -59,29 +64,18 @@ async function waitForConfirmation(txId) {
 // Utility function to get the latest parameters from the blockchain
 async function getChangingParams() {
     let algod = await initAlgod()
-    let cp = {
-        fee: 0,
-        firstRound: 0,
-        lastRound: 0,
-        genID: "",
-        genHash: ""
-    }
-    let params = await algod.getTransactionParams()
-    let sfee = await algod.suggestedFee()
 
-    cp.firstRound = params.lastRound
-    cp.lastRound = cp.firstRound + parseInt(1000)
-    cp.fee = sfee.fee
-    cp.genID = params.genesisID
-    cp.genHash = params.genesishashb64
-
-    return cp
+    let params = await algod.getTransactionParams().do()
+    params.fee = 1000
+    params.flatFee = true
+    // params.genesisHash = params.genHash
+    return params
 }
 
 async function signAndSend(signerKey, txn) {
-    let algod = await initAlgod()
+    let client = await initAlgod()
     let signedTxn = txn.signTxn(signerKey) // this is account.sk
-    let sentTxn = await algod.sendRawTransaction(signedTxn)
+    let sentTxn = await client.sendRawTransaction(signedTxn.blob)
     await waitForConfirmation(sentTxn.txId)
     return sentTxn
 }
@@ -92,3 +86,4 @@ global.waitForConfirmation = waitForConfirmation
 global.addresses
 global.signAndSend = signAndSend
 global.initAlgod = initAlgod
+global.initAlgodV1 = initAlgodV1

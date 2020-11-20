@@ -1,11 +1,10 @@
-var params, sender, algod
+var sender
 const algosdk = require('algosdk')
+const util = require('../lib/algoUtil')
 
 beforeEach( async ()=> {
   await privateTestNetSetup()
   sender = accounts[0]
-  algod = await initAlgod()
-  params = await getChangingParams()
 })
 
 test('verfy environment sender address is valid', async () => {
@@ -13,30 +12,29 @@ test('verfy environment sender address is valid', async () => {
 })
 
 test('algorand test environment is configured properly', async () => {
-  let txn = {
-    "from": accounts[0].addr,
-    to: accounts[1].addr,
-    fee: params.fee,
-    "amount": 1,
-    "firstRound":params.firstRound,
-    "lastRound": params.lastRound,
-    "note": algosdk.encodeObj({'hola': '✋'}),
-    "genesisID": params.genID,
-    "genesisHash": params.genHash,
-  }
+  let client = await initAlgod()
 
-  var signedTxn = algosdk.signTransaction(txn, sender.sk)
-  let sentTxn = await algod.sendRawTransaction(signedTxn.blob)
-  await waitForConfirmation(sentTxn.txId)
+  let params = await getChangingParams()
+  params["from"] = accounts[0].addr
+  params["to"] =  accounts[1].addr
+  params["amount"] = 1
+  params["note"] =  algosdk.encodeObj({'hola': '✋'})
 
-  let tx = await algod.transactionInformation(sender.addr, sentTxn.txId)
+  let txn = new algosdk.Transaction(params)
+  let signedTxn = algosdk.signTransaction(txn, sender.sk)
+  let sentTxn = await client.sendRawTransaction(signedTxn.blob).do()
+  console.log("Transaction: ", sentTxn)
+  await util.waitForConfirmation(client, sentTxn.txId)
 
-  expect(tx.type).toEqual('pay')
-  expect(tx.fee).toEqual(1000)
-  expect(tx.from).toEqual(sender.addr)
-  expect(tx.payment.to).toEqual(accounts[1].addr)
-  expect(tx.payment.amount).toEqual(1)
+  let clientV1 = await initAlgodV1()
+  let info = await clientV1.transactionInformation(accounts[0].addr, sentTxn.txId)
 
-  let encodednote = algosdk.decodeObj(tx.note)
+  expect(info.type).toEqual('pay')
+  expect(info.fee).toEqual(1000)
+  expect(info.from).toEqual(sender.addr)
+  expect(info.payment.to).toEqual(accounts[1].addr)
+  expect(info.payment.amount).toEqual(1)
+
+  let encodednote = algosdk.decodeObj(info.note)
   expect(encodednote).toEqual({'hola': '✋'})
 })
