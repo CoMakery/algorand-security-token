@@ -15,7 +15,8 @@ const token = {
     let algodClient = new algosdk.Algodv2(token, baseServer, port);
     var recoveredAccount = algosdk.mnemonicToSecretKey(mnemonic)
 
-    util.deploySecurityToken(algodClient, recoveredAccount)
+    let info = await util.deploySecurityToken(algodClient, recoveredAccount)
+    console.log(info)
 })().catch(e => {
     console.log(e)
 })
