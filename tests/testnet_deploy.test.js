@@ -3,13 +3,19 @@ const shell = require('shelljs')
 const util = require('../lib/algoUtil')
 const algosdk = require('algosdk')
 
-test('testnet deploy', async () => {
+const server = "http://127.0.0.1"
+const port = 8080
+
+var recoveredAccount, token, clientV2
+
+beforeAll(async () => {
     await privateTestNetSetup()
-    let recoveredAccount = accounts[0]
-    let token = await shell.cat(`devnet/Primary/algod.token`).stdout
-    const server = "http://127.0.0.1"
-    const port = 8080
-    let clientV2 =  new algosdk.Algodv2(token, server, port)
+    recoveredAccount = accounts[0]
+    token = await shell.cat(`devnet/Primary/algod.token`).stdout
+    clientV2 =  new algosdk.Algodv2(token, server, port)
+})
+
+test('test initial deployment state', async () => {
     let info = await util.deploySecurityToken(clientV2, recoveredAccount)
     let localState = await util.readLocalState(clientV2, recoveredAccount, info.appId)
     expect(localState["balance"]["uint"]).toEqual(0)
