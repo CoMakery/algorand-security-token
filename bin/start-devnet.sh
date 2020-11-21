@@ -11,6 +11,7 @@ goal network stop -r $NETWORK_DIR
 goal kmd stop -d $NETWORK_PRIMARY_KEY
 rm -rf $NETWORK_DIR
 goal network create -r $NETWORK_DIR -n private -t $CONFIG_DIR
+cp ./config/config.json devnet/Primary
 goal network start -r $NETWORK_DIR -k $DEVNET_KMD -d $NETWORK_PRIMARY_KEY
 goal kmd start -d $NETWORK_PRIMARY_KEY
 echo $NETWORK_DIR

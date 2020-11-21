@@ -1,38 +1,23 @@
 require('dotenv').config()
-
+const shell = require('shelljs')
 const util = require('../lib/algoUtil')
 const algosdk = require('algosdk')
-const baseServer = process.env.BASE_SERVER
-const recoveredAccount = algosdk.mnemonicToSecretKey(process.env.PRIVATE_SEED)
-const apiKey = process.env.PURESTAKE_API_KEY
-const port = ""
-const token = {
-    'X-API-key': apiKey,
-}
 
 test('testnet deploy', async () => {
-    let algodClient = new algosdk.Algodv2(token, baseServer, port);
-    let info = await util.deploySecurityToken(algodClient, recoveredAccount)
-    let localState = await util.readLocalState(algodClient, recoveredAccount, info.appId)
-    expect(localState.sort()).toEqual(
-        [
-            { key: 'contract admin', value: { bytes: '', type: 2, uint: 1 } },
-            { key: 'transfer admin', value: { bytes: '', type: 2, uint: 1 } },
-            { key: 'balance', value: { bytes: '', type: 2, uint: 0 } }
-        ].sort()
-    )
-    let globalState = await util.readGlobalState(algodClient, recoveredAccount, info.appId)
-    expect(globalState.sort()).toEqual(
-        [
-            { key: 'paused', value: { bytes: '', type: 2, uint: 0 } },
-            {
-                key: 'total supply',
-                value: { bytes: '', type: 2, uint: 80000000000000000 }
-            },
-            {
-                key: 'reserve',
-                value: { bytes: '', type: 2, uint: 80000000000000000 }
-            }
-        ].sort()
-    )
+    await privateTestNetSetup()
+    let recoveredAccount = accounts[0]
+    let token = await shell.cat(`devnet/Primary/algod.token`).stdout
+    const server = "http://127.0.0.1"
+    const port = 8080
+    let clientV2 =  new algosdk.Algodv2(token, server, port)
+    let info = await util.deploySecurityToken(clientV2, recoveredAccount)
+    let localState = await util.readLocalState(clientV2, recoveredAccount, info.appId)
+    expect(localState["balance"]["uint"]).toEqual(0)
+    expect(localState["contract admin"]["uint"]).toEqual(1)
+    expect(localState["transfer admin"]["uint"]).toEqual(1)
+
+    let globalState = await util.readGlobalState(clientV2, recoveredAccount, info.appId)
+    expect(globalState['paused']['uint']).toEqual(0)
+    expect(globalState['reserve']['uint']).toEqual(80000000000000000)
+    expect(globalState['total supply']['uint']).toEqual(80000000000000000)
 })
