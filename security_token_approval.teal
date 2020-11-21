@@ -58,7 +58,7 @@ bnz l13
 err
 l0:
 txn NumAppArgs
-int 1
+int 3
 ==
 bnz l15
 err
@@ -73,6 +73,13 @@ btoi
 app_global_put
 byte "paused"
 int 0
+app_global_put
+byte "decimals"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "unitname"
+txna ApplicationArgs 2
 app_global_put
 int 0
 byte "contract admin"

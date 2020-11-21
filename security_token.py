@@ -4,10 +4,13 @@ from pyteal import *
 
 def approval_program():
     on_creation = Seq([
-        Assert(Txn.application_args.length() == Int(1)),
+        Assert(Txn.application_args.length() == Int(3)),
         App.globalPut(Bytes("total supply"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("reserve"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("paused"), Int(0)),
+        App.globalPut(Bytes("decimals"), Btoi(Txn.application_args[1])),
+        App.globalPut(Bytes("unitname"), Txn.application_args[2]),
+
         App.localPut(Int(0), Bytes("contract admin"), Int(1)),
         App.localPut(Int(0), Bytes("transfer admin"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
