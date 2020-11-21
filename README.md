@@ -70,17 +70,22 @@ Make note of the app index... in the example above it is `1`.
 #### Check the global state of the contract
 
 Get the global state of the contract with
-`goal app read --global --app-id 1 -d devnet/Primary/`
+```
+goal app read --global --app-id 1 -d devnet/Primary/
+```
 
 Get the local state for a specific account with
 ```
 goal app read --local --app-id 1 --from FQVRXH3NO3W2RHGHRDTXCL5IDZKSLEXINFNBF4GB7R3GCXNK4S4ZXFGRJY -d devnet/Primary/
 ```
 
-#### Shut down the private test network - when it restarts it will reset all data
+#### Shut down the private test network 
+
 ```
 bin/stop-devnet.sh
 ```
+
+Note: When it you rerun `bin/start-devnet.sh` it will **reset all data**
 
 ## Troubleshooting
 
