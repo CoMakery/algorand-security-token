@@ -45,6 +45,7 @@ test('test initial deployment state', async () => {
     let txn = algosdk.makeApplicationNoOpTxn(recoveredAccount.addr, params, info.appId, appArgs, [recoveredAccount.addr])
     let signedTxn = algosdk.signTransaction(txn, recoveredAccount.sk)
     let sendTx = await clientV2.sendRawTransaction(signedTxn.blob).do()
+
     console.log("Transaction : ", sendTx)
     await util.waitForConfirmation(clientV2, sendTx.txId)
     let transactionResponse = await clientV2.pendingTransactionInformation(sendTx.txId).do()
@@ -55,11 +56,8 @@ test('test initial deployment state', async () => {
     //TODO: add vettingsAdmin
 
     globalState = await util.readGlobalState(clientV2, recoveredAccount, info.appId)
-    expect(globalState['total supply']['uint']).toEqual(
-        80000000000000000)
-    expect(globalState['reserve']['uint']).toEqual(
-        79999999999999973)
-// TODO: rename to total
+    expect(globalState['total supply']['uint']).toEqual(80000000000000000)
+    expect(globalState['reserve']['uint']).toEqual(79999999999999973)
 
     //transfer
 })
