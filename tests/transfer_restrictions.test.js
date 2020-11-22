@@ -7,11 +7,13 @@ const algosdk = require('algosdk')
 const server = "http://127.0.0.1"
 const port = 8080
 
-var adminAccount, token, clientV2, appId
+var adminAccount, receiverAccount, token, clientV2, appId
 
 beforeAll(async () => {
     await privateTestNetSetup()
     adminAccount = accounts[0]
+    receiverAccount = accounts[1]
+
     token = await shell.cat(`devnet/Primary/algod.token`).stdout
     clientV2 =  new algosdk.Algodv2(token, server, port)
 })
@@ -23,9 +25,12 @@ beforeEach(async () => {
     //mint
     appArgs = [EncodeBytes("mint"), EncodeUint('27')]
     await util.appCall(clientV2, adminAccount, info.appId, appArgs, [adminAccount.addr])
+
+    //opt in
+    await util.optInApp(clientV2, receiverAccount, appId)
 })
 
-test('mint, opt in and transfer', async () => {
+test('has expected starting test state', async () => {
     // check minting result
     let localState = await util.readLocalState(clientV2, adminAccount, appId)
     expect(localState["balance"]["uint"]).toEqual(27)
@@ -34,14 +39,14 @@ test('mint, opt in and transfer', async () => {
     expect(globalState['total supply']['uint']).toEqual(80000000000000000)
     expect(globalState['reserve']['uint']).toEqual(79999999999999973)
 
-    //opt in
-    let receiverAccount = accounts[1]
-    await util.optInApp(clientV2, receiverAccount, appId)
+    // recipient opted in
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["balance"]["uint"]).toEqual(0)
     expect(localState["contract admin"]).toEqual(undefined)
     expect(localState["transfer admin"]).toEqual(undefined)
+})
 
+test('mint, opt in and transfer', async () => {
     //transfer
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
@@ -59,6 +64,8 @@ test('mint, opt in and transfer', async () => {
     expect(globalState['total supply']['uint']).toEqual(80000000000000000)
     expect(globalState['reserve']['uint']).toEqual(79999999999999973)
 })
+
+
 
 //TODO: verify only approved account can upgrade
 //TODO: verify only approved account can delete
