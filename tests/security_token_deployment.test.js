@@ -19,7 +19,7 @@ test('test deployment and global state', async () => {
 
     // console.log(output)
 
-    let appId = output[4].match(/(\d+$)/)[0]
+    let appId = output[5].match(/(\d+$)/)[0]
     // console.log(appId)
 
     expect(appId).toMatch(/^\d$/)
@@ -31,5 +31,5 @@ test('test deployment and global state', async () => {
 
     // console.log(output2)
     let globalState = JSON.parse(output2)
-    expect(globalState.reserve.ui).toBe(1000)
+    expect(globalState.reserve.ui).toBe(8000000000000000000)
 })
