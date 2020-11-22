@@ -90,6 +90,27 @@ test('can transfer between accounts', async () => {
     expect(localState["balance"]["uint"]).toEqual(4)
 })
 
+test('admin can burn from any account', async () => {
+    //transfer
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    //burn tokens
+    appArgs = [EncodeBytes("burn"), EncodeUint('7')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // receiver account has had their token burned
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["uint"]).toEqual(4)
+
+    // check burned tokens go back to the reserve
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['reserve']['uint'].toString()).toEqual('79999999999999980')
+
+    // check global supply is the same
+    expect(globalState['total supply']['uint'].toString()).toBe('80000000000000000')
+})
+
 test('pausing contract stops transfers', async () => {
     //pause all transfers
     appArgs = [EncodeBytes("pause"), EncodeUint('1')]
