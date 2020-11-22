@@ -15,7 +15,7 @@ beforeAll(async () => {
     receiverAccount = accounts[1]
 
     token = await shell.cat(`devnet/Primary/algod.token`).stdout
-    clientV2 =  new algosdk.Algodv2(token, server, port)
+    clientV2 = new algosdk.Algodv2(token, server, port)
 })
 
 beforeEach(async () => {
@@ -90,6 +90,50 @@ test('can transfer between accounts', async () => {
     expect(localState["balance"]["uint"]).toEqual(4)
 })
 
+test('pausing contract stops transfers', async () => {
+    //pause all transfers
+    appArgs = [EncodeBytes("pause"), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs)
+
+    //transfer
+    let transferBlocked = false
+    try {
+        appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+        await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+    } catch (e) {
+        transferBlocked = true
+    }
+    expect(transferBlocked).toEqual(true)
+    // check receiver did not get tokens
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["uint"]).toEqual(0)
+
+    // check sender has same amount of tokens
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["balance"]["uint"]).toEqual(27)
+})
+
+test('unpausing contract enables transfers again', async () => {
+    //pause
+    appArgs = [EncodeBytes("pause"), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs)
+
+    //unpause
+    appArgs = [EncodeBytes("pause"), EncodeUint('0')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs)
+
+    //transfer
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // check receiver did not get tokens
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["uint"]).toEqual(11)
+
+    // check sender has same amount of tokens
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["balance"]["uint"]).toEqual(16)
+})
 
 
 //TODO: verify only approved account can upgrade
