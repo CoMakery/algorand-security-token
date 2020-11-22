@@ -108,14 +108,14 @@ let totalSupply = this.bigIntToUint8Array('8' + '0'.repeat(16))
 appArgs.push(totalSupply)
 ```
 
-# APPLICATION FUNCTIONS
+# Application Functions
 
 The TEAL assembly smart contract language uses program branches with no loops (it's non turing complete). The branches operate like functions in a typical programming language. There are also some default functions for upgrading and managing application memory systems. For simplicity I'll refer to the branches as "functions" in the table below.
 
 | Function | Description | Callable By |
 |-|-|-|
 | on_creation | initializes the app when created | creator |
-| DeleteApplication | called when the application is delted|  |
+| DeleteApplication | called when the application is deleted|  |
 | UpdateApplication | updates the TEAL code and keeps the memory intact | contract admin |
 | CloseOut | called when closing out of the contract | everyone |
 | OptIn | called by anyone who will use the app before they use the app | any account |
