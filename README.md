@@ -107,3 +107,26 @@ Note that you may also need to avoid overloading Javscript integer size by using
 let totalSupply = this.bigIntToUint8Array('8' + '0'.repeat(16))
 appArgs.push(totalSupply)
 ```
+
+# APPLICATION FUNCTIONS
+
+TEAL implements uses program branches in a program with no loops (non turing complete). There also some default functions for upgrading and managing application memory systems.
+For simplicity I'll refer to the branches as "functions".
+
+| function | description | callable by |
+|-|-|-|
+| on_creation | initializes the app when created | creator |
+| DeleteApplication | called when the application is delted|  |
+| UpdateApplication | updates the TEAL code and keeps the memory intact | contract admin |
+| CloseOut | called when closing out of the contract | everyone |
+| OptIn | called by anyone who will use the app before they use the app | any account |
+| "pause" | freezes all transfers | contract admin |
+| "set admin" | gives an account contract admin rights | contract admin  |
+| "freeze" | freezes a specific address | transfer admin |
+| "max balance" | sets the max number of tokens an account can hold | transfer admin |
+| "lock until" | lock the address to transfers until the specified date | transfer admin |
+| "transfer group" | specifies the category of an address | transfer admin |
+| "mint" | create new tokens from the reserve | contract admin |
+| "burn" | destroy tokens from a specified address | contract admin |
+| "transfer" | transfer from one account to another | any opted in account |
+
