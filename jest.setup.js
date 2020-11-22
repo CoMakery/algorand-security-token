@@ -2,6 +2,7 @@ jest.setTimeout(60000)
 const algosdk = require('algosdk')
 const shell = require('shelljs')
 const waitOn = require('wait-on')
+shell.env["ALGOSMALLLAMBDAMSEC"]=1
 
 const privTestNet = 'devnet'
 const server = "http://127.0.0.1"
@@ -18,10 +19,21 @@ async function initAlgodV1() {
 }
 
 async function privateTestNetSetup() {
-    await shell.exec(`bin/start-devnet.sh`, {
+    let status =  await shell.exec(` goal node status -d ${privTestNet}/Primary/`, {
         async: false,
         silent: true
-    })
+    }).stderr
+    let isNodeRunning = !(/Cannot contact Algorand node/.test(status))
+
+    if(isNodeRunning) {
+
+    } else{
+        await shell.exec(`bin/start-devnet.sh`, {
+            async: false,
+            silent: true
+        })
+    }
+
     await waitOn({
         resources: [
             `${privTestNet}/Primary/algod.token`
