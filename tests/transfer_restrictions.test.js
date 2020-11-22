@@ -65,6 +65,31 @@ test('mint, opt in and transfer', async () => {
     expect(globalState['reserve']['uint']).toEqual(79999999999999973)
 })
 
+test('can transfer between accounts', async () => {
+    //transfer
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // check first receiver got tokens
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["uint"]).toEqual(11)
+
+    // second receiver opts in to the app
+    await util.optInApp(clientV2, accounts[2], appId)
+
+    //transfer from first receiver to second receiver
+    appArgs = [EncodeBytes("transfer"), EncodeUint('7')]
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [accounts[2].addr])
+
+    // check second receiver got tokens
+    localState = await util.readLocalState(clientV2, accounts[2], appId)
+    expect(localState["balance"]["uint"]).toEqual(7)
+
+    // first account no longer has the transferred tokens
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["uint"]).toEqual(4)
+})
+
 
 
 //TODO: verify only approved account can upgrade
