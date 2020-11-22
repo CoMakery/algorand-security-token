@@ -31,11 +31,13 @@ test('test initial deployment state', async () => {
     expect(globalState['total supply']['uint']).toEqual(80000000000000000) // TODO: rename to total
     expect(globalState['decimals']['uint']).toEqual(8)
     expect(globalState['unitname']['bytes']).toEqual("ABCTEST")
+})
+
+it('mint, opt in and transfer', async () => {
+    let info = await util.deploySecurityToken(clientV2, recoveredAccount)
 
     //mint
-
     appArgs = [EncodeBytes("mint"), EncodeUint('27')]
-
     await appCall(recoveredAccount, info.appId, appArgs, [recoveredAccount.addr])
 
     localState = await util.readLocalState(clientV2, recoveredAccount, info.appId)
@@ -45,6 +47,7 @@ test('test initial deployment state', async () => {
     expect(globalState['total supply']['uint']).toEqual(80000000000000000)
     expect(globalState['reserve']['uint']).toEqual(79999999999999973)
 
+    //opt in
     //transfer
 })
 
