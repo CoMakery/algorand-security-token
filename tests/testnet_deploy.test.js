@@ -33,27 +33,13 @@ test('test initial deployment state', async () => {
     expect(globalState['unitname']['bytes']).toEqual("ABCTEST")
 
     //mint
-    let params = await clientV2.getTransactionParams().do()
-    params.fee = 1000
-    params.flatFee = true
 
-    let enc = new TextEncoder()
-    appArgs = []
-    appArgs.push(enc.encode("mint"))
-    appArgs.push(util.bigIntToUint8Array('27'))
+    appArgs = [EncodeBytes("mint"), EncodeUint('27')]
 
-    let txn = algosdk.makeApplicationNoOpTxn(recoveredAccount.addr, params, info.appId, appArgs, [recoveredAccount.addr])
-    let signedTxn = algosdk.signTransaction(txn, recoveredAccount.sk)
-    let sendTx = await clientV2.sendRawTransaction(signedTxn.blob).do()
-
-    console.log("Transaction : ", sendTx)
-    await util.waitForConfirmation(clientV2, sendTx.txId)
-    let transactionResponse = await clientV2.pendingTransactionInformation(sendTx.txId).do()
-    console.log(`transaction response: ${transactionResponse}`)
+    await appCall(recoveredAccount, info.appId, appArgs, [recoveredAccount.addr])
 
     localState = await util.readLocalState(clientV2, recoveredAccount, info.appId)
     expect(localState["balance"]["uint"]).toEqual(27)
-    //TODO: add vettingsAdmin
 
     globalState = await util.readGlobalState(clientV2, recoveredAccount, info.appId)
     expect(globalState['total supply']['uint']).toEqual(80000000000000000)
@@ -62,5 +48,31 @@ test('test initial deployment state', async () => {
     //transfer
 })
 
+async function appCall(sender, appId, appArgs, appAccounts) {
+    let params = await clientV2.getTransactionParams().do()
+    params.fee = 1000
+    params.flatFee = true
+
+    let txn = algosdk.makeApplicationNoOpTxn(sender.addr, params, appId, appArgs, appAccounts)
+    let signedTxn = algosdk.signTransaction(txn, sender.sk)
+    let sendTx = await clientV2.sendRawTransaction(signedTxn.blob).do()
+
+    console.log("Transaction : ", sendTx)
+    await util.waitForConfirmation(clientV2, sendTx.txId)
+    let transactionResponse = await clientV2.pendingTransactionInformation(sendTx.txId).do()
+    console.log(`transaction response: ${transactionResponse}`)
+}
+
+function EncodeBytes(utf8String) {
+    let enc = new TextEncoder()
+    return enc.encode(utf8String)
+}
+
+function EncodeUint(intOrString) {
+    return util.bigIntToUint8Array(intOrString)
+}
+
+
 //TODO: verify only approved account can upgrade
 //TODO: verify only approved account can delete
+//TODO: add vettingsAdmin
