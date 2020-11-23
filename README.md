@@ -123,19 +123,18 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 
 | Function & Example Link | Description | Callable By |
 |-|-|-|
-| [on_creation](bin/deploy-security-token.sh) | initializes the app when created | creator |
-| DeleteApplication | called when the application is deleted|  |
-| UpdateApplication | updates the TEAL code and keeps the memory intact | contract admin |
-| CloseOut | called when closing out of the contract | everyone |
-| [OptIn](bin/optin.sh) | called by anyone who will use the app before they use the app | any account |
-| ["pause"](tests/pause_contract.test.js) | freezes all transfers | contract admin |
-| "set admin" | gives an account contract admin rights | contract admin  |
-| ["freeze"](bin/freeze.sh) | freezes a specific address | transfer admin |
-| ["max balance"](bin/max-balance.sh) | sets the max number of tokens an account can hold | transfer admin |
-| ["lock until"](bin/lock-until.sh) | stop transfers from the address until the specified date | transfer admin |
-| ["transfer group" "set"](bin/transfer-group-set.sh) | specifies the category of an address | transfer admin |
-| ["transfer group" "lock"](bin/transfer-group-lock.sh) | specifies the transfer restrictions for an address | transfer admin |
-| ["mint"](bin/mint.sh) | create new tokens from the reserve | contract admin |
-| ["burn"](tests/burn.test.js) | destroy tokens from a specified address | contract admin |
-| ["transfer"](tests/transfer_restrictions.test.js) | transfer from one account to another | any opted in account |
-
+| [on_creation](bin/deploy-security-token.sh) | Initializes the app when created | creator |
+| DeleteApplication | Called when the application is deleted|  |
+| UpdateApplication | Updates the TEAL code and keeps the memory intact | contract admin |
+| CloseOut | called when closing out of the contract |  |
+| [OptIn](bin/optin.sh) | Called by anyone who will use the app before they use the app | any account |
+| ["pause"](tests/pause_contract.test.js) | Freezes all transfers of the token for all token holders. | contract admin |
+| "set admin" | Gives an account contract admin rights | contract admin  |
+| ["freeze"](bin/freeze.sh) | Freezes a specific address | transfer admin |
+| ["max balance"](bin/max-balance.sh) | Sets the max number of tokens an account can hold | transfer admin |
+| ["lock until"](bin/lock-until.sh) | Stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. | transfer admin |
+| ["transfer group" "set"](bin/transfer-group-set.sh) | Sets the category of an address for use in transfer group rules. The default category is 1. | transfer admin |
+| ["transfer group" "lock"](bin/transfer-group-lock.sh) | Specifies a lock until time for transfers between a transfer from-group and a to-group. A transfer can occur after the lock until time. THe time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed and must be explicitly allowed. To allow a transfer set a timestamp in the past such as "1". The number "0" means the transfer is blocked.  | transfer admin |
+| ["mint"](bin/mint.sh) | Create new tokens from the reserve | contract admin |
+| ["burn"](tests/burn.test.js) | Destroy tokens from a specified address | contract admin |
+| ["transfer"](tests/transfer_restrictions.test.js) | Transfer from one account to another | any opted in account |
