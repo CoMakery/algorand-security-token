@@ -37,7 +37,7 @@ beforeEach(async () => {
     await shell.exec(transferGroupLock1, {async: false, silent: true})
 })
 
-test('blocks transfers that exceed that max balance but not lesser amounts, can transfer', async () => {
+test('blocks transfers that exceed the addresses max balance but not lesser amounts, can transfer', async () => {
     let maxTokenBalance = 10
     let setMaxBalance =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
@@ -46,46 +46,34 @@ test('blocks transfers that exceed that max balance but not lesser amounts, can 
 
     await shell.exec(setMaxBalance, {async: false, silent: false})
 
-    //transfer back from timelocked account fails
+    // blocks tokens that exceed max balance
     let transferBlocked = false
     try {
         appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
-        await util.appCall(clientV2, receiverAccount, appId, appArgs, [adminAccount.addr])
+        await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
     } catch (e) {
         transferBlocked = true
     }
     expect(transferBlocked).toEqual(true)
 
-    // not tokens sent to receiver
+    // no tokens sent to receiver
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["max balance"]["ui"]).toEqual(maxTokenBalance)
-})
 
-// test('lock until with a past date allows transfers', async () => {
-//     let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
-//     let lockUntilSet =
-//         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-//         `--app-arg 'str:lock until' --app-account ${receiverAccount.addr} ` +
-//         `--app-arg "int:${lockUntilAMinuteAgo}"  -d devnet/Primary`
-//
-//     console.log(lockUntilSet)
-//     await shell.exec(lockUntilSet, {async: false, silent: false})
-//
-//     // can still transfer to the account
-//     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
-//     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
-//
-//     //can transfer back from the account
-//     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
-//     await util.appCall(clientV2, receiverAccount, appId, appArgs, [adminAccount.addr])
-//
-//     // check frozen sender has sent the tokens
-//     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-//     expect(localState["balance"]["ui"]).toEqual(undefined)
-//     expect(localState["lock until"]["ui"]).toEqual(lockUntilAMinuteAgo)
-//
-//     // and they were transferred back
-//     localState = await util.readLocalState(clientV2, adminAccount, appId)
-//     expect(localState["balance"]["ui"]).toEqual(27)
-// })
+    // allow token transfers that equal max balance
+    appArgs = [EncodeBytes("transfer"), EncodeUint('10')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // tokens sent to receiver
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(10)
+
+    // allow tokens to be transferred out of the account
+    appArgs = [EncodeBytes("transfer"), EncodeUint('10')]
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [adminAccount.addr])
+
+    // tokens sent back to admin
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+})
