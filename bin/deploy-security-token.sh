@@ -13,7 +13,7 @@ export TEAL_CLEAR_PROG="security_token_clear_state.teal"
 export GLOBAL_BYTESLICES=1
 export GLOBAL_INTS=5
 export LOCAL_BYTESLICES=0
-export LOCAL_INTS=3
+export LOCAL_INTS=4
 export ALGORAND_DATA="devnet/Primary"
 
 goal app create --creator $ADDR_CREATOR \

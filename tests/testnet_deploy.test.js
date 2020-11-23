@@ -22,6 +22,7 @@ test('test initial deployment state', async () => {
     expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["contract admin"]["ui"].toString()).toEqual('1') // TODO: rename to contractAdmin
     expect(localState["transfer admin"]["ui"].toString()).toEqual('1') // TODO: rename to transferAdmin
+    expect(localState["transfer group"]["ui"].toString()).toEqual('1')
     //TODO: add vettingsAdmin
 
     let globalState = await util.readGlobalState(clientV2, adminAccount, info.appId)
@@ -37,14 +38,14 @@ test('test initial deployment args', async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount, 1234567, 7, "XYZ2")
     let localState = await util.readLocalState(clientV2, adminAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["contract admin"]["ui"].toString()).toEqual('1') // TODO: rename to contractAdmin
-    expect(localState["transfer admin"]["ui"].toString()).toEqual('1') // TODO: rename to transferAdmin
+    expect(localState["contract admin"]["ui"].toString()).toEqual('1')
+    expect(localState["transfer admin"]["ui"].toString()).toEqual('1')
     //TODO: add vettingsAdmin
 
     let globalState = await util.readGlobalState(clientV2, adminAccount, info.appId)
     expect(globalState['paused']["ui"]).toEqual(undefined)
     expect(globalState['reserve']["ui"].toString()).toEqual('1234567')
-    expect(globalState['total supply']["ui"].toString()).toEqual('1234567') // TODO: rename to total
+    expect(globalState['total supply']["ui"].toString()).toEqual('1234567')
     expect(globalState['decimals']["ui"].toString()).toEqual('7')
     expect(globalState['unitname']['tb']).toEqual("XYZ2")
 })

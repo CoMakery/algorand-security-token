@@ -11,6 +11,7 @@ def approval_program():
         App.globalPut(Bytes("decimals"), Btoi(Txn.application_args[1])),
         App.globalPut(Bytes("unitname"), Txn.application_args[2]),
 
+        App.localPut(Int(0), Bytes("transfer group"), Int(1)),
         App.localPut(Int(0), Bytes("contract admin"), Int(1)),
         App.localPut(Int(0), Bytes("transfer admin"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
