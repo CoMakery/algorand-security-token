@@ -121,21 +121,21 @@ There are lots of other reasons you may get a bad request error, such as TEAL ex
 
 The TEAL assembly smart contract language uses program branches with no loops (it's non turing complete). The branches operate like functions in a typical programming language. There are also some default functions for upgrading and managing application memory systems. For simplicity I'll refer to the branches as "functions" in the table below.
 
-| Function | Description | Callable By |
+| Function & Example Link | Description | Callable By |
 |-|-|-|
-| on_creation | initializes the app when created | creator |
+| [on_creation](bin/deploy-security-token.sh) | initializes the app when created | creator |
 | DeleteApplication | called when the application is deleted|  |
 | UpdateApplication | updates the TEAL code and keeps the memory intact | contract admin |
 | CloseOut | called when closing out of the contract | everyone |
-| OptIn | called by anyone who will use the app before they use the app | any account |
-| "pause" | freezes all transfers | contract admin |
+| [OptIn](bin/optin.sh) | called by anyone who will use the app before they use the app | any account |
+| ["pause"](tests/pause_contract.test.js) | freezes all transfers | contract admin |
 | "set admin" | gives an account contract admin rights | contract admin  |
 | "freeze" | freezes a specific address | transfer admin |
 | "max balance" | sets the max number of tokens an account can hold | transfer admin |
 | "lock until" | lock the address to transfers until the specified date | transfer admin |
-| "transfer group" "set" | specifies the category of an address | transfer admin |
-| "transfer group" "lock" | specifies the transfer restrictions for an address | transfer admin |
-| "mint" | create new tokens from the reserve | contract admin |
-| "burn" | destroy tokens from a specified address | contract admin |
-| "transfer" | transfer from one account to another | any opted in account |
+| ["transfer group" "set"](bin/transfer-group-set.sh) | specifies the category of an address | transfer admin |
+| ["transfer group" "lock"](bin/transfer-group-lock.sh) | specifies the transfer restrictions for an address | transfer admin |
+| ["mint"](bin/mint.sh) | create new tokens from the reserve | contract admin |
+| ["burn"](tests/burn.test.js) | destroy tokens from a specified address | contract admin |
+| ["transfer"](tests/transfer_restrictions.test.js) | transfer from one account to another | any opted in account |
 
