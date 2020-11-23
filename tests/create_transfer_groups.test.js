@@ -32,7 +32,7 @@ test("admin can restrict default account group from transferring to itself", asy
         `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
         `--app-arg "int:${lockUntilUnixTimestampTomorrow}"  -d devnet/Primary`
 
-    await shell.exec(transferGroupLock, {async: false, silent: false})
+    await shell.exec(transferGroupLock, {async: false, silent: true})
     let globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     let lockedTransferGroup = Object.keys(globalState).filter((key) => /rule/.test(key))[0]
     expect(globalState[lockedTransferGroup]['ui']).toEqual(lockUntilUnixTimestampTomorrow)

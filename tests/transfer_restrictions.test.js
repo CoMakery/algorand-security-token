@@ -45,7 +45,8 @@ test('has expected starting test state', async () => {
 
     // recipient opted in
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    // TODO: should default optin balance and admin role values be 0 instead of undefined
+    // TODO: would be nice if optin balance and admin role values be 0 instead of undefined
+    // goal app read returns these undefined values, so it may be at some deep level
     expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["contract admin"]).toEqual(undefined)
     expect(localState["transfer admin"]).toEqual(undefined)
@@ -71,6 +72,38 @@ test('mint, opt in and transfer', async () => {
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     expect(globalState['total supply']['ui'].toString()).toEqual('80000000000000000')
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
+})
+
+test('can lock the default address category for transfers', async () => {
+    let info = await util.deploySecurityToken(clientV2, adminAccount)
+    appId = info.appId
+    console.log(appId, adminAccount.addr)
+
+    let fromGroupId = 1
+    let toGroupId = 1
+    let lockUntilUnixTimestampTomorrow = Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24)
+
+    let transferGroupLock =
+        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
+        `--app-arg "int:${lockUntilUnixTimestampTomorrow}"  -d devnet/Primary`
+
+    await shell.exec(transferGroupLock, {async: false, silent: false})
+
+    //receiver opts in with default transfer group
+    await util.optInApp(clientV2, receiverAccount, appId)
+
+    // transfer should be rejected
+    try {
+        appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+        await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+    } catch (e) {
+        expect(e.message).toEqual("Bad Request")
+    }
+    // check first receiver who is not approved to receive tokens by default, didn't get the tokens
+    let localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
 })
 
 test('can transfer between accounts', async () => {
