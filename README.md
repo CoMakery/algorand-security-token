@@ -1,10 +1,10 @@
 # Algorand Security Token
 
-This is an Open Source Algorand security token compatible with CoMakery. Although it is built on Algorand it follows the ERC-1404 security token standard. 
-
-This token is modeled on the [CoMakery Security Token specification](https://github.com/CoMakery/comakery-security-token). An Algorand TEAL version was originally authored by [Derek Leung](https://github.com/derbear) at [Algorand Foundation](https://algorand.foundation/) in Racket with sTEAL. This codebase is the PyTeal rewrite of Derek's work by Jason Paulos with some modifications by Noah Thorp and the CoMakery Team.
+This is an Open Source Algorand security token compatible with CoMakery. Although it is built on Algorand it is influenced by the Ethereum ERC-1404 security token standard. 
 
 The contract is written as a Python [PyTeal](https://github.com/algorand/pyteal) script that generates an Algorand TEAL Smart Contract.
+
+This token is modeled on the [CoMakery Security Token specification](https://github.com/CoMakery/comakery-security-token). An Algorand TEAL version was adapted from the CoMakery Security Token spec by [Derek Leung](https://github.com/derbear) at [Algorand Foundation](https://algorand.foundation/) in Racket with sTEAL. This codebase is the PyTeal rewrite of Derek's work by Jason Paulos with additional modifications by Noah Thorp and the CoMakery Team.
 
 __Although we hope this code is useful to you, it comes with no warranty of any kind. Do your own security audit and legal review.__
 
@@ -132,7 +132,7 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | "set admin" | gives an account contract admin rights | contract admin  |
 | ["freeze"](bin/freeze.sh) | freezes a specific address | transfer admin |
 | "max balance" | sets the max number of tokens an account can hold | transfer admin |
-| "lock until" | lock the address to transfers until the specified date | transfer admin |
+| ["lock until"](bin/lock-until.sh) | stop transfers from the address until the specified date | transfer admin |
 | ["transfer group" "set"](bin/transfer-group-set.sh) | specifies the category of an address | transfer admin |
 | ["transfer group" "lock"](bin/transfer-group-lock.sh) | specifies the transfer restrictions for an address | transfer admin |
 | ["mint"](bin/mint.sh) | create new tokens from the reserve | contract admin |
