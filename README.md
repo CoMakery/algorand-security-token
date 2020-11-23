@@ -51,7 +51,7 @@ bin/start-devnet.sh
 
 Copy one of the generated online addresses that will look like `FQVRXH3NO3W2RHGHRDTXCL5IDZKSLEXINFNBF4GB7R3GCXNK4S4ZXFGRJY`
 
-#### Deploy the contract to the local network the address:
+#### Deploy the contract to the local network from your generated address:
 ```
 bin/deploy-security-token.sh FQVRXH3NO3W2RHGHRDTXCL5IDZKSLEXINFNBF4GB7R3GCXNK4S4ZXFGRJY
 ```
@@ -85,7 +85,7 @@ goal app read --local --app-id 1 --from FQVRXH3NO3W2RHGHRDTXCL5IDZKSLEXINFNBF4GB
 bin/stop-devnet.sh
 ```
 
-Note: When it you rerun `bin/start-devnet.sh` it will **reset all data**
+Note: When it you rerun `bin/start-devnet.sh` it will **reset all data** including the wallet addresses.
 
 ## Troubleshooting
 
@@ -108,9 +108,14 @@ let totalSupply = this.bigIntToUint8Array('8' + '0'.repeat(16))
 appArgs.push(totalSupply)
 ```
 
+Some of these rounding errors may show up in the TEAL Javascript SDK because JSON.parse doesn't handle big integers well.
+If you run into weird rounding errors, try to eliminate as many intermediary libraries as possible. For example use `goal` from the terminal if you can.
+
 ## "Bad Request": maximum number of applications per account
 
 The maximum applications you may have associated with your account is 10. If you try to install an 11th application you will get a `Bad Request` error.
+
+There are lots of other reasons you may get a bad request error, such as TEAL execution safely exiting because of access control assertions.
 
 # Application Functions
 
