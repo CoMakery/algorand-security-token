@@ -108,6 +108,10 @@ let totalSupply = this.bigIntToUint8Array('8' + '0'.repeat(16))
 appArgs.push(totalSupply)
 ```
 
+## "Bad Request": maximum number of applications per account
+
+The maximum applications you may have associated with your account is 10. If you try to install an 11th application you will get a `Bad Request` error.
+
 # Application Functions
 
 The TEAL assembly smart contract language uses program branches with no loops (it's non turing complete). The branches operate like functions in a typical programming language. There are also some default functions for upgrading and managing application memory systems. For simplicity I'll refer to the branches as "functions" in the table below.
