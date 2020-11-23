@@ -117,7 +117,31 @@ test('can transfer to an account if the lock has expired', async () => {
     expect(localState["balance"]["ui"]).toEqual(11)
 })
 
-test('can transfer between accounts', async () => {
+test('cannot transfer by default', async () => {
+    try {
+        appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+        await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+    } catch (e) {
+        expect(e.message).toEqual("Bad Request")
+    }
+    // check first receiver got tokens
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+})
+
+test('can transfer between permitted account groups', async () => {
+    let fromGroupId = 1
+    let toGroupId = 1
+    let earliestPermittedTime = 1
+
+    let transferGroupLock =
+        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
+        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
+
+    await shell.exec(transferGroupLock, {async: false, silent: false})
+
     //transfer
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])

@@ -465,21 +465,26 @@ int 0
 byte "frozen"
 app_local_get
 ||
-int 1
-byte "frozen"
-app_local_get
-||
 int 0
 byte "lock until"
 app_local_get
 global LatestTimestamp
 >=
 ||
-int 1
-byte "lock until"
+byte "rule"
+int 0
+byte "transfer group"
 app_local_get
-global LatestTimestamp
->=
+itob
+concat
+int 1
+byte "transfer group"
+app_local_get
+itob
+concat
+app_global_get
+int 1
+<
 ||
 byte "rule"
 int 0
