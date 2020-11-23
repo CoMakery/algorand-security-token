@@ -20,7 +20,6 @@ def approval_program():
 
     is_contract_admin = App.localGet(Int(0), Bytes("contract admin"))
     is_transfer_admin = App.localGet(Int(0), Bytes("transfer admin"))
-    is_any_admin = is_contract_admin.Or(is_transfer_admin)
 
     can_delete = And(
         is_contract_admin,
@@ -42,12 +41,12 @@ def approval_program():
     ])
 
     # pause all transfers
-    # sender must be any admin
+    # sender must be a contract admin
     new_pause_value = Btoi(Txn.application_args[1])
     pause = Seq([
         Assert(Txn.application_args.length() == Int(2)),
         App.globalPut(Bytes("paused"), new_pause_value),
-        Return(is_any_admin)
+        Return(is_contract_admin)
     ])
 
     # configure the admin status of the account Txn.accounts[0]
@@ -66,7 +65,7 @@ def approval_program():
     ])
 
     # freeze Txn.accounts[0]
-    # sender must be any admin
+    # sender must be a transfer admin
     new_freeze_value = Btoi(Txn.application_args[1])
     freeze = Seq([
         Assert(And(
@@ -74,7 +73,7 @@ def approval_program():
             Txn.accounts.length() == Int(1)
         )),
         App.localPut(Int(1), Bytes("frozen"), new_freeze_value),
-        Return(is_any_admin)
+        Return(is_transfer_admin)
     ])
 
     # modify the max balance of Txn.accounts[0]

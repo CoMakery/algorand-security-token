@@ -156,10 +156,6 @@ app_global_put
 int 0
 byte "contract admin"
 app_local_get
-int 0
-byte "transfer admin"
-app_local_get
-||
 return
 b l14
 l6:
@@ -210,12 +206,8 @@ txna ApplicationArgs 1
 btoi
 app_local_put
 int 0
-byte "contract admin"
-app_local_get
-int 0
 byte "transfer admin"
 app_local_get
-||
 return
 b l14
 l8:
