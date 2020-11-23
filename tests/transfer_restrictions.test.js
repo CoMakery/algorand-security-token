@@ -49,7 +49,19 @@ test('has expected starting test state', async () => {
     expect(localState["transfer admin"]).toEqual(undefined)
 })
 
-test('mint, opt in and transfer', async () => {
+test('simple transfer', async () => {
+    let fromGroupId = 1
+    let toGroupId = 1
+    let earliestPermittedTime = 1
+
+    let transferGroupLock =
+        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
+        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
+
+    await shell.exec(transferGroupLock, {async: false, silent: false})
+
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
 
