@@ -18,17 +18,22 @@ async function initAlgodV1() {
     return new algosdk.Algod(token, server, port)
 }
 
-async function privateTestNetSetup() {
-    let status =  await shell.exec(` goal node status -d ${privTestNet}/Primary/`, {
+async function privateTestNetSetup(appCounter=0) {
+    // TODO: this could be smarter by checking current appId instead of passing it in somewhat inconsistently
+    if(appCounter === undefined) appCounter = 0
+    console.log(`App id is ${appCounter}`)
+
+    let status =  await shell.exec(`goal node status -d ${privTestNet}/Primary/`, {
         async: false,
         silent: true
     }).stderr
     let isNodeRunning = !(/Cannot contact Algorand node/.test(status))
 
-    if(isNodeRunning) {
+    if(isNodeRunning && appCounter < 10) {
 
     } else{
-        await shell.exec(`bin/start-devnet.sh`, {
+        console.log('restarting the devnet')
+        await shell.exec(`ALGOSMALLLAMBDAMSEC=200 bin/start-devnet.sh`, {
             async: false,
             silent: true
         })

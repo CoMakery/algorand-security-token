@@ -9,16 +9,13 @@ const port = 8080
 
 var adminAccount, receiverAccount, token, clientV2, appId
 
-beforeAll(async () => {
-    await privateTestNetSetup()
+beforeEach(async () => {
+    await privateTestNetSetup(appId)
     adminAccount = accounts[0]
     receiverAccount = accounts[1]
 
     token = await shell.cat(`devnet/Primary/algod.token`).stdout
     clientV2 = new algosdk.Algodv2(token, server, port)
-})
-
-beforeEach(async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     appId = info.appId
 

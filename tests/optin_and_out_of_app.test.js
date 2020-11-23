@@ -9,8 +9,8 @@ const port = 8080
 
 var adminAccount, newAccount, token, clientV2, appId
 
-beforeAll(async () => {
-    await privateTestNetSetup()
+beforeEach(async () => {
+    await privateTestNetSetup(appId)
     adminAccount = accounts[0]
     newAccount = accounts[1]
 

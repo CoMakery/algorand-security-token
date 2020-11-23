@@ -16,7 +16,6 @@ beforeAll(async () => {
 })
 
 test('test initial deployment state', async () => {
-    //TODO: can pass in total, decimals, unitname
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     let localState = await util.readLocalState(clientV2, adminAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
