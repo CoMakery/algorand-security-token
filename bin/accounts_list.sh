@@ -1,0 +1,1 @@
+goal account list -d devnet/Primary
