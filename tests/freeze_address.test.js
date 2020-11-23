@@ -38,7 +38,7 @@ beforeEach(async () => {
 })
 
 test('freezing an address stops transfers from that address - but not to it', async () => {
-    //pause all transfers
+    // freeze account
     appArgs = [EncodeBytes("freeze"), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
@@ -63,4 +63,31 @@ test('freezing an address stops transfers from that address - but not to it', as
     // and they didn't get transferred back
     localState = await util.readLocalState(clientV2, adminAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(16)
+})
+
+test('an unfrozen address can transfer', async () => {
+    // freeze account
+    appArgs = [EncodeBytes("freeze"), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // can still transfer to the account
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // unfreeze account
+    appArgs = [EncodeBytes("freeze"), EncodeUint('0')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    //can transfer back
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [adminAccount.addr])
+
+    // check frozen sender has same amount of tokens
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["frozen"]["ui"]).toEqual(undefined)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+
+    // and they didn't get transferred back
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(27)
 })
