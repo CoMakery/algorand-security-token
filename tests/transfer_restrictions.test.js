@@ -33,11 +33,15 @@ beforeEach(async () => {
 test('has expected starting test state', async () => {
     // check minting result
     let localState = await util.readLocalState(clientV2, adminAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(27)
-
+    expect(localState["balance"]["uint"].toString()).toEqual('27')
+    let status =  await shell.exec(` goal app read --global --app-id ${appId} -d devnet/Primary/`, {
+        async: false,
+        silent: true
+    }).stdout
+    console.log(status)
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['total supply']['uint']).toEqual(80000000000000000)
-    expect(globalState['reserve']['uint']).toEqual(79999999999999973)
+    expect(globalState['total supply']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['reserve']['ui'].toString()).toEqual("79999999999999973")
 
     // recipient opted in
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
@@ -47,6 +51,9 @@ test('has expected starting test state', async () => {
 })
 
 test('mint, opt in and transfer', async () => {
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
+
     //transfer
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
@@ -61,8 +68,8 @@ test('mint, opt in and transfer', async () => {
 
     // check global supply is same
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['total supply']['uint']).toEqual(80000000000000000)
-    expect(globalState['reserve']['uint']).toEqual(79999999999999973)
+    expect(globalState['total supply']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
 })
 
 test('can transfer between accounts', async () => {
@@ -105,10 +112,10 @@ test('admin can burn from any account', async () => {
 
     // check burned tokens go back to the reserve
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['reserve']['uint'].toString()).toEqual('79999999999999980')
+    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999980')
 
     // check global supply is the same
-    expect(globalState['total supply']['uint'].toString()).toBe('80000000000000000')
+    expect(globalState['total supply']['ui'].toString()).toBe('80000000000000000')
 })
 
 test('pausing contract stops transfers', async () => {

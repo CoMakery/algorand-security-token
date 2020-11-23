@@ -146,8 +146,8 @@ def approval_program():
             Txn.accounts.length() == Int(1),
             mint_amount <= App.globalGet(Bytes("reserve"))
         )),
-        App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) - mint_amount),
-        App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) + mint_amount),
+        App.globalPut(Bytes("reserve"), Minus(App.globalGet(Bytes("reserve")), mint_amount)),
+        App.localPut(Int(1), Bytes("balance"), Add(App.localGet(Int(1), Bytes("balance")), mint_amount)),
         Return(is_contract_admin)
     ])
 
