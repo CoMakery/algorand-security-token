@@ -142,30 +142,51 @@ test('cannot transfer by default', async () => {
 })
 
 test('can transfer between permitted account groups', async () => {
-    let fromGroupId = 1
-    let toGroupId = 1
-    let earliestPermittedTime = 1
 
-    let transferGroupLock =
+    let earliestPermittedTime = 1
+    // from group 1 -> 1 is allowed
+    let transferGroupLock1 =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
         `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
-        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
+        `--app-arg "int:1" --app-arg "int:1" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
-    await shell.exec(transferGroupLock, {async: false, silent: false})
+    await shell.exec(transferGroupLock1, {async: false, silent: false})
+
+    // from group 1 -> 2 is allowed
+    let transferGroupLock2 =
+        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg "int:1" --app-arg "int:2" ` +
+        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
+
+    await shell.exec(transferGroupLock2, {async: false, silent: false})
 
     //transfer
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     // check first receiver got tokens
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["ui"]).toEqual(11)
+    let receiverState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(receiverState["balance"]["ui"]).toEqual(11)
 
     // second receiver opts in to the app
     await util.optInApp(clientV2, accounts[2], appId)
 
-    //transfer from first receiver to second receiver
+    // put second receiver in group 2
+    let groupId = 2
+    let transferGroupSet = `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:transfer group' --app-arg 'str:set' ` +
+        `--app-arg "int:${groupId}" --app-account ${accounts[2].addr} -d devnet/Primary`
+
+    console.log(transferGroupSet)
+    await shell.exec(transferGroupSet, {async: false, silent: false})
+
+    let localState = await util.readLocalState(clientV2, accounts[2], appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+    expect(localState["transfer group"]["ui"].toString()).toEqual('2')
+
+    //transfer from first receiver to second receiver (group 1 -> 2)
     appArgs = [EncodeBytes("transfer"), EncodeUint('7')]
     await util.appCall(clientV2, receiverAccount, appId, appArgs, [accounts[2].addr])
 
