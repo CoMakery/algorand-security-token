@@ -23,8 +23,8 @@ beforeEach(async () => {
     await util.optInApp(clientV2, receiverAccount, appId)
 })
 
-test('contract admin can grant contract admin role', async () => {
-    //pause all transfers
+test('contract admin can grant contract admin role - which allows granting the contract admin role', async () => {
+    // grant contract admin
     appArgs = [
         EncodeBytes("set admin"),
         EncodeBytes("contract admin"),
@@ -33,7 +33,20 @@ test('contract admin can grant contract admin role', async () => {
 
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    // check receiver did not get tokens
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["contract admin"]["ui"]).toEqual(1)
+
+    // new contract admin grants contract admin to another new admin
+    appArgs = [
+        EncodeBytes("set admin"),
+        EncodeBytes("contract admin"),
+        EncodeUint('1')
+    ]
+
+    await util.optInApp(clientV2, accounts[2], appId)
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [accounts[2].addr])
+
+    // check receiver did not get tokens
+    localState = await util.readLocalState(clientV2, accounts[2], appId)
     expect(localState["contract admin"]["ui"]).toEqual(1)
 })

@@ -129,7 +129,8 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | CloseOut | called when closing out of the contract |  |
 | [OptIn](bin/optin.sh) | Called by anyone who will use the app before they use the app | any account |
 | ["pause"](tests/pause_contract.test.js) | Freezes all transfers of the token for all token holders. | contract admin |
-| "set admin" | Gives an account contract admin rights | contract admin  |
+| ["set admin" "contract admin"](bin/set-contract-admin.sh) | Gives an account contract admin rights | contract admin  |
+| "set admin" "transfer admin" | Gives an account transfer admin rights. Transfer admins are responsible for managing who can transfer and when. | contract admin  |
 | ["freeze"](bin/freeze.sh) | Freezes a specific address | transfer admin |
 | ["max balance"](bin/max-balance.sh) | Sets the max number of tokens an account can hold | "transfer admin" |
 | ["lock until"](bin/lock-until.sh) | Stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. | transfer admin |
