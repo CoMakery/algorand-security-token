@@ -36,6 +36,7 @@ def approval_program():
 
     register = Seq([
         App.localPut(Int(0), Bytes("balance"), Int(0)),
+        App.localPut(Int(0), Bytes("transfer group"), Int(1)),
         Return(Int(1))
     ])
 
@@ -179,9 +180,9 @@ def approval_program():
             Or(
                 App.globalGet(Bytes("paused")),
                 App.localGet(Int(0), Bytes("frozen")),
-                App.localGet(Int(1), Bytes("frozen")),
+                App.localGet(Int(1), Bytes("frozen")), #TODO: should only check the sender isn't frozen
                 App.localGet(Int(0), Bytes("lock until")) >= Global.latest_timestamp(),
-                App.localGet(Int(1), Bytes("lock until")) >= Global.latest_timestamp(),
+                App.localGet(Int(1), Bytes("lock until")) >= Global.latest_timestamp(), #TODO: should only check the sender isn't locked
                 App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transfer group")), App.localGet(Int(1), Bytes("transfer group")))) >= Global.latest_timestamp(),
                 And(
                     receiver_max_balance.hasValue(),

@@ -128,7 +128,8 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | "freeze" | freezes a specific address | transfer admin |
 | "max balance" | sets the max number of tokens an account can hold | transfer admin |
 | "lock until" | lock the address to transfers until the specified date | transfer admin |
-| "transfer group" | specifies the category of an address | transfer admin |
+| "transfer group" "set" | specifies the category of an address | transfer admin |
+| "transfer group" "lock" | specifies the transfer restrictions for an address | transfer admin |
 | "mint" | create new tokens from the reserve | contract admin |
 | "burn" | destroy tokens from a specified address | contract admin |
 | "transfer" | transfer from one account to another | any opted in account |

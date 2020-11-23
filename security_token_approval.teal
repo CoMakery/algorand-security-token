@@ -131,6 +131,10 @@ int 0
 byte "balance"
 int 0
 app_local_put
+int 0
+byte "transfer group"
+int 1
+app_local_put
 int 1
 return
 b l14
