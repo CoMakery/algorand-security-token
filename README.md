@@ -117,6 +117,14 @@ The maximum applications you may have associated with your account is 10. If you
 
 There are lots of other reasons you may get a bad request error, such as TEAL execution safely exiting because of access control assertions.
 
+# Use Cases
+
+## Basic Issuance
+![](diagrams/basic_issuance.png)
+
+## Issuer Transfer Restrictions
+![](diagrams/issuer_transfer_restriction_graph.png)
+
 # Application Functions
 
 The TEAL assembly smart contract language uses program branches with no loops (it's non turing complete). The branches operate like functions in a typical programming language. There are also some default functions for upgrading and managing application memory systems. For simplicity I'll refer to the branches as "functions" in the table below.
