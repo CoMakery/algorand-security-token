@@ -17,23 +17,21 @@ beforeAll(async () => {
     clientV2 = new algosdk.Algodv2(token, server, port)
 })
 
-test("admin can restrict default account group from transferring to itself", async () => {
-    let info = await util.deploySecurityToken(clientV2, adminAccount)
-    appId = info.appId
-    console.log(appId, adminAccount.addr)
+test("admin can set the transfer group", async () => {
+    let {appId} = await util.deploySecurityToken(clientV2, adminAccount)
 
-    let fromGroupId = 1
-    let toGroupId = 1
-    let lockUntilUnixTimestampTomorrow = Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24)
+    //opt in
+    await util.optInApp(clientV2, newAccount, appId)
 
-    let transferGroupLock =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
-        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
-        `--app-arg "int:${lockUntilUnixTimestampTomorrow}"  -d devnet/Primary`
+    let groupId = 2
+    let transferGroupSet = `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:transfer group' --app-arg 'str:set' ` +
+        `--app-arg "int:${groupId}" --app-account ${newAccount.addr} -d devnet/Primary`
 
-    await shell.exec(transferGroupLock, {async: false, silent: true})
-    let globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    let lockedTransferGroup = Object.keys(globalState).filter((key) => /rule/.test(key))[0]
-    expect(globalState[lockedTransferGroup]['ui']).toEqual(lockUntilUnixTimestampTomorrow)
+    console.log(transferGroupSet)
+    await shell.exec(transferGroupSet, {async: false, silent: false})
+
+    let localState = await util.readLocalState(clientV2, newAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+    expect(localState["transfer group"]["ui"].toString()).toEqual('2')
 })

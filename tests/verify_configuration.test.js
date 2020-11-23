@@ -7,7 +7,7 @@ beforeEach( async ()=> {
   sender = accounts[0]
 })
 
-test('verfy environment sender address is valid', async () => {
+test('verify environment sender address is valid', async () => {
   expect(algosdk.isValidAddress(sender.addr)).toEqual(true)
 })
 
