@@ -75,10 +75,6 @@ test('mint, opt in and transfer', async () => {
 })
 
 test('can lock the default address category for transfers', async () => {
-    let info = await util.deploySecurityToken(clientV2, adminAccount)
-    appId = info.appId
-    console.log(appId, adminAccount.addr)
-
     let fromGroupId = 1
     let toGroupId = 1
     let lockUntilUnixTimestampTomorrow = Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24)
@@ -91,9 +87,6 @@ test('can lock the default address category for transfers', async () => {
 
     await shell.exec(transferGroupLock, {async: false, silent: false})
 
-    //receiver opts in with default transfer group
-    await util.optInApp(clientV2, receiverAccount, appId)
-
     // transfer should be rejected
     try {
         appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
@@ -104,6 +97,27 @@ test('can lock the default address category for transfers', async () => {
     // check first receiver who is not approved to receive tokens by default, didn't get the tokens
     let localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
+})
+
+test('can transfer to an account if the lock has expired', async () => {
+    let fromGroupId = 1
+    let toGroupId = 1
+    let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
+
+    let transferGroupLock =
+        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
+        `--app-arg "int:${lockUntilAMinuteAgo}"  -d devnet/Primary`
+
+    await shell.exec(transferGroupLock, {async: false, silent: false})
+
+    // transfer should go through
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    let localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(11)
 })
 
 test('can transfer between accounts', async () => {
