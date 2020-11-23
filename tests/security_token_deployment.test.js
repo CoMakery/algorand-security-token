@@ -22,7 +22,7 @@ test('test deployment and global state', async () => {
     let appId = output[5].match(/(\d+$)/)[0]
     // console.log(appId)
 
-    expect(appId).toMatch(/^\d$/)
+    expect(appId).toMatch(/^\d+$/)
     let command2 = `goal app read --global --app-id ${appId} -d devnet/Primary`
     let output2 = await shell.exec(command2, {
         async: false,

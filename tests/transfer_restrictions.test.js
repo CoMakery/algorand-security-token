@@ -33,7 +33,7 @@ beforeEach(async () => {
 test('has expected starting test state', async () => {
     // check minting result
     let localState = await util.readLocalState(clientV2, adminAccount, appId)
-    expect(localState["balance"]["uint"].toString()).toEqual('27')
+    expect(localState["balance"]["ui"].toString()).toEqual('27')
     let status =  await shell.exec(` goal app read --global --app-id ${appId} -d devnet/Primary/`, {
         async: false,
         silent: true
@@ -45,7 +45,8 @@ test('has expected starting test state', async () => {
 
     // recipient opted in
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(0)
+    // TODO: should default optin balance and admin role values be 0 instead of undefined
+    expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["contract admin"]).toEqual(undefined)
     expect(localState["transfer admin"]).toEqual(undefined)
 })
@@ -60,11 +61,11 @@ test('mint, opt in and transfer', async () => {
 
     // check receiver got tokens
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(11)
+    expect(localState["balance"]["ui"]).toEqual(11)
 
     // check sender has less tokens
     localState = await util.readLocalState(clientV2, adminAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(16)
+    expect(localState["balance"]["ui"]).toEqual(16)
 
     // check global supply is same
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
@@ -79,7 +80,7 @@ test('can transfer between accounts', async () => {
 
     // check first receiver got tokens
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(11)
+    expect(localState["balance"]["ui"]).toEqual(11)
 
     // second receiver opts in to the app
     await util.optInApp(clientV2, accounts[2], appId)
@@ -90,11 +91,11 @@ test('can transfer between accounts', async () => {
 
     // check second receiver got tokens
     localState = await util.readLocalState(clientV2, accounts[2], appId)
-    expect(localState["balance"]["uint"]).toEqual(7)
+    expect(localState["balance"]["ui"]).toEqual(7)
 
     // first account no longer has the transferred tokens
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(4)
+    expect(localState["balance"]["ui"]).toEqual(4)
 })
 
 test('admin can burn from any account', async () => {
@@ -108,7 +109,7 @@ test('admin can burn from any account', async () => {
 
     // receiver account has had their token burned
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(4)
+    expect(localState["balance"]["ui"]).toEqual(4)
 
     // check burned tokens go back to the reserve
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
@@ -134,11 +135,11 @@ test('pausing contract stops transfers', async () => {
     expect(transferBlocked).toEqual(true)
     // check receiver did not get tokens
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(0)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
 
     // check sender has same amount of tokens
     localState = await util.readLocalState(clientV2, adminAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(27)
+    expect(localState["balance"]["ui"]).toEqual(27)
 })
 
 test('unpausing contract enables transfers again', async () => {
@@ -156,11 +157,11 @@ test('unpausing contract enables transfers again', async () => {
 
     // check receiver did not get tokens
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(11)
+    expect(localState["balance"]["ui"]).toEqual(11)
 
     // check sender has same amount of tokens
     localState = await util.readLocalState(clientV2, adminAccount, appId)
-    expect(localState["balance"]["uint"]).toEqual(16)
+    expect(localState["balance"]["ui"]).toEqual(16)
 })
 
 
