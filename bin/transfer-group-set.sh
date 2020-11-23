@@ -1,5 +1,5 @@
 # usage:
-# bin/set_stransfer_group.sh 1_appId 2_callFrom 3_groupId 4_addressToSet
+# bin/set-stransfer-group.sh 1_appId 2_callFrom 3_groupId 4_addressToSet
 # values passed to the app are:
 # app-arg0: "str:transfer group"
 # app-arg1: "str:set"

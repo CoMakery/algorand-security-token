@@ -1,5 +1,5 @@
 # usage:
-# bin/transfer_group_lock.sh 1_APP_ID 2_FROM 3_FROM_GROUP_ID 4_TO_GROUP_ID 5_LOCK_UNTIL
+# bin/transfer-group-lock.sh 1_APP_ID 2_FROM 3_FROM_GROUP_ID 4_TO_GROUP_ID 5_LOCK_UNTIL
 # example unix timestamp: 1732336661
 # for Saturday, November 23, 2024 4:37:41 AM
 
