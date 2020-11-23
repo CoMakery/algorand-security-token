@@ -89,3 +89,32 @@ test('contract admin can revoke the original contract admin role', async () => {
     }
     expect(revokedAdminLostAbilityToGrantAdminRole).toEqual(true)
 })
+
+test('contract admin can grant transfer admin role but they cannot grant it to someone else', async () => {
+    appArgs = [
+        EncodeBytes("set admin"),
+        EncodeBytes("transfer admin"),
+        EncodeUint('1')
+    ]
+
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["transfer admin"]["ui"]).toEqual(1)
+
+    // transfer admin can't grant transfer admin role
+    await util.optInApp(clientV2, accounts[2], appId)
+    appArgs = [
+        EncodeBytes("set admin"),
+        EncodeBytes("transfer admin"),
+        EncodeUint('1')
+    ]
+
+    try {
+        await util.appCall(clientV2, receiverAccount, appId, appArgs, [accounts[2].addr])
+    } catch (e) {
+
+    }
+    localState = await util.readLocalState(clientV2, accounts[2], appId)
+    expect(localState["transfer admin"]).toEqual(undefined)
+})
