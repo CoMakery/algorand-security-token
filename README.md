@@ -12,7 +12,7 @@ __Although we hope this code is useful to you, it comes with no warranty of any 
 * `git clone` this Algorand Security Token repository
 * Install node.js from [Nodejs.org](https://nodejs.org)
 * Follow the Algorand blockchain node [setup instructions](https://developer.algorand.org/docs/run-a-node/setup/install/). You will need this to run tests and scripts. You will know it's installed if you get the help info when you run `goal -h` from the command line.
-* Install Python
+* Install Python 3 and [pyteal](https://developer.algorand.org/docs/features/asc1/teal/pyteal/)
 * Get a purestake.com API key to deploy to testnet / mainnet using hosted nodes
 * `cp .env.example .env` and enter your environment variables
 * If you want to run a local node that syncs with testnet try https://github.com/algorand/sandbox - it will sync to testnet in minutes instead of days.
