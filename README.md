@@ -161,6 +161,7 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | ["max balance"](bin/max-balance.sh) | Sets the max number of tokens an account can hold | transfer admin |
 | ["lock until"](bin/lock-until.sh) | Stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. | transfer admin |
 | ["transfer group" "set"](bin/transfer-group-set.sh) | Sets the category of an address for use in transfer group rules. The default category is 1. | transfer admin |
+| ["transfer restrictions"](tests/set_transfer_restrictions.test.js) | Sets all account transfer restrictions (`freeze`, `max balance`, `lock until`, `transfer group`) in one call. | transfer admin |
 | ["transfer group" "lock"](bin/transfer-group-lock.sh) | Specifies a lock until time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lock until time. The lock until time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked.  | transfer admin |
 | ["mint"](bin/mint.sh) | Create new tokens from the reserve | contract admin |
 | ["burn"](tests/burn.test.js) | Destroy tokens from a specified address | contract admin |
