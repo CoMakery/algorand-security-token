@@ -135,7 +135,7 @@ def approval_program():
             App.localDel(Int(1), Bytes("lock until")),
             App.localPut(Int(1), Bytes("lock until"), lock_until_value)
         ),
-        App.localPut(Int(1), Bytes("transfer group"), transfer_group_value)
+        App.localPut(Int(1), Bytes("transfer group"), transfer_group_value),
         Return(is_transfer_admin)
     ])
 
