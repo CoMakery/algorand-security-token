@@ -2,6 +2,7 @@ name: Tests
 
 on:
   push:
+  pull_request:
     
 jobs:
   test:
@@ -19,7 +20,6 @@ jobs:
         sudo add-apt-repository "deb https://releases.algorand.com/deb/ stable main"
         sudo apt-get update
         sudo apt-get install -y algorand-devtools
-        mkdir devnet
       
     - name: Set up Python
       uses: actions/setup-python@v2
