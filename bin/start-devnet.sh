@@ -1,6 +1,6 @@
 #!/bin/bash
 export ALGOSMALLLAMBDAMSEC=200 # confirm private blockchain blocks fast
-NETWORK_DIR=${1:-"$(PWD)/devnet"}
+NETWORK_DIR=${1:-"$(pwd)/devnet"}
 NETWORK_PRIMARY_KEY="${NETWORK_DIR}/Primary"
 DEVNET_KMD="${NETWORK_PRIMARY_KEY}/kmd-v0.5"
 CONFIG_DIR=./config/genesis.devnet.json
