@@ -39,12 +39,9 @@ beforeEach(async () => {
 
 test('blocks transfers that exceed the addresses max balance but not lesser amounts, can transfer', async () => {
     let maxTokenBalance = 10
-    let setMaxBalance =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:max balance' --app-account ${receiverAccount.addr} ` +
-        `--app-arg "int:${maxTokenBalance}"  -d devnet/Primary`
-
-    await shell.exec(setMaxBalance, {async: false, silent: false})
+    // TODO: Updated
+    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint(`${maxTokenBalance}`), EncodeUint('0'), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     // blocks tokens that exceed max balance
     let transferBlocked = false

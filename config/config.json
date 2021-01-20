@@ -34,7 +34,7 @@
     "EnablePingHandler": true,
     "EnableProcessBlockStats": false,
     "EnableProfiler": false,
-    "EnableRequestLogger": false,
+    "EnableRequestLogger": true,
     "EnableTopAccountsReporting": false,
     "EndpointAddress": "127.0.0.1:0",
     "FallbackDNSResolverAddress": "",

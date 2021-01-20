@@ -174,13 +174,9 @@ test('can transfer between permitted account groups', async () => {
     await util.optInApp(clientV2, accounts[2], appId)
 
     // put second receiver in group 2
-    let groupId = 2
-    let transferGroupSet = `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:set' ` +
-        `--app-arg "int:${groupId}" --app-account ${accounts[2].addr} -d devnet/Primary`
-
-    console.log(transferGroupSet)
-    await shell.exec(transferGroupSet, {async: false, silent: false})
+    // TODO: Updated
+    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('2')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [accounts[2].addr])
 
     let localState = await util.readLocalState(clientV2, accounts[2], appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
