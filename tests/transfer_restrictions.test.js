@@ -174,7 +174,6 @@ test('can transfer between permitted account groups', async () => {
     await util.optInApp(clientV2, accounts[2], appId)
 
     // put second receiver in group 2
-    // TODO: Updated
     appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('2')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [accounts[2].addr])
 

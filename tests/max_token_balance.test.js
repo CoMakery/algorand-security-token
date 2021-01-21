@@ -39,7 +39,6 @@ beforeEach(async () => {
 
 test('blocks transfers that exceed the addresses max balance but not lesser amounts, can transfer', async () => {
     let maxTokenBalance = 10
-    // TODO: Updated
     appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint(`${maxTokenBalance}`), EncodeUint('0'), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 

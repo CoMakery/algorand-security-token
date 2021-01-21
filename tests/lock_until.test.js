@@ -39,7 +39,6 @@ beforeEach(async () => {
 
 test('lock until in the future blocks transfers from that address - but not to it', async () => {
     let lockUntilUnixTimestampTomorrow = Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24)
-    // TODO: Updated
     appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilUnixTimestampTomorrow}`), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
     
@@ -69,7 +68,6 @@ test('lock until in the future blocks transfers from that address - but not to i
 
 test('lock until with a past date allows transfers', async () => {
     let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
-    // TODO: Updated
     appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilAMinuteAgo}`), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
