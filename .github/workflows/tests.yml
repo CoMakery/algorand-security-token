@@ -20,6 +20,7 @@ jobs:
         sudo add-apt-repository "deb https://releases.algorand.com/deb/ stable main"
         sudo apt-get update
         sudo apt-get install -y algorand-devtools
+        sudo systemctl stop algorand
       
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -31,7 +32,7 @@ jobs:
         pip install pytest pyteal
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Compile TEAL
+    - name: Compile to TEAL
       run: |
         python security_token.py
       

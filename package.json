@@ -10,7 +10,8 @@
     "dev:start": "./bin/start-devnet.sh",
     "dev:stop": "goal network stop -r devnet && goal kmd stop -d devnet/Primary",
     "all:stop": "pgrep algod | xargs kill && pgrep kmd | xargs kill",
-    "test": "export ALGOSMALLLAMBDAMSEC=\"200\" && bin/start-devnet.sh && jest -i"
+    "test": "export ALGOSMALLLAMBDAMSEC=\"200\" && bin/start-devnet.sh && jest -i",
+    "test:debug": "export ALGOSMALLLAMBDAMSEC=\"200\" && bin/start-devnet.sh && node --inspect node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
     "algod": "^1.0.0",

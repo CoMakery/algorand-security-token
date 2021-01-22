@@ -64,58 +64,13 @@ def approval_program():
         Return(Int(1))
     ])
 
-    # freeze Txn.accounts[0]
-    # sender must be a transfer admin
-    new_freeze_value = Btoi(Txn.application_args[1])
-    freeze = Seq([
-        Assert(And(
-            Txn.application_args.length() == Int(2),
-            Txn.accounts.length() == Int(1)
-        )),
-        App.localPut(Int(1), Bytes("frozen"), new_freeze_value),
-        Return(is_transfer_admin)
-    ])
-
-    # modify the max balance of Txn.accounts[0]
-    # if max_balance_value is 0, will delete the existing max balance limitation on the account
-    # sender must be transfer admin
-    max_balance_value = Btoi(Txn.application_args[1])
-    max_balance = Seq([
-        Assert(And(
-            Txn.application_args.length() == Int(2),
-            Txn.accounts.length() == Int(1)
-        )),
-        If(max_balance_value == Int(0),
-            App.localDel(Int(1), Bytes("max balance")),
-            App.localPut(Int(1), Bytes("max balance"), max_balance_value)
-        ),
-        Return(is_transfer_admin)
-    ])
-
-    # lock Txn.accounts[0] until a UNIX timestamp
-    # sender must be transfer admin
-    lock_until_value = Btoi(Txn.application_args[1])
-    lock_until = Seq([
-        Assert(And(
-            Txn.application_args.length() == Int(2),
-            Txn.accounts.length() == Int(1)
-        )),
-        If(lock_until_value == Int(0),
-            App.localDel(Int(1), Bytes("lock until")),
-            App.localPut(Int(1), Bytes("lock until"), lock_until_value)
-        ),
-        Return(is_transfer_admin)
-    ])
-
-    set_transfer_group = Seq([
-        Assert(And(
-            Txn.application_args.length() == Int(3),
-            Txn.accounts.length() == Int(1)
-        )),
-        App.localPut(Int(1), Bytes("transfer group"), Btoi(Txn.application_args[2]))
-    ])
-
-    # sets all transfer restrictions for Txn.accounts[0]
+    # set transfer restrictions for Txn.accounts[0]:
+    # 1) freeze
+    # 2) max balance
+    #     if max_balance_value is 0, will delete the existing max balance limitation on the account
+    # 3) lock until a UNIX timestamp
+    #     if lock_until_value is 0, will delete the existing lock until limitation on the account
+    # 4) transfer group
     # sender must be transfer admin
     freeze_value = Btoi(Txn.application_args[1])
     max_balance_value = Btoi(Txn.application_args[2])
@@ -142,6 +97,8 @@ def approval_program():
     def getRuleKey(sendGroup, receiveGroup):
         return Concat(Bytes("rule"), Itob(sendGroup), Itob(receiveGroup))
 
+    # set a lock until time for transfers between a transfer from-group and a to-group
+    # sender must be transfer admin
     lock_transfer_key = getRuleKey(Btoi(Txn.application_args[2]), Btoi(Txn.application_args[3]))
     lock_transfer_until = Btoi(Txn.application_args[4])
     lock_transfer_group = Seq([
@@ -149,15 +106,6 @@ def approval_program():
         If(lock_transfer_until == Int(0),
             App.globalDel(lock_transfer_key),
             App.globalPut(lock_transfer_key, lock_transfer_until)
-        )
-    ])
-
-    # sender must be transfer admin
-    transfer_group = Seq([
-        Assert(Txn.application_args.length() > Int(2)),
-        Cond(
-            [Txn.application_args[1] == Bytes("set"), set_transfer_group],
-            [Txn.application_args[1] == Bytes("lock"), lock_transfer_group]
         ),
         Return(is_transfer_admin)
     ])
@@ -227,10 +175,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
         [Txn.application_args[0] == Bytes("set admin"), set_admin],
-        [Txn.application_args[0] == Bytes("freeze"), freeze],
-        [Txn.application_args[0] == Bytes("max balance"), max_balance],
-        [Txn.application_args[0] == Bytes("lock until"), lock_until],
-        [Txn.application_args[0] == Bytes("transfer group"), transfer_group],
+        [Txn.application_args[0] == Bytes("transfer group"), lock_transfer_group],
         [Txn.application_args[0] == Bytes("transfer restrictions"), transfer_restrictions],
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],
