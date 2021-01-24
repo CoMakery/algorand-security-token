@@ -39,14 +39,9 @@ beforeEach(async () => {
 
 test('lock until in the future blocks transfers from that address - but not to it', async () => {
     let lockUntilUnixTimestampTomorrow = Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24)
-    let lockUntilSet =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:lock until' --app-account ${receiverAccount.addr} ` +
-        `--app-arg "int:${lockUntilUnixTimestampTomorrow}"  -d devnet/Primary`
-
-    console.log(lockUntilSet)
-    await shell.exec(lockUntilSet, {async: false, silent: false})
-
+    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilUnixTimestampTomorrow}`), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+    
     // can still transfer to the account
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
@@ -73,13 +68,8 @@ test('lock until in the future blocks transfers from that address - but not to i
 
 test('lock until with a past date allows transfers', async () => {
     let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
-    let lockUntilSet =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:lock until' --app-account ${receiverAccount.addr} ` +
-        `--app-arg "int:${lockUntilAMinuteAgo}"  -d devnet/Primary`
-
-    console.log(lockUntilSet)
-    await shell.exec(lockUntilSet, {async: false, silent: false})
+    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilAMinuteAgo}`), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     // can still transfer to the account
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
