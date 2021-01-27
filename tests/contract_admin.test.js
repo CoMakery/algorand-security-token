@@ -50,6 +50,27 @@ test('contract admin can grant contract admin role - which allows granting the c
     expect(localState["contract admin"]["ui"]).toEqual(1)
 })
 
+test('there must be at least one contract admin - admin cannot revoke their own admin role', async () => {
+    // original admin tries to revoke their own admin privs
+    appArgs = [
+        EncodeBytes("set admin"),
+        EncodeBytes("contract admin"),
+        EncodeUint('0')
+    ]
+
+    let failedToRevokeRole = false
+    try {
+        await util.appCall(clientV2, adminAccount, appId, appArgs, [adminAccount.addr])
+    } catch (e) {
+        failedToRevokeRole = true
+    }
+
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["contract admin"]["ui"]).toEqual(1)
+
+    expect(failedToRevokeRole).toEqual(true)
+})
+
 test('contract admin can revoke the original contract admin role', async () => {
     // grant contract admin
     appArgs = [
