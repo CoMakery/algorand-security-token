@@ -301,6 +301,26 @@ app_global_get
 bnz l24
 err
 l24:
+int 1
+global CurrentApplicationID
+byte "max balance"
+app_local_get_ex
+store 0
+store 1
+load 0
+load 1
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+<
+&&
+bz l25
+int 0
+return
+l25:
 byte "reserve"
 byte "reserve"
 app_global_get
@@ -339,9 +359,9 @@ byte "balance"
 app_local_get
 <=
 &&
-bnz l25
+bnz l26
 err
-l25:
+l26:
 byte "reserve"
 byte "reserve"
 app_global_get
@@ -380,15 +400,15 @@ byte "balance"
 app_local_get
 <=
 &&
-bnz l26
+bnz l27
 err
-l26:
+l27:
 int 1
 global CurrentApplicationID
 byte "max balance"
 app_local_get_ex
-store 0
-store 1
+store 2
+store 3
 byte "paused"
 app_global_get
 int 0
@@ -431,8 +451,8 @@ app_global_get
 global LatestTimestamp
 >=
 ||
-load 0
-load 1
+load 2
+load 3
 int 1
 byte "balance"
 app_local_get
@@ -442,10 +462,10 @@ btoi
 <
 &&
 ||
-bz l27
+bz l28
 int 0
 return
-l27:
+l28:
 int 0
 byte "balance"
 int 0

@@ -131,12 +131,21 @@ def approval_program():
     #
     # sender must be assets admin
     mint_amount = Btoi(Txn.application_args[1])
+    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     mint = Seq([
         Assert(And(
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             mint_amount <= App.globalGet(Bytes("reserve"))
         )),
+        receiver_max_balance,
+        If(
+            And(
+                receiver_max_balance.hasValue(),
+                receiver_max_balance.value() < App.localGet(Int(1), Bytes("balance")) + mint_amount
+            ),
+            Return(Int(0))
+        ),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) - mint_amount),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) + mint_amount),
         Return(is_assets_admin)
