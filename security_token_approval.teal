@@ -177,7 +177,7 @@ txna ApplicationArgs 1
 byte "contract admin"
 ==
 bz l16
-txna Accounts 0
+txn Sender
 txna Accounts 1
 !=
 bnz l17

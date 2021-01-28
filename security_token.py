@@ -62,7 +62,7 @@ def approval_program():
         )),
 
         # to avoid removing all contract admins, we do not allow contract admins to remove their own contract admin role
-        If(new_admin_type == Bytes("contract admin"), Assert(Neq(Txn.accounts[0], Txn.accounts[1]))),
+        If(new_admin_type == Bytes("contract admin"), Assert(Neq(Txn.sender(), Txn.accounts[1]))),
 
         App.localPut(Int(1), new_admin_type, new_admin_status),
         Return(Int(1))
