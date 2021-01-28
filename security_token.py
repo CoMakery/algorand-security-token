@@ -69,9 +69,9 @@ def approval_program():
     #
     # sender must be contract admin
     permissions = Btoi(Txn.application_args[1])
-    set_permisssions = Seq([
+    set_permissions = Seq([
         Assert(And(
-            Txn.application_args.length() == Int(1),
+            Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             permissions <= Int(15)
         )),
@@ -193,7 +193,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.CloseOut, on_closeout],
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
-        [Txn.application_args[0] == Bytes("set permisssions"), set_permisssions],
+        [Txn.application_args[0] == Bytes("set permissions"), set_permissions],
         [Txn.application_args[0] == Bytes("transfer group"), lock_transfer_group],
         [Txn.application_args[0] == Bytes("transfer restrictions"), transfer_restrictions],
         [Txn.application_args[0] == Bytes("mint"), mint],

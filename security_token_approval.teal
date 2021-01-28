@@ -24,7 +24,7 @@ byte "pause"
 ==
 bnz l5
 txna ApplicationArgs 0
-byte "set permisssions"
+byte "set permissions"
 ==
 bnz l6
 txna ApplicationArgs 0
@@ -154,7 +154,7 @@ return
 b l12
 l6:
 txn NumAppArgs
-int 1
+int 2
 ==
 txn NumAccounts
 int 1
