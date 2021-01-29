@@ -148,7 +148,7 @@ The global variable `total supply` is set when the contract is created and limit
 The TEAL assembly smart contract language uses program branches with no loops (it's non turing complete). The branches operate like functions in a typical programming language. There are also some default functions for upgrading and managing application memory systems. For simplicity I'll refer to the branches as "functions" in the table below.
 
 | Function & Example Link | Description | Callable By |
-|-|-|-|
+|---|---|---|
 | [on_creation](bin/deploy-security-token.sh) | Initializes the app when created | creator |
 | DeleteApplication | Called when the application is deleted| contract admin |
 | UpdateApplication | Updates the TEAL code and keeps the memory intact | contract admin |
@@ -162,3 +162,9 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | ["mint"](bin/mint.sh) | Create new tokens from the reserve | contract admin |
 | ["burn"](tests/burn.test.js) | Destroy tokens from a specified address | contract admin |
 | ["transfer"](tests/transfer_restrictions.test.js) | Transfer from one account to another | any opted in account |
+
+# Q&A
+
+## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilateraly?
+
+To mitigate the centralization of this power, mint and burn functionality should be controlled by multi-sig accounts that are native to Algorand where possible. It is safer to enforce multi-sig using Algorands multi-sig keys than it is to implement multi-sig functionality in the Algorand smart contract.
