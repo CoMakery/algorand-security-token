@@ -165,6 +165,13 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 
 # Q&A
 
+## (QSP-1) Why can Frozen And Locked Accounts Can Receive Transfers?
+
+The freezing and locking of accounts applies to transfers out of the account. This allows transfer restrictions to be applied to wallet addresses prior to transferring tokens to them so there is no gap in applying token issuer rules to wallets.
+
+By default a wallet cannot be transferred to. In order to transfer into a wallet, a transfer rule must be in place allowing transfers from transfer group x to transfer group y. To keep a wallet from receiving any transfers change the transfer group to a group that does not have any group that is allowed to transfer groups to it. It is recommended that the default transfer group 0 does not have a rule that allows transfers to it.
+
 ## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilateraly?
 
 To mitigate the centralization of this power, mint and burn functionality should be controlled by multi-sig accounts that are native to Algorand where possible. It is safer to enforce multi-sig using Algorands multi-sig keys than it is to implement multi-sig functionality in the Algorand smart contract.
+
