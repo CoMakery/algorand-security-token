@@ -165,7 +165,7 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 
 # Q&A
 
-## (QSP-1) Why can Frozen And Locked Accounts Can Receive Transfers?
+## (QSP-1) Why can frozen and locked accounts receive transfers?
 
 The freezing and locking of accounts applies to transfers out of the account. This allows transfer restrictions to be applied to wallet addresses prior to transferring tokens to them so there is no gap in applying token issuer rules to wallets.
 
@@ -173,10 +173,10 @@ By default a wallet cannot be transferred to. In order to transfer into a wallet
 
 ## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilateraly?
 
-To mitigate the centralization of this power, mint and burn functionality should be controlled by multi-sig accounts that are native to Algorand where possible. It is safer to enforce multi-sig using Algorands multi-sig keys than it is to implement multi-sig functionality in the Algorand smart contract.
+To mitigate the centralization of this power, mint and burn functionality should be controlled by multi-sig accounts that are native to Algorand where possible. It is safer to enforce multi-sig using Algorand's multi-sig keys than it is to implement multi-sig functionality in the Algorand smart contract.
 
 ## (QSP-7) Why can't a contract admin freeze accounts?
 
 The contract admin role's purpose is to grant granular roles to accounts. By default the contract admin cannot perform the actions of other roles, but has the power to grant these roles to it's own account. The granularity of roles follows the principle of least authority. It is encouraged that the contract admin uses a multi-signature account and is used very infrequently after deplopyment. 
 
-It is recommended that all admin actions should be performed by accounts other than the contract admin account that hold task specific specific roles. This is a change from the original CoMakery Security Token implemented on Ethereum. While using that contract we learned that greater separation of roles would be significantly more scure than just having a contract admin and transfer admin role.
+It is recommended that all admin actions should be performed by accounts other than the contract admin account that hold task specific roles. This is a change from the original CoMakery Security Token implemented on Ethereum. While using that contract we learned that greater separation of roles would be significantly more secure than just having a contract admin and transfer admin role.
