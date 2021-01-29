@@ -68,7 +68,7 @@ def approval_program():
         Return(Int(1))
     ])
 
-    # set transfer restrictions for Txn.accounts[0]:
+    # set transfer restrictions for Txn.accounts[1]:
     # 1) freeze
     # 2) max balance
     #     if max_balance_value is 0, will delete the existing max balance limitation on the account
@@ -114,7 +114,7 @@ def approval_program():
         Return(is_transfer_admin)
     ])
 
-    # move assets from the reserve to Txn.accounts[0]
+    # move assets from the reserve to Txn.accounts[1]
     # sender must be contract admin
     mint_amount = Btoi(Txn.application_args[1])
     mint = Seq([
@@ -128,7 +128,7 @@ def approval_program():
         Return(is_contract_admin)
     ])
 
-    # move assets from Txn.accounts[0] to the reserve
+    # move assets from Txn.accounts[1] to the reserve
     # sender must be contract admin
     burn_amount = Btoi(Txn.application_args[1])
     burn = Seq([
@@ -142,7 +142,7 @@ def approval_program():
         Return(is_contract_admin)
     ])
 
-    # transfer assets from the sender to Txn.accounts[0]
+    # transfer assets from the sender to Txn.accounts[1]
     transfer_amount = Btoi(Txn.application_args[1])
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     transfer = Seq([
