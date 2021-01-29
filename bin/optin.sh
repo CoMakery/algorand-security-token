@@ -1,1 +1,1 @@
-goal app optin --app-id $1 --from $2
+goal app optin --app-id $1 --from $2 -d devnet/Primary
