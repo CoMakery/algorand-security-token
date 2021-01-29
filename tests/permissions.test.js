@@ -68,8 +68,19 @@ test('contract admin role can be revoked by contract admin', async () => {
 })
 
 test('contract admin role can not be revoked by contract admin from themselves', async () => {
-  // TODO: Implement in contract
-  expect(false).toBeFalsy
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('0')
+  ]
+
+  try {
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [adminAccount.addr])
+  } catch (error) {
+    expect(error.message).toEqual("Bad Request")
+  }
+  
+  localState = await util.readLocalState(clientV2, adminAccount, appId)
+  expect(localState["permissions"]["ui"]).toEqual(15)
 })
 
 test('wallets admin role can be granted by contract admin', async () => {

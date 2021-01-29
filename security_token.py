@@ -67,6 +67,9 @@ def approval_program():
     # Int(8) 1000 – access to granting permissions (= contract admin)
     # Int(15) 1111 – access to everything (= contract admin)
     #
+    # contract admin permission can only be revoked by other contract admin
+    # to avoid removing all contract admins
+    #
     # sender must be contract admin
     permissions = Btoi(Txn.application_args[1])
     set_permissions = Seq([
@@ -76,6 +79,10 @@ def approval_program():
             Txn.accounts.length() == Int(1),
             permissions <= Int(15)
         )),
+        If( 
+            Eq(Txn.sender(), Txn.accounts[1]),
+            Assert(BitwiseAnd(permissions, Int(8)))
+        ),
         App.localPut(Int(1), Bytes("permissions"), permissions),
         Return(Int(1))
     ])
