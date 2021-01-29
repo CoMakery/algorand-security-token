@@ -34,6 +34,9 @@ def approval_program():
         Return(Int(1))
     ])
 
+    # when an account opts-in set the accounts local variables
+    # balance of 0
+    # transfer group 1
     register = Seq([
         App.localPut(Int(0), Bytes("balance"), Int(0)),
         App.localPut(Int(0), Bytes("transfer group"), Int(1)),
@@ -128,7 +131,7 @@ def approval_program():
         Return(is_contract_admin)
     ])
 
-    # move assets from Txn.accounts[1] to the reserve
+    # burn moves assets from Txn.accounts[1] to the reserve
     # sender must be contract admin
     burn_amount = Btoi(Txn.application_args[1])
     burn = Seq([
@@ -142,6 +145,7 @@ def approval_program():
         Return(is_contract_admin)
     ])
 
+    # goal app call --app-id $1 --from $2 --app-account $3 --app-arg 'str:transfer' --app-arg "int:${4}"
     # transfer assets from the sender to Txn.accounts[1]
     transfer_amount = Btoi(Txn.application_args[1])
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
@@ -151,13 +155,18 @@ def approval_program():
             Txn.accounts.length() == Int(1),
             transfer_amount <= App.localGet(Int(0), Bytes("balance"))
         )),
+
+        # transfer amount should not exceed the receiver max balance
+        # this can be used to enforce un-accredited investor max balances
         receiver_max_balance,
         If(
             Or(
-                App.globalGet(Bytes("paused")),
-                App.localGet(Int(0), Bytes("frozen")),
-                App.localGet(Int(0), Bytes("lock until")) >= Global.latest_timestamp(),
+                App.globalGet(Bytes("paused")), # can't transfer when the contract is paused
+                App.localGet(Int(0), Bytes("frozen")), # sender account can't be frozen
+                App.localGet(Int(0), Bytes("lock until")) >= Global.latest_timestamp(), # sender account can't be locked
                 App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transfer group")), App.localGet(Int(1), Bytes("transfer group")))) < Int(1),
+
+                # check that a transfer rule allows the transfer from the sender to the receiver at the current time
                 App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transfer group")), App.localGet(Int(1), Bytes("transfer group")))) >= Global.latest_timestamp(),
                 And(
                     receiver_max_balance.hasValue(),
