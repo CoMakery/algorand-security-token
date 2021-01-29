@@ -26,12 +26,11 @@ def approval_program():
         App.globalGet(Bytes("total supply")) == App.globalGet(Bytes("reserve"))
     )
 
+    # goal app closeout --app-id uint --from address
+    # to keep from deleting critical token balances do not allow the app to be closed out
+    # calling this will fail with "transaction rejected by ApprovalProgram"
     on_closeout = Seq([
-        App.globalPut(
-            Bytes("reserve"),
-            App.globalGet(Bytes("reserve")) + App.localGet(Int(0), Bytes("balance"))
-        ),
-        Return(Int(1))
+        Return(Int(0))
     ])
 
     # when an account opts-in set the accounts local variables
