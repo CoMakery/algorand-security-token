@@ -33,6 +33,11 @@ jobs:
     - name: Compile to TEAL
       run: |
         python security_token.py
+        
+    - name: Compile TEAL and verify bytecode size
+      run: |
+        goal clerk compile security_token_approval.teal
+        python -c "exec(\"import os \nif os.path.getsize('security_token_approval.teal.tok') > 1000 : raise Exception('TEAL bytecode is more than 1000 bytes') \")" 
       
     - name: Setup Node.js environment
       uses: actions/setup-node@v2.1.4

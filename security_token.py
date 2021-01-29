@@ -12,14 +12,16 @@ def approval_program():
         App.globalPut(Bytes("unitname"), Txn.application_args[2]),
 
         App.localPut(Int(0), Bytes("transfer group"), Int(1)),
-        App.localPut(Int(0), Bytes("contract admin"), Int(1)),
-        App.localPut(Int(0), Bytes("transfer admin"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
+        App.localPut(Int(0), Bytes("permissions"), Int(15)),
         Return(Int(1))
     ])
 
-    is_contract_admin = App.localGet(Int(0), Bytes("contract admin"))
-    is_transfer_admin = App.localGet(Int(0), Bytes("transfer admin"))
+    local_permissions = App.localGet(Int(0), Bytes("permissions"))
+    is_wallets_admin = BitwiseAnd(local_permissions, Int(1))
+    is_transfer_rules_admin = BitwiseAnd(local_permissions, Int(2))
+    is_assets_admin = BitwiseAnd(local_permissions, Int(4))
+    is_contract_admin = BitwiseAnd(local_permissions, Int(8))
 
     can_delete = And(
         is_contract_admin,
@@ -44,7 +46,8 @@ def approval_program():
     ])
 
     # pause all transfers
-    # sender must be a contract admin
+    #
+    # sender must be contract admin
     new_pause_value = Btoi(Txn.application_args[1])
     pause = Seq([
         Assert(Txn.application_args.length() == Int(2)),
@@ -52,22 +55,38 @@ def approval_program():
         Return(is_contract_admin)
     ])
 
-    # configure the admin status of the account Txn.accounts[0]
+    # set contract permissions for Txn.accounts[1]
+    # Txn.application_args[1] should be a 4-bit permissions integer,
+    # where each bit represents a role:
+    # 1) account transfer restrictions (wallets admin)
+    # 2) transfer rules (transfer rules admin)
+    # 3) mint/burn (assets admin)
+    # 4) granting permissions (contract admin)
+    #
+    # examples:
+    # Int(1) 0001 – access to account transfer restrictions
+    # Int(3) 0011 – access to account transfer restrictions and transfer rules
+    # Int(6) 0110 – access to transfer rules and mint/burn
+    # Int(8) 1000 – access to granting permissions (= contract admin)
+    # Int(15) 1111 – access to everything (= contract admin)
+    #
+    # contract admin permission can only be revoked by other contract admin
+    # to avoid removing all contract admins
+    #
     # sender must be contract admin
-    new_admin_type = Txn.application_args[1]
-    new_admin_status = Btoi(Txn.application_args[2])
-    set_admin = Seq([
+    permissions = Btoi(Txn.application_args[1])
+    set_permissions = Seq([
         Assert(And(
             is_contract_admin,
-            Txn.application_args.length() == Int(3),
-            Or(new_admin_type == Bytes("contract admin"), new_admin_type == Bytes("transfer admin")),
-            Txn.accounts.length() == Int(1)
+            Txn.application_args.length() == Int(2),
+            Txn.accounts.length() == Int(1),
+            permissions <= Int(15)
         )),
-
-        # to avoid removing all contract admins, we do not allow contract admins to remove their own contract admin role
-        If(new_admin_type == Bytes("contract admin"), Assert(Neq(Txn.sender(), Txn.accounts[1]))),
-
-        App.localPut(Int(1), new_admin_type, new_admin_status),
+        If( 
+            Eq(Txn.sender(), Txn.accounts[1]),
+            Assert(BitwiseAnd(permissions, Int(8)))
+        ),
+        App.localPut(Int(1), Bytes("permissions"), permissions),
         Return(Int(1))
     ])
 
@@ -78,13 +97,15 @@ def approval_program():
     # 3) lock until a UNIX timestamp
     #     if lock_until_value is 0, will delete the existing lock until limitation on the account
     # 4) transfer group
-    # sender must be transfer admin
+    #
+    # sender must be wallets admin
     freeze_value = Btoi(Txn.application_args[1])
     max_balance_value = Btoi(Txn.application_args[2])
     lock_until_value = Btoi(Txn.application_args[3])
     transfer_group_value = Btoi(Txn.application_args[4])
     transfer_restrictions = Seq([
         Assert(And(
+            is_wallets_admin,
             Txn.application_args.length() == Int(5),
             Txn.accounts.length() == Int(1)
         )),
@@ -98,51 +119,68 @@ def approval_program():
             App.localPut(Int(1), Bytes("lock until"), lock_until_value)
         ),
         App.localPut(Int(1), Bytes("transfer group"), transfer_group_value),
-        Return(is_transfer_admin)
+        Return(Int(1))
     ])
 
     def getRuleKey(sendGroup, receiveGroup):
         return Concat(Bytes("rule"), Itob(sendGroup), Itob(receiveGroup))
 
     # set a lock until time for transfers between a transfer from-group and a to-group
-    # sender must be transfer admin
+    #
+    # sender must be transfer rules admin
     lock_transfer_key = getRuleKey(Btoi(Txn.application_args[2]), Btoi(Txn.application_args[3]))
     lock_transfer_until = Btoi(Txn.application_args[4])
     lock_transfer_group = Seq([
-        Assert(Txn.application_args.length() == Int(5)),
+        Assert(And(
+            is_transfer_rules_admin,
+            Txn.application_args.length() == Int(5)
+        )),
         If(lock_transfer_until == Int(0),
             App.globalDel(lock_transfer_key),
             App.globalPut(lock_transfer_key, lock_transfer_until)
         ),
-        Return(is_transfer_admin)
+        Return(Int(1))
     ])
 
-    # move assets from the reserve to Txn.accounts[1]
-    # sender must be contract admin
+    # move assets from the reserve to Txn.accounts[0]
+    #
+    # sender must be assets admin
     mint_amount = Btoi(Txn.application_args[1])
+    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     mint = Seq([
         Assert(And(
+            is_assets_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             mint_amount <= App.globalGet(Bytes("reserve"))
         )),
+        receiver_max_balance,
+        If(
+            And(
+                receiver_max_balance.hasValue(),
+                receiver_max_balance.value() < App.localGet(Int(1), Bytes("balance")) + mint_amount
+            ),
+            Return(Int(0))
+        ),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) - mint_amount),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) + mint_amount),
-        Return(is_contract_admin)
+        Return(Int(1))
     ])
 
-    # burn moves assets from Txn.accounts[1] to the reserve
-    # sender must be contract admin
+    # move assets from Txn.accounts[0] to the reserve
+    #
+    # sender must be assets admin
     burn_amount = Btoi(Txn.application_args[1])
     burn = Seq([
         Assert(And(
+            is_assets_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             burn_amount <= App.localGet(Int(1), Bytes("balance"))
         )),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) + burn_amount),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) - burn_amount),
-        Return(is_contract_admin)
+        Return(Int(1))
     ])
 
     # goal app call --app-id $1 --from $2 --app-account $3 --app-arg 'str:transfer' --app-arg "int:${4}"
@@ -187,7 +225,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.CloseOut, on_closeout],
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
-        [Txn.application_args[0] == Bytes("set admin"), set_admin],
+        [Txn.application_args[0] == Bytes("set permissions"), set_permissions],
         [Txn.application_args[0] == Bytes("transfer group"), lock_transfer_group],
         [Txn.application_args[0] == Bytes("transfer restrictions"), transfer_restrictions],
         [Txn.application_args[0] == Bytes("mint"), mint],

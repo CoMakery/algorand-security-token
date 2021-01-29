@@ -18,11 +18,9 @@ beforeAll(async () => {
 test('test initial deployment state', async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     let localState = await util.readLocalState(clientV2, adminAccount, info.appId)
-    expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["contract admin"]["ui"].toString()).toEqual('1') // TODO: rename to contractAdmin
-    expect(localState["transfer admin"]["ui"].toString()).toEqual('1') // TODO: rename to transferAdmin
     expect(localState["transfer group"]["ui"].toString()).toEqual('1')
-    //TODO: add vettingsAdmin
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+    expect(localState["permissions"]["ui"]).toEqual(15)
 
     let globalState = await util.readGlobalState(clientV2, adminAccount, info.appId)
     expect(globalState['paused']["ui"]).toEqual(undefined) // TODO: should default paused value be 0 instead of undefined
@@ -33,14 +31,7 @@ test('test initial deployment state', async () => {
 })
 
 test('test initial deployment args', async () => {
-    //TODO: can pass in total, decimals, unitname
     let info = await util.deploySecurityToken(clientV2, adminAccount, 1234567, 7, "XYZ2")
-    let localState = await util.readLocalState(clientV2, adminAccount, info.appId)
-    expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["contract admin"]["ui"].toString()).toEqual('1')
-    expect(localState["transfer admin"]["ui"].toString()).toEqual('1')
-    //TODO: add vettingsAdmin
-
     let globalState = await util.readGlobalState(clientV2, adminAccount, info.appId)
     expect(globalState['paused']["ui"]).toEqual(undefined)
     expect(globalState['reserve']["ui"].toString()).toEqual('1234567')
