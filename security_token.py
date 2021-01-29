@@ -71,12 +71,13 @@ def approval_program():
     permissions = Btoi(Txn.application_args[1])
     set_permissions = Seq([
         Assert(And(
+            is_contract_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             permissions <= Int(15)
         )),
         App.localPut(Int(1), Bytes("permissions"), permissions),
-        Return(is_contract_admin)
+        Return(Int(1))
     ])
 
     # set transfer restrictions for Txn.accounts[0]:
@@ -94,6 +95,7 @@ def approval_program():
     transfer_group_value = Btoi(Txn.application_args[4])
     transfer_restrictions = Seq([
         Assert(And(
+            is_wallets_admin,
             Txn.application_args.length() == Int(5),
             Txn.accounts.length() == Int(1)
         )),
@@ -107,7 +109,7 @@ def approval_program():
             App.localPut(Int(1), Bytes("lock until"), lock_until_value)
         ),
         App.localPut(Int(1), Bytes("transfer group"), transfer_group_value),
-        Return(is_wallets_admin)
+        Return(Int(1))
     ])
 
     def getRuleKey(sendGroup, receiveGroup):
@@ -119,12 +121,15 @@ def approval_program():
     lock_transfer_key = getRuleKey(Btoi(Txn.application_args[2]), Btoi(Txn.application_args[3]))
     lock_transfer_until = Btoi(Txn.application_args[4])
     lock_transfer_group = Seq([
-        Assert(Txn.application_args.length() == Int(5)),
+        Assert(And(
+            is_transfer_rules_admin,
+            Txn.application_args.length() == Int(5)
+        )),
         If(lock_transfer_until == Int(0),
             App.globalDel(lock_transfer_key),
             App.globalPut(lock_transfer_key, lock_transfer_until)
         ),
-        Return(is_transfer_rules_admin)
+        Return(Int(1))
     ])
 
     # move assets from the reserve to Txn.accounts[0]
@@ -134,6 +139,7 @@ def approval_program():
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     mint = Seq([
         Assert(And(
+            is_assets_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             mint_amount <= App.globalGet(Bytes("reserve"))
@@ -148,7 +154,7 @@ def approval_program():
         ),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) - mint_amount),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) + mint_amount),
-        Return(is_assets_admin)
+        Return(Int(1))
     ])
 
     # move assets from Txn.accounts[0] to the reserve
@@ -157,13 +163,14 @@ def approval_program():
     burn_amount = Btoi(Txn.application_args[1])
     burn = Seq([
         Assert(And(
+            is_assets_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             burn_amount <= App.localGet(Int(1), Bytes("balance"))
         )),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) + burn_amount),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) - burn_amount),
-        Return(is_assets_admin)
+        Return(Int(1))
     ])
 
     # transfer assets from the sender to Txn.accounts[0]

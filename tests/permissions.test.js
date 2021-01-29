@@ -23,168 +23,186 @@ beforeEach(async () => {
   await util.optInApp(clientV2, receiverAccount, appId)
 })
 
-// describe('contract admin role', async () => {
-  it('can be granted by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('8')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+test('contract admin role can be granted by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('8')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(8)
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["permissions"]["ui"]).toEqual(8)
 
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).not.toThrow()
-  })
+  await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+})
 
-  it('can be revoked by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('8')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+test('contract admin role can be revoked by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('8')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('0')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('0')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(undefined)
-    
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('8')
-    ]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).toThrow()
-    
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(1)
-  })
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["permissions"]["ui"]).toEqual(undefined)
+  
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('8')
+  ]
 
-  it('can not be revoked by contract admin from themselves', async () => {
-    // TODO: Implement in contract
-    expect(false).toBeFalsy
-  })
-// })
+  try {
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+  } catch (error) {
+    expect(error.message).toEqual("Bad Request")
+  }
+  
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["permissions"]["ui"]).toEqual(undefined)
+})
 
-// describe('wallets admin role', async () => {
-  test('can be granted by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('1')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+test('contract admin role can not be revoked by contract admin from themselves', async () => {
+  // TODO: Implement in contract
+  expect(false).toBeFalsy
+})
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(1)
+test('wallets admin role can be granted by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('1')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).not.toThrow()
-  })
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["permissions"]["ui"]).toEqual(1)
 
-  test('can be revoked by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('1')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+})
 
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('0')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+test('wallets admin role can be revoked by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('1')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(undefined)
-    
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).toThrow()
-  })
-// })
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('0')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-// describe('transfer rules admin role', async () => {
-  test('can be granted by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('2')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  try {
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+  } catch (error) {
+    expect(error.message).toEqual("Bad Request")
+  }
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(2)
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["max balance"]).toEqual(undefined)
+})
 
-    appArgs = [EncodeBytes("transfer group"), EncodeBytes("lock"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs)).not.toThrow()
-  })
+test('transfer rules admin role can be granted by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('2')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-  test('can be revoked by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('2')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["permissions"]["ui"]).toEqual(2)
 
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('0')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  appArgs = [EncodeBytes("transfer group"), EncodeBytes("lock"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
+  await util.appCall(clientV2, receiverAccount, appId, appArgs)
+})
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(undefined)
-    
-    appArgs = [EncodeBytes("transfer group"), EncodeBytes("lock"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs)).toThrow()
-  })
-// })
+test('transfer rules admin role can be revoked by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('2')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-// describe('assets admin role', async () => {
-  test('can be granted by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('4')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('0')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(4)
+  appArgs = [EncodeBytes("transfer group"), EncodeBytes("lock"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
+  try {
+    await util.appCall(clientV2, receiverAccount, appId, appArgs)
+  } catch (error) {
+    expect(error.message).toEqual("Bad Request")
+  }
 
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  globalState = await util.readGlobalState(clientV2, receiverAccount, appId)
+  expect(globalState["rule11"]).toEqual(undefined)
+})
 
-    appArgs = [EncodeBytes("mint"), EncodeUint('27')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).not.toThrow()
+test('assets admin role can be granted by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('4')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    appArgs = [EncodeBytes("burn"), EncodeUint('27')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).not.toThrow()
-  })
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["permissions"]["ui"]).toEqual(4)
 
-  test('can be revoked by contract admin', async () => {
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('4')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    appArgs = [
-      EncodeBytes("set permissions"),
-      EncodeUint('0')
-    ]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  appArgs = [EncodeBytes("mint"), EncodeUint('27')]
+  await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["balance"]["ui"]).toEqual(27)
 
-    localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["permissions"]["ui"]).toEqual(undefined)
+  appArgs = [EncodeBytes("burn"), EncodeUint('27')]
+  await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["balance"]["ui"]).toEqual(undefined)
+})
 
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
-    
-    appArgs = [EncodeBytes("mint"), EncodeUint('27')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).toThrow()
+test('assets admin role can be revoked by contract admin', async () => {
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('4')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    appArgs = [EncodeBytes("burn"), EncodeUint('27')]
-    expect(async () => await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])).toThrow()
-  })
-// })
+  appArgs = [
+    EncodeBytes("set permissions"),
+    EncodeUint('0')
+  ]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  
+  appArgs = [EncodeBytes("mint"), EncodeUint('27')]
+  try {
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+  } catch (error) {
+    expect(error.message).toEqual("Bad Request")
+  }
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["balance"]["ui"]).toEqual(undefined)
+
+  appArgs = [EncodeBytes("burn"), EncodeUint('27')]
+  try {
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+  } catch (error) {
+    expect(error.message).toEqual("Bad Request")
+  }
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["balance"]["ui"]).toEqual(undefined)
+})

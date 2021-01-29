@@ -153,9 +153,15 @@ int 8
 return
 b l12
 l6:
+int 0
+byte "permissions"
+app_local_get
+int 8
+&
 txn NumAppArgs
 int 2
 ==
+&&
 txn NumAccounts
 int 1
 ==
@@ -173,17 +179,19 @@ byte "permissions"
 txna ApplicationArgs 1
 btoi
 app_local_put
-int 0
-byte "permissions"
-app_local_get
-int 8
-&
+int 1
 return
 b l12
 l7:
+int 0
+byte "permissions"
+app_local_get
+int 2
+&
 txn NumAppArgs
 int 5
 ==
+&&
 bnz l16
 err
 l16:
@@ -217,17 +225,19 @@ itob
 concat
 app_global_del
 l18:
-int 0
-byte "permissions"
-app_local_get
-int 2
-&
+int 1
 return
 b l12
 l8:
+int 0
+byte "permissions"
+app_local_get
+int 1
+&
 txn NumAppArgs
 int 5
 ==
+&&
 txn NumAccounts
 int 1
 ==
@@ -277,17 +287,19 @@ byte "transfer group"
 txna ApplicationArgs 4
 btoi
 app_local_put
-int 0
-byte "permissions"
-app_local_get
 int 1
-&
 return
 b l12
 l9:
+int 0
+byte "permissions"
+app_local_get
+int 4
+&
 txn NumAppArgs
 int 2
 ==
+&&
 txn NumAccounts
 int 1
 ==
@@ -337,17 +349,19 @@ txna ApplicationArgs 1
 btoi
 +
 app_local_put
+int 1
+return
+b l12
+l10:
 int 0
 byte "permissions"
 app_local_get
 int 4
 &
-return
-b l12
-l10:
 txn NumAppArgs
 int 2
 ==
+&&
 txn NumAccounts
 int 1
 ==
@@ -378,11 +392,7 @@ txna ApplicationArgs 1
 btoi
 -
 app_local_put
-int 0
-byte "permissions"
-app_local_get
-int 4
-&
+int 1
 return
 b l12
 l11:
