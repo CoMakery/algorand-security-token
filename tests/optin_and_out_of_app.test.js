@@ -30,6 +30,22 @@ test("can opt in and when I opt out my balance is returned to the reserve", asyn
     let localState = await util.readLocalState(clientV2, newAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["transfer group"]["ui"]).toEqual(1)
+})
 
-    //TODO: test opt out returns tokens to the reserve
+test("do not allow an account that has opted in to opt out / delete app", async () => {
+    let info = await util.deploySecurityToken(clientV2, adminAccount)
+    appId = info.appId
+    console.log(appId, adminAccount.addr)
+
+    await util.optInApp(clientV2, newAccount, appId)
+
+    let attemptOptOut = `goal app closeout --app-id ${appId} --from ${adminAccount.addr} -d devnet/Primary`
+
+    let response = await shell.exec(attemptOptOut, {async: false, silent: false})
+    expect(response.stderr).toMatch(/transaction rejected by ApprovalProgram/)
+    //check state has not been altered
+    let localState = await util.readLocalState(clientV2, newAccount, info.appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+    expect(localState["transfer group"]["ui"]).toEqual(1)
+
 })

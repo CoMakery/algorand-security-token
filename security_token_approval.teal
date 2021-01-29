@@ -111,15 +111,7 @@ int 8
 return
 b l12
 l3:
-byte "reserve"
-byte "reserve"
-app_global_get
 int 0
-byte "balance"
-app_local_get
-+
-app_global_put
-int 1
 return
 b l12
 l4:
