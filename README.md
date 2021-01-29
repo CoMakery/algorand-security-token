@@ -171,7 +171,7 @@ The freezing and locking of accounts applies to transfers out of the account. Th
 
 By default a wallet cannot be transferred to. In order to transfer into a wallet, a transfer rule must be in place allowing transfers from transfer group x to transfer group y. To keep a wallet from receiving any transfers change the transfer group to a group that does not have any group that is allowed to transfer groups to it. It is recommended that the default transfer group 0 does not have a rule that allows transfers to it.
 
-## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilateraly?
+## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilaterally?
 
 To mitigate the centralization of this power, mint and burn functionality should be controlled by multi-sig accounts that are native to Algorand where possible. It is safer to enforce multi-sig using Algorand's multi-sig keys than it is to implement multi-sig functionality in the Algorand smart contract.
 
