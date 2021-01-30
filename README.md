@@ -155,7 +155,7 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | CloseOut | called when closing out of the contract |  |
 | [OptIn](bin/optin.sh) | Called by anyone who will use the app before they use the app | any account |
 | ["pause"](tests/pause_contract.test.js) | Freezes all transfers of the token for all token holders. | contract admin |
-| ["set permissions"](tests/permissions.test.js) | Sets account contract permissions. Accepts 4-bit permissions integer, where each bit represents a role: 1) account transfer restrictions (wallets admin), 2) transfer rules (transfer rules admin), 3) mint/burn (assets admin), 4) granting permissions (contract admin) | contract admin |
+| ["set permissions"](tests/permissions.test.js) | Sets account contract permissions. Accepts [4-bit permissions integer](#perm-matrix), where each bit represents a role: 1) account transfer restrictions (wallets admin), 2) transfer rules (transfer rules admin), 3) mint/burn (assets admin), 4) granting permissions (contract admin) | contract admin |
 | ["transfer restrictions"](tests/set_transfer_restrictions.test.js) | Sets account transfer restrictions: 1) `freeze` – freezes a specific address. 2) `max balance` – sets the max number of tokens an account can hold. 3) `lock until` – stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. 4) `transfer group` –  sets the category of an address for use in transfer group rules. The default category is 1. | wallets admin |
 | ["transfer group" "lock"](bin/transfer-group-lock.sh) | Specifies a lock until time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lock until time. The lock until time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked. | transfer rules admin |
 | ["mint"](bin/mint.sh) | Create new tokens from the reserve | assets admin |
@@ -179,3 +179,25 @@ To mitigate the centralization of this power, mint and burn functionality should
 The contract admin role's purpose is to grant granular roles to accounts. By default the contract admin cannot perform the actions of other roles, but has the power to grant these roles to it's own account. The granularity of roles follows the principle of least authority. It is encouraged that the contract admin uses a multi-signature account and is used very infrequently after deplopyment. 
 
 It is recommended that all admin actions should be performed by accounts other than the contract admin account that hold task specific roles. This is a change from the original CoMakery Security Token implemented on Ethereum. While using that contract we learned that greater separation of roles would be significantly more secure than just having a contract admin and transfer admin role.
+
+# Appendix 1: Permissions Matrix <span id="perm-matrix"><span>
+
+| Role Integer | Admin Roles                                           | Bit Mask Representation | Contract Admin | Mint/Burn | Transfer Rules | Wallets |
+| ------------ | ----------------------------------------------------- | ----------------------- | -------------- | --------- | -------------- | ------- |
+| **0**        | None (Default)                                        | 0000                    | 0              | 0         | 0              | 0       |
+| **1**        | Wallets                                               | 0001                    | 0              | 0         | 0              | 1       |
+| **2**        | Transfer Rules                                        | 0010                    | 0              | 0         | 1              | 0       |
+| 3            | Transfer Rules + Wallets                              | 0011                    | 0              | 0         | 1              | 1       |
+| **4**        | Mint/Burn                                             | 0100                    | 0              | 1         | 0              | 0       |
+| _5_          | Mint/Burn + Wallets                                   | 0101                    | 0              | 1         | 0              | 1       |
+| _6_          | Mint/Burn + Transfer Rules                            | 0110                    | 0              | 1         | 1              | 0       |
+| _7_          | Mint/Burn + Transfer Rules + Wallets                  | 0111                    | 0              | 1         | 1              | 1       |
+| **8**        | Contract Admin                                        | 1000                    | 1              | 0         | 0              | 0       |
+| _9_          | Contract Admin + Wallets                              | 1001                    | 1              | 0         | 0              | 1       |
+| 10           | Contract Admin + Transfer Rules                       | 1010                    | 1              | 0         | 1              | 0       |
+| _11_         | Contract Admin + Transfer Rules + Wallets             | 1011                    | 1              | 0         | 1              | 1       |
+| _12_         | Contract Admin + Mint/Burn                            | 1100                    | 1              | 1         | 0              | 0       |
+| _13_         | Contract Admin + Mint/Burn + Wallets                  | 1101                    | 1              | 1         | 0              | 1       |
+| _14_         | Contract Admin + Mint/Burn + Transfer Rules           | 1110                    | 1              | 1         | 1              | 0       |
+| _15_         | Contract Admin + Mint/Burn + Transfer Rules + Wallets | 1111                    | 1              | 1         | 1              | 1       |
+
