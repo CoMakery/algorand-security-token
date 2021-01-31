@@ -28,13 +28,6 @@ def approval_program():
         App.globalGet(Bytes("total supply")) == App.globalGet(Bytes("reserve"))
     )
 
-    # goal app closeout --app-id uint --from address
-    # to keep from deleting critical token balances do not allow the app to be closed out
-    # calling this will fail with "transaction rejected by ApprovalProgram"
-    on_closeout = Seq([
-        Return(Int(0))
-    ])
-
     # when an account opts-in set the accounts local variables
     # balance of 0
     # transfer group 1
@@ -221,7 +214,12 @@ def approval_program():
         [Txn.application_id() == Int(0), on_creation],
         [Txn.on_completion() == OnComplete.DeleteApplication, Return(can_delete)],
         [Txn.on_completion() == OnComplete.UpdateApplication, Return(is_contract_admin)],
-        [Txn.on_completion() == OnComplete.CloseOut, on_closeout],
+
+        # goal app closeout --app-id uint --from address
+        # to keep from deleting critical token balances held in the addresses local storage
+        # do not allow the app to be closed out
+        # calling this will fail with "transaction rejected by ApprovalProgram"
+        [Txn.on_completion() == OnComplete.CloseOut, Return(Int(0))],
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
         [Txn.application_args[0] == Bytes("set permissions"), set_permissions],
