@@ -234,8 +234,19 @@ def approval_program():
 
     return program
 
+# All Algorand Apps can be cleared from an address that has opted in to the app by the account holder.
+# For example, one way to clear an addresses app state is using the goal command:
+# goal app clear --app-id uint --from address
+#
+# The clear state program handles clearing the app from an addresses local storage, returns tokens to the reserve,
+# and opts out the address from the app.
+#
+# WARNING: Calling this will return the tokens held by the address to the reserve and the account will no longer have
+# the balance of tokens even if the account opts back in to the account. It is recommended that you never call clear
+# state to avoid loosing your balance. It is implemented because it is required functionality for all Algorand Apps.
 def clear_state_program():
     program = Seq([
+        # To preserve total supply integrity, balances are returned to the reserve when the clear state is executed.
         App.globalPut(
             Bytes("reserve"),
             App.globalGet(Bytes("reserve")) + App.localGet(Int(0), Bytes("balance"))
