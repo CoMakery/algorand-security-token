@@ -32,15 +32,6 @@ def approval_program():
         Return(Int(1))
     ])
 
-    # pause all transfers
-    #
-    # sender must be contract admin
-    new_pause_value = Btoi(Txn.application_args[1])
-    pause = Seq([
-        Assert(Txn.application_args.length() == Int(2)),
-        App.globalPut(Bytes("paused"), new_pause_value),
-        Return(is_contract_admin)
-    ])
 
     # set contract permissions for Txn.accounts[1]
     # Txn.application_args[1] should be a 4-bit permissions integer,
@@ -69,7 +60,7 @@ def approval_program():
             Txn.accounts.length() == Int(1),
             permissions <= Int(15)
         )),
-        If( 
+        If(
             Eq(Txn.sender(), Txn.accounts[1]),
             Assert(BitwiseAnd(permissions, Int(8)))
         ),
@@ -205,6 +196,12 @@ def approval_program():
         Return(Int(1))
     ])
 
+    setv = Seq([
+        App.globalPut(Bytes("version"), Int(2)),
+        App.localPut(Int(1),Bytes("local-version"), Int(2)),
+        Return(Int(1))
+    ])
+
     program = Cond(
         [Txn.application_id() == Int(0), on_creation],
 
@@ -220,13 +217,14 @@ def approval_program():
         # calling this will fail with "transaction rejected by ApprovalProgram"
         [Txn.on_completion() == OnComplete.CloseOut, Return(Int(0))],
         [Txn.on_completion() == OnComplete.OptIn, register],
-        [Txn.application_args[0] == Bytes("pause"), pause],
+        # [Txn.application_args[0] == Bytes("pause"), pause], # delete pause
         [Txn.application_args[0] == Bytes("set permissions"), set_permissions],
         [Txn.application_args[0] == Bytes("transfer group"), lock_transfer_group],
         [Txn.application_args[0] == Bytes("transfer restrictions"), transfer_restrictions],
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],
         [Txn.application_args[0] == Bytes("transfer"), transfer],
+        [Txn.application_args[0] == Bytes("setversion"), setv], #ADDED THIS FUNCTION FOR THE UPGRADE
     )
 
     return program
@@ -254,10 +252,10 @@ def clear_state_program():
     return program
 
 if __name__ == "__main__":
-    with open('security_token_approval.teal', 'w') as f:
+    with open('contract_upgrade_test.teal', 'w') as f:
         compiled = compileTeal(approval_program(), Mode.Application)
         f.write(compiled)
 
-    with open('security_token_clear_state.teal', 'w') as f:
+    with open('contract_upgrade_test_clear_state.teal', 'w') as f:
         compiled = compileTeal(clear_state_program(), Mode.Application)
         f.write(compiled)

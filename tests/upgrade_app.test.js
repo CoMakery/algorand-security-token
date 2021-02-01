@@ -30,15 +30,31 @@ test("admin can upgrade the app while maintaining the global and local state", a
     localState = await util.readLocalState(clientV2, newAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(27)
 
-    await util.upgradeSecurityToken(clientV2, adminAccount)
+    await util.upgradeSecurityToken(clientV2, adminAccount, appId)
+
+    // mint 1 more token after upgrade
+    appArgs = [EncodeBytes("mint"), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [newAccount.addr])
+    localState = await util.readLocalState(clientV2, newAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(28)
+
+    // call a new function in the upgraded contract
+    // that writes version 2 to global and receiver account state
+    let setV2FlagFromUpgradedContract =
+        `goal app call --app-id ${appId} --app-arg 'str:setversion' ` +
+        `--from ${adminAccount.addr} --app-account ${newAccount.addr}`
+    console.log(setV2FlagFromUpgradedContract)
+    await shell.exec(setV2FlagFromUpgradedContract, {async: false, silent: false})
 
     // global state is still present
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['reserve']["ui"].toString()).toEqual('79999999999999973')
+    expect(globalState['reserve']["ui"].toString()).toEqual('79999999999999972')
+    expect(globalState["version"]["ui"]).toEqual(2)
     expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000')
 
     //check local state has not been altered
-    localState = await util.readLocalState(clientV2, newAccount, info.appId)
-    expect(localState["balance"]["ui"]).toEqual(27)
+    localState = await util.readLocalState(clientV2, newAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(28)
     expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["local-version"]["ui"]).toEqual(2)
 })
