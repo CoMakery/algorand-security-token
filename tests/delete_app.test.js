@@ -18,21 +18,27 @@ beforeEach(async () => {
     clientV2 = new algosdk.Algodv2(token, server, port)
 })
 
-test("can opt in and have the expected local address starting state", async () => {
+test("do not allow an admin to delete the app even if no transactions have been completed", async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     appId = info.appId
     console.log(appId, adminAccount.addr)
 
-    //opt in
-    await util.optInApp(clientV2, newAccount, appId)
+    let attemptDelete = `goal app delete --app-id ${appId} --from ${adminAccount.addr} -d devnet/Primary`
+    let response = await shell.exec(attemptDelete, {async: false, silent: false})
+    expect(response.stderr).toMatch(/transaction rejected by ApprovalProgram/)
 
-    //check state
-    let localState = await util.readLocalState(clientV2, newAccount, info.appId)
+    // global state is still present
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
+    expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000')
+
+    //check local state has not been altered
+    localState = await util.readLocalState(clientV2, adminAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["transfer group"]["ui"]).toEqual(1)
 })
 
-test("do not allow an account that has opted in to close out the app", async () => {
+test("do not allow an admin to delete the app and the global state after a transfer", async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     appId = info.appId
     console.log(appId, adminAccount.addr)
@@ -45,11 +51,16 @@ test("do not allow an account that has opted in to close out the app", async () 
     let localState = await util.readLocalState(clientV2, newAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(27)
 
-    let attemptOptOut = `goal app closeout --app-id ${appId} --from ${newAccount.addr} -d devnet/Primary`
-    let response = await shell.exec(attemptOptOut, {async: false, silent: false})
+    let attemptDelete = `goal app delete --app-id ${appId} --from ${adminAccount.addr} -d devnet/Primary`
+    let response = await shell.exec(attemptDelete, {async: false, silent: false})
     expect(response.stderr).toMatch(/transaction rejected by ApprovalProgram/)
 
-    //check state has not been altered
+    // global state is still present
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['reserve']["ui"].toString()).toEqual('79999999999999973')
+    expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000')
+
+    //check local state has not been altered
     localState = await util.readLocalState(clientV2, newAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(27)
     expect(localState["transfer group"]["ui"]).toEqual(1)

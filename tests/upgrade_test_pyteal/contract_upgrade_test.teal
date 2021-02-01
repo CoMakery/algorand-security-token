@@ -20,31 +20,31 @@ int OptIn
 ==
 bnz l4
 txna ApplicationArgs 0
-byte "pause"
+byte "set permissions"
 ==
 bnz l5
 txna ApplicationArgs 0
-byte "set permissions"
+byte "transfer group"
 ==
 bnz l6
 txna ApplicationArgs 0
-byte "transfer group"
+byte "transfer restrictions"
 ==
 bnz l7
 txna ApplicationArgs 0
-byte "transfer restrictions"
+byte "mint"
 ==
 bnz l8
 txna ApplicationArgs 0
-byte "mint"
+byte "burn"
 ==
 bnz l9
 txna ApplicationArgs 0
-byte "burn"
+byte "transfer"
 ==
 bnz l10
 txna ApplicationArgs 0
-byte "transfer"
+byte "setversion"
 ==
 bnz l11
 err
@@ -117,24 +117,6 @@ int 1
 return
 b l12
 l5:
-txn NumAppArgs
-int 2
-==
-bnz l14
-err
-l14:
-byte "paused"
-txna ApplicationArgs 1
-btoi
-app_global_put
-int 0
-byte "permissions"
-app_local_get
-int 8
-&
-return
-b l12
-l6:
 int 0
 byte "permissions"
 app_local_get
@@ -153,21 +135,21 @@ btoi
 int 15
 <=
 &&
-bnz l15
+bnz l14
 err
-l15:
+l14:
 txn Sender
 txna Accounts 1
 ==
-bz l16
+bz l15
 txna ApplicationArgs 1
 btoi
 int 8
 &
-bnz l17
+bnz l16
 err
-l17:
 l16:
+l15:
 int 1
 byte "permissions"
 txna ApplicationArgs 1
@@ -176,7 +158,7 @@ app_local_put
 int 1
 return
 b l12
-l7:
+l6:
 int 0
 byte "permissions"
 app_local_get
@@ -186,14 +168,14 @@ txn NumAppArgs
 int 5
 ==
 &&
-bnz l18
+bnz l17
 err
-l18:
+l17:
 txna ApplicationArgs 4
 btoi
 int 0
 ==
-bnz l19
+bnz l18
 byte "rule"
 txna ApplicationArgs 2
 btoi
@@ -206,8 +188,8 @@ concat
 txna ApplicationArgs 4
 btoi
 app_global_put
-b l20
-l19:
+b l19
+l18:
 byte "rule"
 txna ApplicationArgs 2
 btoi
@@ -218,11 +200,11 @@ btoi
 itob
 concat
 app_global_del
-l20:
+l19:
 int 1
 return
 b l12
-l8:
+l7:
 int 0
 byte "permissions"
 app_local_get
@@ -236,9 +218,9 @@ txn NumAccounts
 int 1
 ==
 &&
-bnz l21
+bnz l20
 err
-l21:
+l20:
 int 1
 byte "frozen"
 txna ApplicationArgs 1
@@ -248,38 +230,100 @@ txna ApplicationArgs 2
 btoi
 int 0
 ==
-bnz l22
+bnz l21
 int 1
 byte "max balance"
 txna ApplicationArgs 2
 btoi
 app_local_put
-b l23
-l22:
+b l22
+l21:
 int 1
 byte "max balance"
 app_local_del
-l23:
+l22:
 txna ApplicationArgs 3
 btoi
 int 0
 ==
-bnz l24
+bnz l23
 int 1
 byte "lock until"
 txna ApplicationArgs 3
 btoi
 app_local_put
-b l25
-l24:
+b l24
+l23:
 int 1
 byte "lock until"
 app_local_del
-l25:
+l24:
 int 1
 byte "transfer group"
 txna ApplicationArgs 4
 btoi
+app_local_put
+int 1
+return
+b l12
+l8:
+int 0
+byte "permissions"
+app_local_get
+int 4
+&
+txn NumAppArgs
+int 2
+==
+&&
+txn NumAccounts
+int 1
+==
+&&
+txna ApplicationArgs 1
+btoi
+byte "reserve"
+app_global_get
+<=
+&&
+bnz l25
+err
+l25:
+int 1
+global CurrentApplicationID
+byte "max balance"
+app_local_get_ex
+store 0
+store 1
+load 0
+load 1
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+<
+&&
+bz l26
+int 0
+return
+l26:
+byte "reserve"
+byte "reserve"
+app_global_get
+txna ApplicationArgs 1
+btoi
+-
+app_global_put
+int 1
+byte "balance"
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
 app_local_put
 int 1
 return
@@ -300,39 +344,20 @@ int 1
 &&
 txna ApplicationArgs 1
 btoi
-byte "reserve"
-app_global_get
-<=
-&&
-bnz l26
-err
-l26:
-int 1
-global CurrentApplicationID
-byte "max balance"
-app_local_get_ex
-store 0
-store 1
-load 0
-load 1
 int 1
 byte "balance"
 app_local_get
-txna ApplicationArgs 1
-btoi
-+
-<
+<=
 &&
-bz l27
-int 0
-return
+bnz l27
+err
 l27:
 byte "reserve"
 byte "reserve"
 app_global_get
 txna ApplicationArgs 1
 btoi
--
++
 app_global_put
 int 1
 byte "balance"
@@ -341,28 +366,22 @@ byte "balance"
 app_local_get
 txna ApplicationArgs 1
 btoi
-+
+-
 app_local_put
 int 1
 return
 b l12
 l10:
-int 0
-byte "permissions"
-app_local_get
-int 4
-&
 txn NumAppArgs
 int 2
 ==
-&&
 txn NumAccounts
 int 1
 ==
 &&
 txna ApplicationArgs 1
 btoi
-int 1
+int 0
 byte "balance"
 app_local_get
 <=
@@ -370,43 +389,6 @@ app_local_get
 bnz l28
 err
 l28:
-byte "reserve"
-byte "reserve"
-app_global_get
-txna ApplicationArgs 1
-btoi
-+
-app_global_put
-int 1
-byte "balance"
-int 1
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
--
-app_local_put
-int 1
-return
-b l12
-l11:
-txn NumAppArgs
-int 2
-==
-txn NumAccounts
-int 1
-==
-&&
-txna ApplicationArgs 1
-btoi
-int 0
-byte "balance"
-app_local_get
-<=
-&&
-bnz l29
-err
-l29:
 int 1
 global CurrentApplicationID
 byte "max balance"
@@ -466,10 +448,10 @@ btoi
 <
 &&
 ||
-bz l30
+bz l29
 int 0
 return
-l30:
+l29:
 int 0
 byte "balance"
 int 0
@@ -487,6 +469,17 @@ app_local_get
 txna ApplicationArgs 1
 btoi
 +
+app_local_put
+int 1
+return
+b l12
+l11:
+byte "version"
+int 2
+app_global_put
+int 1
+byte "local-version"
+int 2
 app_local_put
 int 1
 return
