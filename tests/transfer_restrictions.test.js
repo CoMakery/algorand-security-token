@@ -56,7 +56,7 @@ test('simple transfer', async () => {
 
     let transferGroupLock =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:transfer group' ` +
         `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
@@ -90,7 +90,7 @@ test('can lock the default address category for transfers', async () => {
 
     let transferGroupLock =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:transfer group' ` +
         `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
         `--app-arg "int:${lockUntilUnixTimestampTomorrow}"  -d devnet/Primary`
 
@@ -108,14 +108,14 @@ test('can lock the default address category for transfers', async () => {
     expect(localState["balance"]["ui"]).toEqual(undefined)
 })
 
-test('can transfer to an account if the lock has expired', async () => {
+test('can transfer to an account if the transfer rule lock has expired', async () => {
     let fromGroupId = 1
     let toGroupId = 1
     let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
 
     let transferGroupLock =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:transfer group' ` +
         `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
         `--app-arg "int:${lockUntilAMinuteAgo}"  -d devnet/Primary`
 
@@ -147,7 +147,7 @@ test('can transfer between permitted account groups', async () => {
     // from group 1 -> 1 is allowed
     let transferGroupLock1 =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:transfer group' ` +
         `--app-arg "int:1" --app-arg "int:1" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
@@ -156,7 +156,7 @@ test('can transfer between permitted account groups', async () => {
     // from group 1 -> 2 is allowed
     let transferGroupLock2 =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:transfer group' ` +
         `--app-arg "int:1" --app-arg "int:2" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 

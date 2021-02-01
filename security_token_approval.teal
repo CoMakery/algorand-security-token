@@ -183,37 +183,37 @@ app_local_get
 int 2
 &
 txn NumAppArgs
-int 5
+int 4
 ==
 &&
 bnz l18
 err
 l18:
-txna ApplicationArgs 4
+txna ApplicationArgs 3
 btoi
 int 0
 ==
 bnz l19
 byte "rule"
+txna ApplicationArgs 1
+btoi
+itob
+concat
 txna ApplicationArgs 2
 btoi
 itob
 concat
 txna ApplicationArgs 3
-btoi
-itob
-concat
-txna ApplicationArgs 4
 btoi
 app_global_put
 b l20
 l19:
 byte "rule"
-txna ApplicationArgs 2
+txna ApplicationArgs 1
 btoi
 itob
 concat
-txna ApplicationArgs 3
+txna ApplicationArgs 2
 btoi
 itob
 concat

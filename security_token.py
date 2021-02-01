@@ -139,12 +139,12 @@ def approval_program():
     # each account belongs to 1 and only 1 group
     # by default transfers between groups are not allowed between groups
     # only at transfer rules admin can set transfer rules
-    lock_transfer_key = getRuleKey(Btoi(Txn.application_args[2]), Btoi(Txn.application_args[3]))
-    lock_transfer_until = Btoi(Txn.application_args[4])
+    lock_transfer_key = getRuleKey(Btoi(Txn.application_args[1]), Btoi(Txn.application_args[2]))
+    lock_transfer_until = Btoi(Txn.application_args[3])
     set_transfer_rules = Seq([
         Assert(And(
             is_transfer_rules_admin,
-            Txn.application_args.length() == Int(5)
+            Txn.application_args.length() == Int(4)
         )),
         If(lock_transfer_until == Int(0),
             App.globalDel(lock_transfer_key),
