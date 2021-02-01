@@ -17,7 +17,7 @@ def approval_program():
     ])
 
     mint_amount = Btoi(Txn.application_args[1])
-    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
+    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("maxBalance"))
     mint = Seq([
         Assert(And(
             is_reserve_admin,

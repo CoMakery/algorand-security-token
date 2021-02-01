@@ -253,14 +253,14 @@ int 0
 ==
 bnz l22
 int 1
-byte "max balance"
+byte "maxBalance"
 txna ApplicationArgs 2
 btoi
 app_local_put
 b l23
 l22:
 int 1
-byte "max balance"
+byte "maxBalance"
 app_local_del
 l23:
 txna ApplicationArgs 3
@@ -269,14 +269,14 @@ int 0
 ==
 bnz l24
 int 1
-byte "lock until"
+byte "lockUntil"
 txna ApplicationArgs 3
 btoi
 app_local_put
 b l25
 l24:
 int 1
-byte "lock until"
+byte "lockUntil"
 app_local_del
 l25:
 int 1
@@ -312,7 +312,7 @@ err
 l26:
 int 1
 global CurrentApplicationID
-byte "max balance"
+byte "maxBalance"
 app_local_get_ex
 store 0
 store 1
@@ -412,7 +412,7 @@ err
 l29:
 int 1
 global CurrentApplicationID
-byte "max balance"
+byte "maxBalance"
 app_local_get_ex
 store 2
 store 3
@@ -423,7 +423,7 @@ byte "frozen"
 app_local_get
 ||
 int 0
-byte "lock until"
+byte "lockUntil"
 app_local_get
 global LatestTimestamp
 >=

@@ -37,12 +37,12 @@ beforeEach(async () => {
     await shell.exec(transferGroupLock1, {async: false, silent: true})
 })
 
-test('blocks transfers that exceed the addresses max balance but not lesser amounts, can transfer', async () => {
+test('blocks transfers that exceed the addresses maxBalance but not lesser amounts, can transfer', async () => {
     let maxTokenBalance = 10
     appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint(`${maxTokenBalance}`), EncodeUint('0'), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    // blocks tokens that exceed max balance
+    // blocks tokens that exceed maxBalance
     let transferBlocked = false
     try {
         appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
@@ -55,9 +55,9 @@ test('blocks transfers that exceed the addresses max balance but not lesser amou
     // no tokens sent to receiver
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["max balance"]["ui"]).toEqual(maxTokenBalance)
+    expect(localState["maxBalance"]["ui"]).toEqual(maxTokenBalance)
 
-    // allow token transfers that equal max balance
+    // allow token transfers that equal maxBalance
     appArgs = [EncodeBytes("transfer"), EncodeUint('10')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 

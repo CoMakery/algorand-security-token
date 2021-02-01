@@ -117,6 +117,15 @@ The maximum applications you may have associated with your account is 10. If you
 
 There are lots of other reasons you may get a bad request error, such as TEAL execution safely exiting because of access control assertions.
 
+## Confusion about Txn.accounts[n], Txn.sender(), Txn.accounts.length() and tealdbg values
+
+There are a few interrelated account reference quirks to keep in mind:
+* `Txn.accounts[0]` will always evaluate to `Txn.sender()`
+* `Txn.accounts[1]` is the first `--app-account` item. 
+* If no `--app-account` items are included, Txn.accounts.length() will be 0 but `Txn.accounts[0]` still resolves to the sender.
+* `Txn.accounts[n]` for n > 0 will evaluate to the element at the n-1th index of the --app-account/ForeignAccounts transaction field. 
+* Some versions of `tealdbg` show the Txn.Accounts array incorrectly. If n accounts are present in the transaction’s ForeignAccounts array, the debugger will show the sender’s account following by the first n-1 elements from ForeignAccounts.
+
 # Use Cases
 
 ## Issuer Transfer Restrictions
@@ -130,11 +139,12 @@ The Algorand Security Token can be configured after deployment to enforce transf
 
 
 The Transfer Admin for the Token Contract can provision account addresses to transfer and receive tokens under certain conditions. This is the process for configuring transfer restrictions and transferring tokens:
-1. An Investor sends their Anti Money Laundering and Know Your Customer (AML/KYC) information to the Transfer Admin or to a proxy vetting service to verify this information. The benefit of using a qualified third party provider is to avoid needing to store privately identifiable information. This code does not provide a solution for collecting AML/KYC information.
-2. The Transfer Admin configures the "transferGroup", "lock until" and "max balance" attriubute for the account. Initially this will be done for the Primary Issuance of tokens to investors where tokens are distributed directly from the issuer to holder accounts.
-3. A potential buyer sends their AML/KYC information to the Transfer Admin or a trusted AML/KYC provider.
-4. The Transfer Admin calls provisions the Buyer account like they did for the Investor.
-5. At this time or before, the Transfer Admin authorizes the transfer of tokens between account groups with the `"transferGroup" "lock"` functionality. Note that allowing a transfer from group A to group B by default does not allow the reverse transfer from group B to group A. This would have to be done separately. An example is that Reg CF unaccredited investors may be allowed to sell to Accredited US investors but not vice versa.
+1. A transfer rules admin configures which transfer groups can transfer to each other with "setAllowTransferGroups". Note that allowing a transfer from group A to group B by default does not allow the reverse transfer from group B to group A. This would have to be done separately. An example is that Reg CF unaccredited investors may be allowed to sell to Accredited US investors but not vice versa.
+2. A potential buyer sends their Anti Money Laundering and Know Your Customer (AML/KYC) information to the Wallet Admin or to a proxy vetting service to verify this information. The benefit of using a qualified third party provider is to avoid needing to store privately identifiable information. This code does not provide a solution for collecting AML/KYC information.
+3. The Wallet Admin configures the "transferGroup", "lockUntil" and "maxBalance" attribute for the buyer account. Initially this will be done for the Primary Issuance of tokens to investors where tokens are distributed directly from the issuer to holder accounts.
+4. The seller initiates a transfer to the buyer.
+5. The smart contract checks the transfer rules. 
+6. If the transfer is authorized by the smart contract transfer rules the smart contract updates the balances of the buyer and seller. 
 
 ## WARNING: Maximum Total Supply, Minting and Burning of Tokens
 
@@ -156,8 +166,8 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | [OptIn](bin/optin.sh) | Called by anyone who will use the app before they use the app | any account |
 | ["pause"](tests/pause_contract.test.js) | Freezes all transfers of the token for all token holders. | contract admin |
 | ["grantRoles"](tests/permissions.test.js) | Sets account contract permissions. Accepts 4-bit permissions integer. See: [Appendix 1: Permissions Matrix](#perm-matrix) for details. | contract admin |
-| ["setAddressPermissions"](tests/set_transfer_restrictions.test.js) | Sets account transfer restrictions: 1) `freeze` – freezes a specific address. 2) `max balance` – sets the max number of tokens an account can hold. 3) `lock until` – stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. 4) `transfer group` –  sets the category of an address for use in transfer group rules. The default category is 1. | wallets admin |
-| ["setAllowGroupTransfer](bin/transfer-group-lock.sh) | Specifies a lock until time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lock until time. The lock until time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked. | transfer rules admin |
+| ["setAddressPermissions"](tests/set_transfer_restrictions.test.js) | Sets account transfer restrictions: 1) `freeze` – freezes a specific address. 2) `maxBalance` – sets the max number of tokens an account can hold. 3) `lockUntil` – stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. 4) `transfer group` –  sets the category of an address for use in transfer group rules. The default category is 1. | wallets admin |
+| ["setAllowGroupTransfer](bin/transfer-group-lock.sh) | Specifies a lockUntil time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lockUntil time. The lockUntil time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked. | transfer rules admin |
 | ["mint"](bin/mint.sh) | Create new tokens from the reserve | reserve admin |
 | ["burn"](tests/burn.test.js) | Destroy tokens from a specified address | reserve admin |
 | ["transfer"](tests/transfer_restrictions.test.js) | Transfer from one account to another | any opted in account |
@@ -169,6 +179,12 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 The freezing and locking of accounts applies to transfers out of the account. This allows transfer restrictions to be applied to wallet addresses prior to transferring tokens to them so there is no gap in applying token issuer rules to wallets.
 
 By default a wallet cannot be transferred to. In order to transfer into a wallet, a transfer rule must be in place allowing transfers from transfer group x to transfer group y. To keep a wallet from receiving any transfers change the transfer group to a group that does not have any group that is allowed to transfer groups to it. It is recommended that the default transfer group 0 does not have a rule that allows transfers to it.
+
+## (QSP-4) Why Is The Total Supply Constant?
+
+The token is assumed to have a fixed supply determined at the time of minting regardless of which account is in control of the tokens. Burning and minting tokens preserves a fixed supply of tokens by issuing and returning tokens to the reserve. The reserve is controlled by the Reserve admins. The total tokens held by non-reserve accounts can be determined by subtracting `totalSupply - reserve`.
+
+Although this does not match the OpenZeppelin ERC20 standard implementation, it is equivalent to the implementation of clawback for Algorand Standard Assets.
 
 ## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilaterally?
 

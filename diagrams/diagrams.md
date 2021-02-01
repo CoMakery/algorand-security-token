@@ -1,19 +1,20 @@
 ```plantuml
 @startuml basic-issuance
-actor "Investor" as Investor
-actor "Transfer\nAdmin" as TAdmin
+actor "Buyer" as Buyer
+actor "Seller" as Seller
 participant "Token Contract" as Token
-actor "Hot Wallet\nAdmin" as HAdmin
+actor "Transfer\nAdmin" as TAdmin
+actor "Wallet\nAdmin" as WAdmin
 
-Investor -> TAdmin: send AML/KYC and accreditation info
-TAdmin -> Token: set address "max balance"
-TAdmin -> Token: set address "lock until" 
-TAdmin -> Token: set "transferGroup" // Reg D, S or CF
-TAdmin -> Token: set "transferGroup" "lock until" time\nor make transferrable
-HAdmin -> Token: transfer(investorAddress, amount)
+TAdmin -> Token: set "setAllowGroupTransfer" "lockUntil" time
+Buyer -> WAdmin: send AML/KYC and accreditation info
+WAdmin -> Token: set buyer address permissions\n"lockUntil"\n"maxBalance"\n"transferGroup" // Reg D, S, or CF
 activate Token
-Token -> Token: check transfer restrictions\n(from, to, time, max balance, lockup)
-
+Seller -> Token: transfer(buyerAddress, amount)
+Token -> Token: check transfer restrictions\n(from, to, time, maxBalance, lockup)
+Token -> Token: update balances
+Token --> Buyer: (transfer to buyer approved)
+hide footbox
 @enduml
 ```
 
