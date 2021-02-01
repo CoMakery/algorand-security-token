@@ -117,6 +117,15 @@ The maximum applications you may have associated with your account is 10. If you
 
 There are lots of other reasons you may get a bad request error, such as TEAL execution safely exiting because of access control assertions.
 
+## Confusion about Txn.accounts[n], Txn.sender(), Txn.accounts.length() and tealdbg values
+
+There are a few interrelated account reference quirks to keep in mind:
+* `Txn.accounts[0]` will always evaluate to `Txn.sender()`
+* `Txn.accounts[1]` is the first `--app-account` item. 
+* If no `--app-account` items are included, Txn.accounts.length() will be 0 but `Txn.accounts[0]` still resolves to the sender.
+* `Txn.accounts[n]` for n > 0 will evaluate to the element at the n-1th index of the --app-account/ForeignAccounts transaction field. 
+* Some versions of `tealdbg` show the Txn.Accounts array incorrectly. If n accounts are present in the transaction’s ForeignAccounts array, the debugger will show the sender’s account following by the first n-1 elements from ForeignAccounts.
+
 # Use Cases
 
 ## Issuer Transfer Restrictions
