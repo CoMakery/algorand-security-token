@@ -105,8 +105,8 @@ def approval_program():
     # arg 1) freeze
     # arg 2) maxBalance in the smallest token unit
     #     if max_balance_value is 0, will delete the existing maxBalance limitation on the account
-    # arg 3) lock until a UNIX timestamp
-    #     if lock_until_value is 0, will delete the existing lock until limitation on the account
+    # arg 3) lockUntil a UNIX timestamp
+    #     if lock_until_value is 0, will delete the existing lockUntil limitation on the account
     # arg 4) transfer group
     #
     # sender must be wallets admin
@@ -126,8 +126,8 @@ def approval_program():
             App.localPut(Int(1), Bytes("maxBalance"), max_balance_value)
         ),
         If(lock_until_value == Int(0),
-            App.localDel(Int(1), Bytes("lock until")),
-            App.localPut(Int(1), Bytes("lock until"), lock_until_value)
+            App.localDel(Int(1), Bytes("lockUntil")),
+            App.localPut(Int(1), Bytes("lockUntil"), lock_until_value)
         ),
         App.localPut(Int(1), Bytes("transferGroup"), transfer_group_value),
         Return(Int(1))
@@ -140,7 +140,7 @@ def approval_program():
     # goal app call --app-id $APP_ID --from $FROM --app-arg 'str:setAllowGroupTransfer' --app-arg "int:$FROM_GROUP_ID" \
     # --app-arg "int:$TO_GROUP_ID" --app-arg "int:$LOCK_UNTIL_UNIX_TIMESTAMP"
     #
-    # set a lock until time for transfers between a transfer from-group and a to-group
+    # set a lockUntil time for transfers between a transfer from-group and a to-group
     # each account belongs to 1 and only 1 group
     # by default transfers between groups are not allowed between groups
     # only at transfer rules admin can set transfer rules
@@ -206,7 +206,7 @@ def approval_program():
     # goal app call --app-id uint --from address --app-account receiverAddr --app-arg 'str:transfer' --app-arg "int:amount"
     # checks are made to see if the sender account is frozen or locked
     # checks are made to see if there is a transfer rule allowing transfer between sender and receiver transfer groups
-    # the transfer must occur after the transfer group lock until date
+    # the transfer must occur after the transfer group lockUntil date
     transfer_amount = Btoi(Txn.application_args[1])
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("maxBalance"))
     transfer = Seq([
@@ -223,7 +223,7 @@ def approval_program():
             Or(
                 App.globalGet(Bytes("paused")), # can't transfer when the contract is paused
                 App.localGet(Int(0), Bytes("frozen")), # sender account can't be frozen
-                App.localGet(Int(0), Bytes("lock until")) >= Global.latest_timestamp(), # sender account can't be locked
+                App.localGet(Int(0), Bytes("lockUntil")) >= Global.latest_timestamp(), # sender account can't be locked
                 App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transferGroup")), App.localGet(Int(1), Bytes("transferGroup")))) < Int(1),
 
                 # check that a transfer rule allows the transfer from the sender to the receiver at the current time

@@ -269,14 +269,14 @@ int 0
 ==
 bnz l24
 int 1
-byte "lock until"
+byte "lockUntil"
 txna ApplicationArgs 3
 btoi
 app_local_put
 b l25
 l24:
 int 1
-byte "lock until"
+byte "lockUntil"
 app_local_del
 l25:
 int 1
@@ -423,7 +423,7 @@ byte "frozen"
 app_local_get
 ||
 int 0
-byte "lock until"
+byte "lockUntil"
 app_local_get
 global LatestTimestamp
 >=

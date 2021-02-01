@@ -32,7 +32,7 @@ test('admin can setAddressPermissions', async () => {
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["frozen"]["ui"]).toEqual(1)
     expect(localState["maxBalance"]["ui"]).toEqual(199)
-    expect(localState["lock until"]["ui"]).toEqual(1610126036)
+    expect(localState["lockUntil"]["ui"]).toEqual(1610126036)
     expect(localState["transferGroup"]["ui"]).toEqual(7)
 })
 
@@ -45,6 +45,6 @@ test('admin setAddressPermissions can be set', async () => {
   localState = await util.readLocalState(clientV2, adminAccount, appId)
   expect(localState["frozen"]["ui"]).toEqual(1)
   expect(localState["maxBalance"]["ui"]).toEqual(199)
-  expect(localState["lock until"]["ui"]).toEqual(1610126036)
+  expect(localState["lockUntil"]["ui"]).toEqual(1610126036)
   expect(localState["transferGroup"]["ui"]).toEqual(7)
 })
