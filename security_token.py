@@ -23,11 +23,6 @@ def approval_program():
     is_assets_admin = BitwiseAnd(local_permissions, Int(4))
     is_contract_admin = BitwiseAnd(local_permissions, Int(8))
 
-    can_delete = And(
-        is_contract_admin,
-        App.globalGet(Bytes("total supply")) == App.globalGet(Bytes("reserve"))
-    )
-
     # when an account opts-in set the accounts local variables
     # balance of 0
     # transfer group 1
@@ -212,7 +207,11 @@ def approval_program():
 
     program = Cond(
         [Txn.application_id() == Int(0), on_creation],
-        [Txn.on_completion() == OnComplete.DeleteApplication, Return(can_delete)],
+
+        # goal app delete --app-id uint --from address
+        # Warning: to preserve critical global application state
+        # calling this Algorand required app function will fail with "transaction rejected by ApprovalProgram"
+        [Txn.on_completion() == OnComplete.DeleteApplication, Return(Int(0))],
         [Txn.on_completion() == OnComplete.UpdateApplication, Return(is_contract_admin)],
 
         # goal app closeout --app-id uint --from address

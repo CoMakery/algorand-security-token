@@ -90,16 +90,6 @@ return
 b l12
 l1:
 int 0
-byte "permissions"
-app_local_get
-int 8
-&
-byte "total supply"
-app_global_get
-byte "reserve"
-app_global_get
-==
-&&
 return
 b l12
 l2:
