@@ -180,6 +180,23 @@ The contract admin role's purpose is to grant granular roles to accounts. By def
 
 It is recommended that all admin actions should be performed by accounts other than the contract admin account that hold task specific roles. This is a change from the original CoMakery Security Token implemented on Ethereum. While using that contract we learned that greater separation of roles would be significantly more secure than just having a contract admin and transfer admin role.
 
+## How much stateful smart contract memory is allocated? Why?
+
+The Algorand Stateful Smart Contract [documentation](https://developer.algorand.org/docs/features/asc1/stateful/#write-to-state) states:
+
+> The number of global and local byte slices and integers also needs to be specified. These represent the absolute on-chain amount of space that the smart contract will use. Once set, these values can never be changed. Each key-value pair is allowed up to 64 bytes each (64-byte key and 64-byte value). 
+
+The examples of the contract evenly distribute memory allocation types, to allow flexibility for future upgrades of the smart contract by the administrator:
+
+| TEAL Contract Memory Type | Allocation |
+| --- | --- |
+| local-ints | 8 |
+| local-byteslices | 8 |
+| global-ints | 32 |
+| global-byteslices | 32 |
+
+If you know the memory requirements that you may need for future versions of the application you may want to vary these. Keep in mind that some of the memory locations may not be initialized at the time of deployment, but the memory will need to be available in order for the values to be stored in global or local memory.
+
 # Appendix 1: Permissions Matrix <span id="perm-matrix"><span>
 
 | Role Integer | Admin Roles                                           | Bit Mask Representation | Contract Admin | Mint/Burn | Transfer Rules | Wallets |
