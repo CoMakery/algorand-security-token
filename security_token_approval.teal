@@ -74,7 +74,7 @@ byte "unitname"
 txna ApplicationArgs 2
 app_global_put
 int 0
-byte "transfer group"
+byte "transferGroup"
 int 1
 app_local_put
 int 0
@@ -110,7 +110,7 @@ byte "balance"
 int 0
 app_local_put
 int 0
-byte "transfer group"
+byte "transferGroup"
 int 1
 app_local_put
 int 1
@@ -277,7 +277,7 @@ byte "lock until"
 app_local_del
 l25:
 int 1
-byte "transfer group"
+byte "transferGroup"
 txna ApplicationArgs 4
 btoi
 app_local_put
@@ -427,12 +427,12 @@ global LatestTimestamp
 ||
 byte "rule"
 int 0
-byte "transfer group"
+byte "transferGroup"
 app_local_get
 itob
 concat
 int 1
-byte "transfer group"
+byte "transferGroup"
 app_local_get
 itob
 concat
@@ -442,12 +442,12 @@ int 1
 ||
 byte "rule"
 int 0
-byte "transfer group"
+byte "transferGroup"
 app_local_get
 itob
 concat
 int 1
-byte "transfer group"
+byte "transferGroup"
 app_local_get
 itob
 concat

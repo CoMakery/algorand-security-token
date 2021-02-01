@@ -11,7 +11,7 @@ def approval_program():
         App.globalPut(Bytes("decimals"), Btoi(Txn.application_args[1])),
         App.globalPut(Bytes("unitname"), Txn.application_args[2]),
 
-        App.localPut(Int(0), Bytes("transfer group"), Int(1)),
+        App.localPut(Int(0), Bytes("transferGroup"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
         App.localPut(Int(0), Bytes("roles"), Int(15)),
         Return(Int(1))
@@ -28,7 +28,7 @@ def approval_program():
     # transfer group 1
     register = Seq([
         App.localPut(Int(0), Bytes("balance"), Int(0)),
-        App.localPut(Int(0), Bytes("transfer group"), Int(1)),
+        App.localPut(Int(0), Bytes("transferGroup"), Int(1)),
         Return(Int(1))
     ])
 
@@ -128,7 +128,7 @@ def approval_program():
             App.localDel(Int(1), Bytes("lock until")),
             App.localPut(Int(1), Bytes("lock until"), lock_until_value)
         ),
-        App.localPut(Int(1), Bytes("transfer group"), transfer_group_value),
+        App.localPut(Int(1), Bytes("transferGroup"), transfer_group_value),
         Return(Int(1))
     ])
 
@@ -223,10 +223,10 @@ def approval_program():
                 App.globalGet(Bytes("paused")), # can't transfer when the contract is paused
                 App.localGet(Int(0), Bytes("frozen")), # sender account can't be frozen
                 App.localGet(Int(0), Bytes("lock until")) >= Global.latest_timestamp(), # sender account can't be locked
-                App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transfer group")), App.localGet(Int(1), Bytes("transfer group")))) < Int(1),
+                App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transferGroup")), App.localGet(Int(1), Bytes("transferGroup")))) < Int(1),
 
                 # check that a transfer rule allows the transfer from the sender to the receiver at the current time
-                App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transfer group")), App.localGet(Int(1), Bytes("transfer group")))) >= Global.latest_timestamp(),
+                App.globalGet(getRuleKey(App.localGet(Int(0), Bytes("transferGroup")), App.localGet(Int(1), Bytes("transferGroup")))) >= Global.latest_timestamp(),
                 And(
                     receiver_max_balance.hasValue(),
                     receiver_max_balance.value() < App.localGet(Int(1), Bytes("balance")) + transfer_amount

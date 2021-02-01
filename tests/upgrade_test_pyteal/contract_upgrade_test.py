@@ -12,7 +12,7 @@ def approval_program():
     # transfer group 1
     register = Seq([
         App.localPut(Int(0), Bytes("balance"), Int(0)),
-        App.localPut(Int(0), Bytes("transfer group"), Int(1)),
+        App.localPut(Int(0), Bytes("transferGroup"), Int(1)),
         Return(Int(1))
     ])
 
