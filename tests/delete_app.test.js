@@ -29,7 +29,7 @@ test("do not allow an admin to delete the app even if no transactions have been 
 
     // global state is still present
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['reserve']["ui"].toString()).toEqual('')
+    expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
     expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000')
 
     //check local state has not been altered
