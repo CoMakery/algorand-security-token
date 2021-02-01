@@ -77,7 +77,7 @@ def approval_program():
 # state to avoid loosing your balance. It is implemented because it is required functionality for all Algorand Apps.
 def clear_state_program():
     program = Seq([
-        # To preserve total supply integrity, balances are returned to the reserve when the clear state is executed.
+        # To preserve totalSupply integrity, balances are returned to the reserve when the clear state is executed.
         App.globalPut(
             Bytes("reserve"),
             App.globalGet(Bytes("reserve")) + App.localGet(Int(0), Bytes("balance"))

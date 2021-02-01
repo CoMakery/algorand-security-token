@@ -55,5 +55,5 @@ test('admin can burn from any account', async () => {
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999980')
 
     // check global supply is the same
-    expect(globalState['total supply']['ui'].toString()).toBe('80000000000000000')
+    expect(globalState['totalSupply']['ui'].toString()).toBe('80000000000000000')
 })

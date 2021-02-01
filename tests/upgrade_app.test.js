@@ -50,7 +50,7 @@ test("admin can upgrade the app while maintaining the global and local state", a
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     expect(globalState['reserve']["ui"].toString()).toEqual('79999999999999972')
     expect(globalState["version"]["ui"]).toEqual(2)
-    expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000')
+    expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000')
 
     //check local state has not been altered
     localState = await util.readLocalState(clientV2, newAccount, appId)

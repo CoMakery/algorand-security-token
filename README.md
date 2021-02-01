@@ -138,7 +138,7 @@ The Transfer Admin for the Token Contract can provision account addresses to tra
 
 ## WARNING: Maximum Total Supply, Minting and Burning of Tokens
 
-The global variable `total supply` is set when the contract is created and limits the total number of tokens that can be minted.
+The global variable `totalSupply` is set when the contract is created and limits the total number of tokens that can be minted.
 
 **Contract admins can mint tokens to and burn tokens from any address. This is primarily to comply with law enforcement, regulations and stock issuance scenarios - but this centralized power could be abused. Transfer admins, authorized by contract admins, can also update the transfer rules at any moment in time as many times as they want.**
 
