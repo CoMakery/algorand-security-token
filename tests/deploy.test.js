@@ -18,7 +18,7 @@ beforeAll(async () => {
 test('test initial deployment state', async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     let localState = await util.readLocalState(clientV2, adminAccount, info.appId)
-    expect(localState["transfer group"]["ui"].toString()).toEqual('1')
+    expect(localState["transferGroup"]["ui"].toString()).toEqual('1')
     expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["roles"]["ui"]).toEqual(15)
 

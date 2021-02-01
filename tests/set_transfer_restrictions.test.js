@@ -33,7 +33,7 @@ test('admin can setAddressPermissions', async () => {
     expect(localState["frozen"]["ui"]).toEqual(1)
     expect(localState["max balance"]["ui"]).toEqual(199)
     expect(localState["lock until"]["ui"]).toEqual(1610126036)
-    expect(localState["transfer group"]["ui"]).toEqual(7)
+    expect(localState["transferGroup"]["ui"]).toEqual(7)
 })
 
 test('admin setAddressPermissions can be set', async () => {
@@ -46,5 +46,5 @@ test('admin setAddressPermissions can be set', async () => {
   expect(localState["frozen"]["ui"]).toEqual(1)
   expect(localState["max balance"]["ui"]).toEqual(199)
   expect(localState["lock until"]["ui"]).toEqual(1610126036)
-  expect(localState["transfer group"]["ui"]).toEqual(7)
+  expect(localState["transferGroup"]["ui"]).toEqual(7)
 })

@@ -131,10 +131,10 @@ The Algorand Security Token can be configured after deployment to enforce transf
 
 The Transfer Admin for the Token Contract can provision account addresses to transfer and receive tokens under certain conditions. This is the process for configuring transfer restrictions and transferring tokens:
 1. An Investor sends their Anti Money Laundering and Know Your Customer (AML/KYC) information to the Transfer Admin or to a proxy vetting service to verify this information. The benefit of using a qualified third party provider is to avoid needing to store privately identifiable information. This code does not provide a solution for collecting AML/KYC information.
-2. The Transfer Admin configures the "transfer group", "lock until" and "max balance" attriubute for the account. Initially this will be done for the Primary Issuance of tokens to investors where tokens are distributed directly from the issuer to holder accounts.
+2. The Transfer Admin configures the "transferGroup", "lock until" and "max balance" attriubute for the account. Initially this will be done for the Primary Issuance of tokens to investors where tokens are distributed directly from the issuer to holder accounts.
 3. A potential buyer sends their AML/KYC information to the Transfer Admin or a trusted AML/KYC provider.
 4. The Transfer Admin calls provisions the Buyer account like they did for the Investor.
-5. At this time or before, the Transfer Admin authorizes the transfer of tokens between account groups with the `"transfer group" "lock"` functionality. Note that allowing a transfer from group A to group B by default does not allow the reverse transfer from group B to group A. This would have to be done separately. An example is that Reg CF unaccredited investors may be allowed to sell to Accredited US investors but not vice versa.
+5. At this time or before, the Transfer Admin authorizes the transfer of tokens between account groups with the `"transferGroup" "lock"` functionality. Note that allowing a transfer from group A to group B by default does not allow the reverse transfer from group B to group A. This would have to be done separately. An example is that Reg CF unaccredited investors may be allowed to sell to Accredited US investors but not vice versa.
 
 ## WARNING: Maximum Total Supply, Minting and Burning of Tokens
 

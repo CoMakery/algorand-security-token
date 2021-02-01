@@ -55,7 +55,7 @@ test("admin can upgrade the app while maintaining the global and local state", a
     //check local state has not been altered
     localState = await util.readLocalState(clientV2, newAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(28)
-    expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
     expect(localState["local-version"]["ui"]).toEqual(2)
 })
 

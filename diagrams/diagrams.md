@@ -8,8 +8,8 @@ actor "Hot Wallet\nAdmin" as HAdmin
 Investor -> TAdmin: send AML/KYC and accreditation info
 TAdmin -> Token: set address "max balance"
 TAdmin -> Token: set address "lock until" 
-TAdmin -> Token: set "transfer group" // Reg D, S or CF
-TAdmin -> Token: set "transfer group" "lock until" time\nor make transferrable
+TAdmin -> Token: set "transferGroup" // Reg D, S or CF
+TAdmin -> Token: set "transferGroup" "lock until" time\nor make transferrable
 HAdmin -> Token: transfer(investorAddress, amount)
 activate Token
 Token -> Token: check transfer restrictions\n(from, to, time, max balance, lockup)

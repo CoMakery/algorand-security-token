@@ -35,7 +35,7 @@ test("do not allow an admin to delete the app even if no transactions have been 
     //check local state has not been altered
     localState = await util.readLocalState(clientV2, adminAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
 })
 
 test("do not allow an admin to delete the app and the global state after a transfer", async () => {
@@ -63,5 +63,5 @@ test("do not allow an admin to delete the app and the global state after a trans
     //check local state has not been altered
     localState = await util.readLocalState(clientV2, newAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(27)
-    expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
 })

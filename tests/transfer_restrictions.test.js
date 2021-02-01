@@ -178,7 +178,7 @@ test('can transfer between permitted account groups', async () => {
 
     let localState = await util.readLocalState(clientV2, accounts[2], appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["transfer group"]["ui"].toString()).toEqual('2')
+    expect(localState["transferGroup"]["ui"].toString()).toEqual('2')
 
     //transfer from first receiver to second receiver (group 1 -> 2)
     appArgs = [EncodeBytes("transfer"), EncodeUint('7')]
