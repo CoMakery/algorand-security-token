@@ -99,7 +99,8 @@ def approval_program():
         Return(Int(1))
     ])
 
-    # set transfer restrictions for Txn.accounts[1]:
+    # transfer restrictions
+    # set wallet transfer restrictions for Txn.accounts[1]:
     # 1) freeze
     # 2) max balance
     #     if max_balance_value is 0, will delete the existing max balance limitation on the account
@@ -112,7 +113,7 @@ def approval_program():
     max_balance_value = Btoi(Txn.application_args[2])
     lock_until_value = Btoi(Txn.application_args[3])
     transfer_group_value = Btoi(Txn.application_args[4])
-    transfer_restrictions = Seq([
+    set_wallet_transfer_restrictions = Seq([
         Assert(And(
             is_wallets_admin,
             Txn.application_args.length() == Int(5),
@@ -135,11 +136,12 @@ def approval_program():
         return Concat(Bytes("rule"), Itob(sendGroup), Itob(receiveGroup))
 
     # set a lock until time for transfers between a transfer from-group and a to-group
-    #
-    # sender must be transfer rules admin
+    # each account belongs to 1 and only 1 group
+    # by default transfers between groups are not allowed between groups
+    # only at transfer rules admin can set transfer rules
     lock_transfer_key = getRuleKey(Btoi(Txn.application_args[2]), Btoi(Txn.application_args[3]))
     lock_transfer_until = Btoi(Txn.application_args[4])
-    lock_transfer_group = Seq([
+    set_transfer_rules = Seq([
         Assert(And(
             is_transfer_rules_admin,
             Txn.application_args.length() == Int(5)
@@ -151,8 +153,10 @@ def approval_program():
         Return(Int(1))
     ])
 
+    # mint
+    # goal app call --app-id uint --from address --app-account targetAddr --app-arg 'str:mint' --app-arg "int:${amount}"
     # move assets from the reserve to Txn.accounts[1]
-    # sender must be assets admin
+    # the from address must have the asset admin role
     mint_amount = Btoi(Txn.application_args[1])
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     mint = Seq([
@@ -175,8 +179,10 @@ def approval_program():
         Return(Int(1))
     ])
 
+    # burn
+    # goal app call --app-id uint --from address --app-account targetAddr --app-arg 'str:burn' --app-arg "int:${amount}"
     # burn moves assets from Txn.accounts[1] to the reserve
-    # sender must be assets admin
+    # the from address must have the assets admin role
     burn_amount = Btoi(Txn.application_args[1])
     burn = Seq([
         Assert(And(
@@ -193,6 +199,9 @@ def approval_program():
     # transfer
     # transfers assets from the sender to the receiver Txn.accounts[1]
     # goal app call --app-id uint --from address --app-account receiverAddr --app-arg 'str:transfer' --app-arg "int:amount"
+    # checks are made to see if the sender account is frozen or locked
+    # checks are made to see if there is a transfer rule allowing transfer between sender and receiver transfer groups
+    # the transfer must occur after the transfer group lock until date
     transfer_amount = Btoi(Txn.application_args[1])
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     transfer = Seq([
@@ -243,8 +252,8 @@ def approval_program():
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
         [Txn.application_args[0] == Bytes("set permissions"), set_permissions],
-        [Txn.application_args[0] == Bytes("transfer group"), lock_transfer_group],
-        [Txn.application_args[0] == Bytes("transfer restrictions"), transfer_restrictions],
+        [Txn.application_args[0] == Bytes("transfer group"), set_transfer_rules],
+        [Txn.application_args[0] == Bytes("transfer restrictions"), set_wallet_transfer_restrictions],
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],
         [Txn.application_args[0] == Bytes("transfer"), transfer],
