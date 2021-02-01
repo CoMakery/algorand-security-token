@@ -32,7 +32,7 @@ byte "setAllowGroupTransfer"
 ==
 bnz l7
 txna ApplicationArgs 0
-byte "transfer restrictions"
+byte "setAddressPermissions"
 ==
 bnz l8
 txna ApplicationArgs 0

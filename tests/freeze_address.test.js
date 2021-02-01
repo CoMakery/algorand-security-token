@@ -39,7 +39,7 @@ beforeEach(async () => {
 
 test('freezing an address stops transfers from that address - but not to it', async () => {
     // freeze account
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('0'), EncodeUint('0'), EncodeUint('1')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('1'), EncodeUint('0'), EncodeUint('0'), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     // can still transfer to the account
@@ -67,7 +67,7 @@ test('freezing an address stops transfers from that address - but not to it', as
 
 test('an unfrozen address can transfer', async () => {
     // freeze account
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('0'), EncodeUint('0'), EncodeUint('1')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('1'), EncodeUint('0'), EncodeUint('0'), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
     
     // can still transfer to the account
@@ -75,7 +75,7 @@ test('an unfrozen address can transfer', async () => {
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     // unfreeze account
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('1')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     //can transfer back

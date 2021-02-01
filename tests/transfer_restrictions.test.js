@@ -173,7 +173,7 @@ test('can transfer between permitted account groups', async () => {
     await util.optInApp(clientV2, accounts[2], appId)
 
     // put second receiver in group 2
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('2')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('2')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [accounts[2].addr])
 
     let localState = await util.readLocalState(clientV2, accounts[2], appId)

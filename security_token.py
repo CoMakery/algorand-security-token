@@ -83,24 +83,24 @@ def approval_program():
     #
     # WARNING: contract admin permission can only be revoked by other contract admins
     # to avoid removing all contract admins.
-    permissions = Btoi(Txn.application_args[1])
+    roles = Btoi(Txn.application_args[1])
     grant_roles = Seq([
         Assert(And(
             is_contract_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
-            permissions <= Int(15)
+            roles <= Int(15)
         )),
         If( 
             Eq(Txn.sender(), Txn.accounts[1]),
-            Assert(BitwiseAnd(permissions, Int(8)))
+            Assert(BitwiseAnd(roles, Int(8)))
         ),
-        App.localPut(Int(1), Bytes("roles"), permissions),
+        App.localPut(Int(1), Bytes("roles"), roles),
         Return(Int(1))
     ])
 
-    # transfer restrictions
-    # set wallet transfer restrictions for Txn.accounts[1]:
+    # setAddressPermissions
+    # set address permissions for target Txn.accounts[1]:
     # 1) freeze
     # 2) max balance
     #     if max_balance_value is 0, will delete the existing max balance limitation on the account
@@ -135,6 +135,10 @@ def approval_program():
     def getRuleKey(sendGroup, receiveGroup):
         return Concat(Bytes("rule"), Itob(sendGroup), Itob(receiveGroup))
 
+    # setAllowGroupTransfer
+    # goal app call --app-id $APP_ID --from $FROM --app-arg 'str:setAllowGroupTransfer' --app-arg "int:$FROM_GROUP_ID" \
+    # --app-arg "int:$TO_GROUP_ID" --app-arg "int:$LOCK_UNTIL_UNIX_TIMESTAMP"
+    #
     # set a lock until time for transfers between a transfer from-group and a to-group
     # each account belongs to 1 and only 1 group
     # by default transfers between groups are not allowed between groups
@@ -253,7 +257,7 @@ def approval_program():
         [Txn.application_args[0] == Bytes("pause"), pause],
         [Txn.application_args[0] == Bytes("grantRoles"), grant_roles],
         [Txn.application_args[0] == Bytes("setAllowGroupTransfer"), set_transfer_rules],
-        [Txn.application_args[0] == Bytes("transfer restrictions"), set_address_permissions],
+        [Txn.application_args[0] == Bytes("setAddressPermissions"), set_address_permissions],
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],
         [Txn.application_args[0] == Bytes("transfer"), transfer],

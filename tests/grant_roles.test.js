@@ -93,7 +93,7 @@ test('wallets admin role can be granted by contract admin', async () => {
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["roles"]["ui"]).toEqual(1)
 
-  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
   await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
 })
 
@@ -110,7 +110,7 @@ test('wallets admin role can be revoked by contract admin', async () => {
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
   try {
     await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
   } catch (error) {
@@ -169,7 +169,7 @@ test('assets admin role can be granted by contract admin', async () => {
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["roles"]["ui"]).toEqual(4)
 
-  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   appArgs = [EncodeBytes("mint"), EncodeUint('27')]
@@ -196,7 +196,7 @@ test('assets admin role can be revoked by contract admin', async () => {
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
   
   appArgs = [EncodeBytes("mint"), EncodeUint('27')]

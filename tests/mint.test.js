@@ -31,7 +31,7 @@ it('mints when receiver max balance is not set', async () => {
 })
 
 it('mints when receiver max balance is below balance after mint', async () => {
-  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('50'), EncodeUint('0'), EncodeUint('1')]
+  appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('50'), EncodeUint('0'), EncodeUint('1')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   appArgs = [EncodeBytes("mint"), EncodeUint('27')]
@@ -41,7 +41,7 @@ it('mints when receiver max balance is below balance after mint', async () => {
 })
 
 it('does not mint when receiver max balance is above balance after mint', async () => {
-  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('50'), EncodeUint('0'), EncodeUint('1')]
+  appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('50'), EncodeUint('0'), EncodeUint('1')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
   
   appArgs = [EncodeBytes("mint"), EncodeUint('57')]
