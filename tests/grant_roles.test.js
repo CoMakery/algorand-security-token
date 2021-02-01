@@ -25,35 +25,35 @@ beforeEach(async () => {
 
 test('contract admin role can be granted by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('8')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["permissions"]["ui"]).toEqual(8)
+  expect(localState["roles"]["ui"]).toEqual(8)
 
   await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
 })
 
 test('contract admin role can be revoked by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('8')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('0')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["permissions"]["ui"]).toEqual(undefined)
+  expect(localState["roles"]["ui"]).toEqual(undefined)
   
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('8')
   ]
 
@@ -64,12 +64,12 @@ test('contract admin role can be revoked by contract admin', async () => {
   }
   
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["permissions"]["ui"]).toEqual(undefined)
+  expect(localState["roles"]["ui"]).toEqual(undefined)
 })
 
 test('contract admin role can not be revoked by contract admin from themselves', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('0')
   ]
 
@@ -80,18 +80,18 @@ test('contract admin role can not be revoked by contract admin from themselves',
   }
   
   localState = await util.readLocalState(clientV2, adminAccount, appId)
-  expect(localState["permissions"]["ui"]).toEqual(15)
+  expect(localState["roles"]["ui"]).toEqual(15)
 })
 
 test('wallets admin role can be granted by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('1')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["permissions"]["ui"]).toEqual(1)
+  expect(localState["roles"]["ui"]).toEqual(1)
 
   appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
   await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
@@ -99,13 +99,13 @@ test('wallets admin role can be granted by contract admin', async () => {
 
 test('wallets admin role can be revoked by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('1')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('0')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
@@ -123,32 +123,32 @@ test('wallets admin role can be revoked by contract admin', async () => {
 
 test('transfer rules admin role can be granted by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('2')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["permissions"]["ui"]).toEqual(2)
+  expect(localState["roles"]["ui"]).toEqual(2)
 
-  appArgs = [EncodeBytes("transfer group"), EncodeBytes("lock"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
+  appArgs = [EncodeBytes("transfer group"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
   await util.appCall(clientV2, receiverAccount, appId, appArgs)
 })
 
 test('transfer rules admin role can be revoked by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('2')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('0')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-  appArgs = [EncodeBytes("transfer group"), EncodeBytes("lock"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
+  appArgs = [EncodeBytes("transfer group"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
   try {
     await util.appCall(clientV2, receiverAccount, appId, appArgs)
   } catch (error) {
@@ -161,13 +161,13 @@ test('transfer rules admin role can be revoked by contract admin', async () => {
 
 test('assets admin role can be granted by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('4')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["permissions"]["ui"]).toEqual(4)
+  expect(localState["roles"]["ui"]).toEqual(4)
 
   appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
@@ -185,13 +185,13 @@ test('assets admin role can be granted by contract admin', async () => {
 
 test('assets admin role can be revoked by contract admin', async () => {
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('4')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
   appArgs = [
-    EncodeBytes("set permissions"),
+    EncodeBytes("grantRoles"),
     EncodeUint('0')
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])

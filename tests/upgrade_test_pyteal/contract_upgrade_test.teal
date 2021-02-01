@@ -20,7 +20,7 @@ int OptIn
 ==
 bnz l4
 txna ApplicationArgs 0
-byte "set permissions"
+byte "grantRoles"
 ==
 bnz l5
 txna ApplicationArgs 0
@@ -82,7 +82,7 @@ byte "balance"
 int 0
 app_local_put
 int 0
-byte "permissions"
+byte "roles"
 int 15
 app_local_put
 int 1
@@ -94,7 +94,7 @@ return
 b l12
 l2:
 int 0
-byte "permissions"
+byte "roles"
 app_local_get
 int 8
 &
@@ -118,7 +118,7 @@ return
 b l12
 l5:
 int 0
-byte "permissions"
+byte "roles"
 app_local_get
 int 8
 &
@@ -151,7 +151,7 @@ err
 l16:
 l15:
 int 1
-byte "permissions"
+byte "roles"
 txna ApplicationArgs 1
 btoi
 app_local_put
@@ -160,7 +160,7 @@ return
 b l12
 l6:
 int 0
-byte "permissions"
+byte "roles"
 app_local_get
 int 2
 &
@@ -206,7 +206,7 @@ return
 b l12
 l7:
 int 0
-byte "permissions"
+byte "roles"
 app_local_get
 int 1
 &
@@ -268,7 +268,7 @@ return
 b l12
 l8:
 int 0
-byte "permissions"
+byte "roles"
 app_local_get
 int 4
 &
@@ -330,7 +330,7 @@ return
 b l12
 l9:
 int 0
-byte "permissions"
+byte "roles"
 app_local_get
 int 4
 &

@@ -13,11 +13,11 @@ def approval_program():
 
         App.localPut(Int(0), Bytes("transfer group"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
-        App.localPut(Int(0), Bytes("permissions"), Int(15)),
+        App.localPut(Int(0), Bytes("roles"), Int(15)),
         Return(Int(1))
     ])
 
-    local_permissions = App.localGet(Int(0), Bytes("permissions"))
+    local_permissions = App.localGet(Int(0), Bytes("roles"))
     is_wallets_admin = BitwiseAnd(local_permissions, Int(1))
     is_transfer_rules_admin = BitwiseAnd(local_permissions, Int(2))
     is_reserve_admin = BitwiseAnd(local_permissions, Int(4))
@@ -43,7 +43,7 @@ def approval_program():
     ])
 
     # Set Permissions
-    # goal app call --app-id uint --from admin --app-account targetAddress --app-arg 'str:set permissions' --app-arg "int:${role-uint}"
+    # goal app call --app-id uint --from admin --app-account targetAddress --app-arg "str:grantRoles" --app-arg "int:${role-uint}"
     #
     # set contract permissions for Txn.accounts[1]
     # Txn.application_args[1] should be a 4-bit permissions integer
@@ -84,7 +84,7 @@ def approval_program():
     # WARNING: contract admin permission can only be revoked by other contract admins
     # to avoid removing all contract admins.
     permissions = Btoi(Txn.application_args[1])
-    set_roles = Seq([
+    grant_roles = Seq([
         Assert(And(
             is_contract_admin,
             Txn.application_args.length() == Int(2),
@@ -95,7 +95,7 @@ def approval_program():
             Eq(Txn.sender(), Txn.accounts[1]),
             Assert(BitwiseAnd(permissions, Int(8)))
         ),
-        App.localPut(Int(1), Bytes("permissions"), permissions),
+        App.localPut(Int(1), Bytes("roles"), permissions),
         Return(Int(1))
     ])
 
@@ -251,7 +251,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.CloseOut, Return(Int(0))],
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
-        [Txn.application_args[0] == Bytes("set permissions"), set_roles],
+        [Txn.application_args[0] == Bytes("grantRoles"), grant_roles],
         [Txn.application_args[0] == Bytes("transfer group"), set_transfer_rules],
         [Txn.application_args[0] == Bytes("transfer restrictions"), set_address_permissions],
         [Txn.application_args[0] == Bytes("mint"), mint],

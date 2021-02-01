@@ -20,7 +20,7 @@ test('test initial deployment state', async () => {
     let localState = await util.readLocalState(clientV2, adminAccount, info.appId)
     expect(localState["transfer group"]["ui"].toString()).toEqual('1')
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["permissions"]["ui"]).toEqual(15)
+    expect(localState["roles"]["ui"]).toEqual(15)
 
     let globalState = await util.readGlobalState(clientV2, adminAccount, info.appId)
     expect(globalState['paused']["ui"]).toEqual(undefined) // TODO: should default paused value be 0 instead of undefined

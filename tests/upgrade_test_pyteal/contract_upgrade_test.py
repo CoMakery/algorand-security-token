@@ -13,11 +13,11 @@ def approval_program():
 
         App.localPut(Int(0), Bytes("transfer group"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
-        App.localPut(Int(0), Bytes("permissions"), Int(15)),
+        App.localPut(Int(0), Bytes("roles"), Int(15)),
         Return(Int(1))
     ])
 
-    local_permissions = App.localGet(Int(0), Bytes("permissions"))
+    local_permissions = App.localGet(Int(0), Bytes("roles"))
     is_wallets_admin = BitwiseAnd(local_permissions, Int(1))
     is_transfer_rules_admin = BitwiseAnd(local_permissions, Int(2))
     is_reserve_admin = BitwiseAnd(local_permissions, Int(4))
@@ -64,7 +64,7 @@ def approval_program():
             Eq(Txn.sender(), Txn.accounts[1]),
             Assert(BitwiseAnd(permissions, Int(8)))
         ),
-        App.localPut(Int(1), Bytes("permissions"), permissions),
+        App.localPut(Int(1), Bytes("roles"), permissions),
         Return(Int(1))
     ])
 
@@ -218,7 +218,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.CloseOut, Return(Int(0))],
         [Txn.on_completion() == OnComplete.OptIn, register],
         # [Txn.application_args[0] == Bytes("pause"), pause], # delete pause
-        [Txn.application_args[0] == Bytes("set permissions"), set_permissions],
+        [Txn.application_args[0] == Bytes("grantRoles"), set_permissions],
         [Txn.application_args[0] == Bytes("transfer group"), lock_transfer_group],
         [Txn.application_args[0] == Bytes("transfer restrictions"), transfer_restrictions],
         [Txn.application_args[0] == Bytes("mint"), mint],
