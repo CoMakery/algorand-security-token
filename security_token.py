@@ -84,7 +84,7 @@ def approval_program():
     # WARNING: contract admin permission can only be revoked by other contract admins
     # to avoid removing all contract admins.
     permissions = Btoi(Txn.application_args[1])
-    set_permissions = Seq([
+    set_roles = Seq([
         Assert(And(
             is_contract_admin,
             Txn.application_args.length() == Int(2),
@@ -113,7 +113,7 @@ def approval_program():
     max_balance_value = Btoi(Txn.application_args[2])
     lock_until_value = Btoi(Txn.application_args[3])
     transfer_group_value = Btoi(Txn.application_args[4])
-    set_wallet_transfer_restrictions = Seq([
+    set_address_permissions = Seq([
         Assert(And(
             is_wallets_admin,
             Txn.application_args.length() == Int(5),
@@ -251,9 +251,9 @@ def approval_program():
         [Txn.on_completion() == OnComplete.CloseOut, Return(Int(0))],
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
-        [Txn.application_args[0] == Bytes("set permissions"), set_permissions],
+        [Txn.application_args[0] == Bytes("set permissions"), set_roles],
         [Txn.application_args[0] == Bytes("transfer group"), set_transfer_rules],
-        [Txn.application_args[0] == Bytes("transfer restrictions"), set_wallet_transfer_restrictions],
+        [Txn.application_args[0] == Bytes("transfer restrictions"), set_address_permissions],
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],
         [Txn.application_args[0] == Bytes("transfer"), transfer],
