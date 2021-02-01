@@ -23,9 +23,9 @@ beforeEach(async () => {
     await util.optInApp(clientV2, receiverAccount, appId)
 })
 
-test('admin can set transfer restrictions', async () => {
+test('admin can setAddressPermissions', async () => {
     // call
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     // account transfer restrictions has been updated
@@ -33,12 +33,12 @@ test('admin can set transfer restrictions', async () => {
     expect(localState["frozen"]["ui"]).toEqual(1)
     expect(localState["max balance"]["ui"]).toEqual(199)
     expect(localState["lock until"]["ui"]).toEqual(1610126036)
-    expect(localState["transfer group"]["ui"]).toEqual(7)
+    expect(localState["transferGroup"]["ui"]).toEqual(7)
 })
 
-test('admin transfer restrictions can be set', async () => {
+test('admin setAddressPermissions can be set', async () => {
   // call
-  appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
+  appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [adminAccount.addr])
 
   // account transfer restrictions has been updated
@@ -46,5 +46,5 @@ test('admin transfer restrictions can be set', async () => {
   expect(localState["frozen"]["ui"]).toEqual(1)
   expect(localState["max balance"]["ui"]).toEqual(199)
   expect(localState["lock until"]["ui"]).toEqual(1610126036)
-  expect(localState["transfer group"]["ui"]).toEqual(7)
+  expect(localState["transferGroup"]["ui"]).toEqual(7)
 })

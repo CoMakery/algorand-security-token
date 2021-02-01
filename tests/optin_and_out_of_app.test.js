@@ -29,7 +29,7 @@ test("can opt in and have the expected local address starting state", async () =
     //check state
     let localState = await util.readLocalState(clientV2, newAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
 })
 
 test("do not allow an account that has opted in to close out the app", async () => {
@@ -52,5 +52,5 @@ test("do not allow an account that has opted in to close out the app", async () 
     //check state has not been altered
     localState = await util.readLocalState(clientV2, newAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(27)
-    expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
 })

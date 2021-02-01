@@ -30,12 +30,12 @@ test("do not allow an admin to delete the app even if no transactions have been 
     // global state is still present
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
-    expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000')
+    expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000')
 
     //check local state has not been altered
     localState = await util.readLocalState(clientV2, adminAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
 })
 
 test("do not allow an admin to delete the app and the global state after a transfer", async () => {
@@ -58,10 +58,10 @@ test("do not allow an admin to delete the app and the global state after a trans
     // global state is still present
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     expect(globalState['reserve']["ui"].toString()).toEqual('79999999999999973')
-    expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000')
+    expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000')
 
     //check local state has not been altered
     localState = await util.readLocalState(clientV2, newAccount, info.appId)
     expect(localState["balance"]["ui"]).toEqual(27)
-    expect(localState["transfer group"]["ui"]).toEqual(1)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
 })

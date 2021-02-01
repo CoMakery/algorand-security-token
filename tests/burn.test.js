@@ -30,7 +30,7 @@ beforeEach(async () => {
     // from group 1 -> 1 is allowed
     let transferGroupLock1 =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:setAllowGroupTransfer' ` +
         `--app-arg "int:1" --app-arg "int:1" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
@@ -55,5 +55,5 @@ test('admin can burn from any account', async () => {
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999980')
 
     // check global supply is the same
-    expect(globalState['total supply']['ui'].toString()).toBe('80000000000000000')
+    expect(globalState['totalSupply']['ui'].toString()).toBe('80000000000000000')
 })

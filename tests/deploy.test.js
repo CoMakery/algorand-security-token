@@ -18,14 +18,14 @@ beforeAll(async () => {
 test('test initial deployment state', async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     let localState = await util.readLocalState(clientV2, adminAccount, info.appId)
-    expect(localState["transfer group"]["ui"].toString()).toEqual('1')
+    expect(localState["transferGroup"]["ui"].toString()).toEqual('1')
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["permissions"]["ui"]).toEqual(15)
+    expect(localState["roles"]["ui"]).toEqual(15)
 
     let globalState = await util.readGlobalState(clientV2, adminAccount, info.appId)
     expect(globalState['paused']["ui"]).toEqual(undefined) // TODO: should default paused value be 0 instead of undefined
     expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
-    expect(globalState['total supply']["ui"].toString()).toEqual('80000000000000000') // TODO: rename to total
+    expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000') // TODO: rename to total
     expect(globalState['decimals']["ui"].toString()).toEqual('8')
     expect(globalState['unitname']['tb']).toEqual("ABCTEST")
 })
@@ -35,7 +35,7 @@ test('test initial deployment args', async () => {
     let globalState = await util.readGlobalState(clientV2, adminAccount, info.appId)
     expect(globalState['paused']["ui"]).toEqual(undefined)
     expect(globalState['reserve']["ui"].toString()).toEqual('1234567')
-    expect(globalState['total supply']["ui"].toString()).toEqual('1234567')
+    expect(globalState['totalSupply']["ui"].toString()).toEqual('1234567')
     expect(globalState['decimals']["ui"].toString()).toEqual('7')
     expect(globalState['unitname']['tb']).toEqual("XYZ2")
 })

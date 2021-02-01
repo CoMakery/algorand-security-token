@@ -30,7 +30,7 @@ beforeEach(async () => {
     // from group 1 -> 1 is allowed
     let transferGroupLock1 =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:setAllowGroupTransfer' ` +
         `--app-arg "int:1" --app-arg "int:1" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
@@ -39,7 +39,7 @@ beforeEach(async () => {
 
 test('lock until in the future blocks transfers from that address - but not to it', async () => {
     let lockUntilUnixTimestampTomorrow = Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24)
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilUnixTimestampTomorrow}`), EncodeUint('1')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilUnixTimestampTomorrow}`), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
     
     // can still transfer to the account
@@ -68,7 +68,7 @@ test('lock until in the future blocks transfers from that address - but not to i
 
 test('lock until with a past date allows transfers', async () => {
     let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilAMinuteAgo}`), EncodeUint('1')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint(`${lockUntilAMinuteAgo}`), EncodeUint('1')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
     // can still transfer to the account

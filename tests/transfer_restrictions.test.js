@@ -37,12 +37,11 @@ test('has expected starting test state', async () => {
     }).stdout
     console.log(status)
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['total supply']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['totalSupply']['ui'].toString()).toEqual('80000000000000000')
     expect(globalState['reserve']['ui'].toString()).toEqual("79999999999999973")
 
     // recipient opted in
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    // TODO: would be nice if optin balance and admin role values be 0 instead of undefined
     // goal app read returns these undefined values, so it may be at some deep level
     expect(localState["balance"]["ui"]).toEqual(undefined)
     expect(localState["contract admin"]).toEqual(undefined)
@@ -56,7 +55,7 @@ test('simple transfer', async () => {
 
     let transferGroupLock =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:setAllowGroupTransfer' ` +
         `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
@@ -79,7 +78,7 @@ test('simple transfer', async () => {
 
     // check global supply is same
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['total supply']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['totalSupply']['ui'].toString()).toEqual('80000000000000000')
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
 })
 
@@ -90,7 +89,7 @@ test('can lock the default address category for transfers', async () => {
 
     let transferGroupLock =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:setAllowGroupTransfer' ` +
         `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
         `--app-arg "int:${lockUntilUnixTimestampTomorrow}"  -d devnet/Primary`
 
@@ -108,14 +107,14 @@ test('can lock the default address category for transfers', async () => {
     expect(localState["balance"]["ui"]).toEqual(undefined)
 })
 
-test('can transfer to an account if the lock has expired', async () => {
+test('can transfer to an account if the transfer rule lock has expired', async () => {
     let fromGroupId = 1
     let toGroupId = 1
     let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
 
     let transferGroupLock =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:setAllowGroupTransfer' ` +
         `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
         `--app-arg "int:${lockUntilAMinuteAgo}"  -d devnet/Primary`
 
@@ -147,7 +146,7 @@ test('can transfer between permitted account groups', async () => {
     // from group 1 -> 1 is allowed
     let transferGroupLock1 =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:setAllowGroupTransfer' ` +
         `--app-arg "int:1" --app-arg "int:1" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
@@ -156,7 +155,7 @@ test('can transfer between permitted account groups', async () => {
     // from group 1 -> 2 is allowed
     let transferGroupLock2 =
         `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:transfer group' --app-arg 'str:lock' ` +
+        `--app-arg 'str:setAllowGroupTransfer' ` +
         `--app-arg "int:1" --app-arg "int:2" ` +
         `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
 
@@ -174,12 +173,12 @@ test('can transfer between permitted account groups', async () => {
     await util.optInApp(clientV2, accounts[2], appId)
 
     // put second receiver in group 2
-    appArgs = [EncodeBytes("transfer restrictions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('2')]
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('2')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [accounts[2].addr])
 
     let localState = await util.readLocalState(clientV2, accounts[2], appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
-    expect(localState["transfer group"]["ui"].toString()).toEqual('2')
+    expect(localState["transferGroup"]["ui"].toString()).toEqual('2')
 
     //transfer from first receiver to second receiver (group 1 -> 2)
     appArgs = [EncodeBytes("transfer"), EncodeUint('7')]
