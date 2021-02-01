@@ -103,8 +103,8 @@ def approval_program():
     # setAddressPermissions
     # set address permissions for target Txn.accounts[1]:
     # arg 1) freeze
-    # arg 2) max balance in the smallest token unit
-    #     if max_balance_value is 0, will delete the existing max balance limitation on the account
+    # arg 2) maxBalance in the smallest token unit
+    #     if max_balance_value is 0, will delete the existing maxBalance limitation on the account
     # arg 3) lock until a UNIX timestamp
     #     if lock_until_value is 0, will delete the existing lock until limitation on the account
     # arg 4) transfer group
@@ -122,8 +122,8 @@ def approval_program():
         )),
         App.localPut(Int(1), Bytes("frozen"), freeze_value),
         If(max_balance_value == Int(0),
-            App.localDel(Int(1), Bytes("max balance")),
-            App.localPut(Int(1), Bytes("max balance"), max_balance_value)
+            App.localDel(Int(1), Bytes("maxBalance")),
+            App.localPut(Int(1), Bytes("maxBalance"), max_balance_value)
         ),
         If(lock_until_value == Int(0),
             App.localDel(Int(1), Bytes("lock until")),
@@ -163,7 +163,7 @@ def approval_program():
     # move assets from the reserve to Txn.accounts[1]
     # the from address must have the asset admin role
     mint_amount = Btoi(Txn.application_args[1])
-    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
+    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("maxBalance"))
     mint = Seq([
         Assert(And(
             is_reserve_admin,
@@ -208,7 +208,7 @@ def approval_program():
     # checks are made to see if there is a transfer rule allowing transfer between sender and receiver transfer groups
     # the transfer must occur after the transfer group lock until date
     transfer_amount = Btoi(Txn.application_args[1])
-    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
+    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("maxBalance"))
     transfer = Seq([
         Assert(And(
             Txn.application_args.length() == Int(2),
@@ -216,8 +216,8 @@ def approval_program():
             transfer_amount <= App.localGet(Int(0), Bytes("balance"))
         )),
 
-        # transfer amount should not exceed the receiver max balance
-        # this can be used to enforce un-accredited investor max balances
+        # transfer amount should not exceed the receiver maxBalance
+        # this can be used to enforce un-accredited investor maxBalances
         receiver_max_balance,
         If(
             Or(

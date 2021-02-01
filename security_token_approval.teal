@@ -253,14 +253,14 @@ int 0
 ==
 bnz l22
 int 1
-byte "max balance"
+byte "maxBalance"
 txna ApplicationArgs 2
 btoi
 app_local_put
 b l23
 l22:
 int 1
-byte "max balance"
+byte "maxBalance"
 app_local_del
 l23:
 txna ApplicationArgs 3
@@ -312,7 +312,7 @@ err
 l26:
 int 1
 global CurrentApplicationID
-byte "max balance"
+byte "maxBalance"
 app_local_get_ex
 store 0
 store 1
@@ -412,7 +412,7 @@ err
 l29:
 int 1
 global CurrentApplicationID
-byte "max balance"
+byte "maxBalance"
 app_local_get_ex
 store 2
 store 3

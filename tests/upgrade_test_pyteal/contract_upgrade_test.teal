@@ -85,7 +85,7 @@ err
 l8:
 int 1
 global CurrentApplicationID
-byte "max balance"
+byte "maxBalance"
 app_local_get_ex
 store 0
 store 1

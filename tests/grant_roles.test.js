@@ -118,7 +118,7 @@ test('wallets admin role can be revoked by contract admin', async () => {
   }
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["max balance"]).toEqual(undefined)
+  expect(localState["maxBalance"]).toEqual(undefined)
 })
 
 test('transfer rules admin role can be granted by contract admin', async () => {

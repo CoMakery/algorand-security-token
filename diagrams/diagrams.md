@@ -11,7 +11,7 @@ Buyer -> WAdmin: send AML/KYC and accreditation info
 WAdmin -> Token: set buyer address permissions\n"lockUntil"\n"maxBalance"\n"transferGroup" // Reg D, S, or CF
 activate Token
 Seller -> Token: transfer(buyerAddress, amount)
-Token -> Token: check transfer restrictions\n(from, to, time, max balance, lockup)
+Token -> Token: check transfer restrictions\n(from, to, time, maxBalance, lockup)
 Token -> Token: update balances
 Token --> Buyer: (transfer to buyer approved)
 hide footbox
