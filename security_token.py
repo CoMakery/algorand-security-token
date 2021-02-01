@@ -4,12 +4,13 @@ from pyteal import *
 
 def approval_program():
     on_creation = Seq([
-        Assert(Txn.application_args.length() == Int(3)),
+        Assert(Txn.application_args.length() == Int(4)),
         App.globalPut(Bytes("totalSupply"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("reserve"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("paused"), Int(0)),
         App.globalPut(Bytes("decimals"), Btoi(Txn.application_args[1])),
-        App.globalPut(Bytes("unitname"), Txn.application_args[2]),
+        App.globalPut(Bytes("symbol"), Txn.application_args[2]),
+        App.globalPut(Bytes("name"), Txn.application_args[3]),
 
         App.localPut(Int(0), Bytes("transferGroup"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
@@ -101,12 +102,12 @@ def approval_program():
 
     # setAddressPermissions
     # set address permissions for target Txn.accounts[1]:
-    # 1) freeze
-    # 2) max balance
+    # arg 1) freeze
+    # arg 2) max balance in the smallest token unit
     #     if max_balance_value is 0, will delete the existing max balance limitation on the account
-    # 3) lock until a UNIX timestamp
+    # arg 3) lock until a UNIX timestamp
     #     if lock_until_value is 0, will delete the existing lock until limitation on the account
-    # 4) transfer group
+    # arg 4) transfer group
     #
     # sender must be wallets admin
     freeze_value = Btoi(Txn.application_args[1])
