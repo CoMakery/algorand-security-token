@@ -20,7 +20,7 @@ def approval_program():
     local_permissions = App.localGet(Int(0), Bytes("permissions"))
     is_wallets_admin = BitwiseAnd(local_permissions, Int(1))
     is_transfer_rules_admin = BitwiseAnd(local_permissions, Int(2))
-    is_assets_admin = BitwiseAnd(local_permissions, Int(4))
+    is_reserve_admin = BitwiseAnd(local_permissions, Int(4))
     is_contract_admin = BitwiseAnd(local_permissions, Int(8))
 
     # when an account opts-in set the accounts local variables
@@ -127,7 +127,7 @@ def approval_program():
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     mint = Seq([
         Assert(And(
-            is_assets_admin,
+            is_reserve_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             mint_amount <= App.globalGet(Bytes("reserve"))
@@ -151,7 +151,7 @@ def approval_program():
     burn_amount = Btoi(Txn.application_args[1])
     burn = Seq([
         Assert(And(
-            is_assets_admin,
+            is_reserve_admin,
             Txn.application_args.length() == Int(2),
             Txn.accounts.length() == Int(1),
             burn_amount <= App.localGet(Int(1), Bytes("balance"))
