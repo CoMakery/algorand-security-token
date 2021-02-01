@@ -252,7 +252,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
         [Txn.application_args[0] == Bytes("grantRoles"), grant_roles],
-        [Txn.application_args[0] == Bytes("transfer group"), set_transfer_rules],
+        [Txn.application_args[0] == Bytes("setAllowGroupTransfer"), set_transfer_rules],
         [Txn.application_args[0] == Bytes("transfer restrictions"), set_address_permissions],
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],

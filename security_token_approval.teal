@@ -28,7 +28,7 @@ byte "grantRoles"
 ==
 bnz l6
 txna ApplicationArgs 0
-byte "transfer group"
+byte "setAllowGroupTransfer"
 ==
 bnz l7
 txna ApplicationArgs 0
