@@ -179,6 +179,12 @@ The freezing and locking of accounts applies to transfers out of the account. Th
 
 By default a wallet cannot be transferred to. In order to transfer into a wallet, a transfer rule must be in place allowing transfers from transfer group x to transfer group y. To keep a wallet from receiving any transfers change the transfer group to a group that does not have any group that is allowed to transfer groups to it. It is recommended that the default transfer group 0 does not have a rule that allows transfers to it.
 
+## (QSP-4) Why Is The Total Supply Constant?
+
+The token is assumed to have a fixed supply determined at the time of minting regardless of which account is in control of the tokens. Burning and minting tokens preserves a fixed supply of tokens by issuing and returning tokens to the reserve. The reserve is controlled by the Reserve admins. The total tokens held by non-reserve accounts can be determined by subtracting `totalSupply - reserve`.
+
+Although this does not match the OpenZeppelin ERC20 standard implementation, it is equivalent to the implementation of clawback for Algorand Standard Assets.
+
 ## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilaterally?
 
 To mitigate the centralization of this power, mint and burn functionality should be controlled by multi-sig accounts that are native to Algorand where possible. It is safer to enforce multi-sig using Algorand's multi-sig keys than it is to implement multi-sig functionality in the Algorand smart contract.
