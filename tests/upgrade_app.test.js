@@ -42,7 +42,7 @@ test("admin can upgrade the app while maintaining the global and local state", a
     // that writes version 2 to global and receiver account state
     let setV2FlagFromUpgradedContract =
         `goal app call --app-id ${appId} --app-arg 'str:setversion' ` +
-        `--from ${adminAccount.addr} --app-account ${newAccount.addr}`
+        `--from ${adminAccount.addr} --app-account ${newAccount.addr} -d devnet/Primary`
     console.log(setV2FlagFromUpgradedContract)
     await shell.exec(setV2FlagFromUpgradedContract, {async: false, silent: false})
 
