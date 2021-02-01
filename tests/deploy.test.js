@@ -27,7 +27,8 @@ test('test initial deployment state', async () => {
     expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
     expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000') // TODO: rename to total
     expect(globalState['decimals']["ui"].toString()).toEqual('8')
-    expect(globalState['unitname']['tb']).toEqual("ABCTEST")
+    expect(globalState['symbol']['tb']).toEqual("ABCTEST")
+    expect(globalState['name']['tb']).toEqual("The XYZ Test Token")
 })
 
 test('test initial deployment args', async () => {
@@ -37,5 +38,5 @@ test('test initial deployment args', async () => {
     expect(globalState['reserve']["ui"].toString()).toEqual('1234567')
     expect(globalState['totalSupply']["ui"].toString()).toEqual('1234567')
     expect(globalState['decimals']["ui"].toString()).toEqual('7')
-    expect(globalState['unitname']['tb']).toEqual("XYZ2")
+    expect(globalState['symbol']['tb']).toEqual("XYZ2")
 })

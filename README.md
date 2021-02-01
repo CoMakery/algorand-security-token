@@ -97,8 +97,8 @@ When you compile the contract from Javascript you need to encode all of the para
 For example you may need to do something like the following to encode arguments in Javascript before passing them to the API. 
 ```
 let enc = new TextEncoder()
-let unitname = enc.encode("ABCTEST")
-appArgs.push(unitname)
+let symbol = enc.encode("ABCTEST")
+appArgs.push(symbol)
 ```
 
 Note that you may also need to avoid overloading Javscript integer size by using a BigInt. An encoding step would still be necessery even with a small integer. Both cases are made easier with the `lib/algoUtils.js` `bigIntToUint8Array()` function.

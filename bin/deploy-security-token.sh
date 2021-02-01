@@ -26,5 +26,6 @@ goal app create --creator $ADDR_CREATOR \
 --app-arg "int:8000000000000000000" \
 --app-arg "int:8" \
 --app-arg "str:XYZTEST" \
+--app-arg "str:Token of XYZ" \
 --on-completion optin \
 -d $ALGORAND_DATA

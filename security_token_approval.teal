@@ -50,7 +50,7 @@ bnz l11
 err
 l0:
 txn NumAppArgs
-int 3
+int 4
 ==
 bnz l13
 err
@@ -70,8 +70,11 @@ byte "decimals"
 txna ApplicationArgs 1
 btoi
 app_global_put
-byte "unitname"
+byte "symbol"
 txna ApplicationArgs 2
+app_global_put
+byte "name"
+txna ApplicationArgs 3
 app_global_put
 int 0
 byte "transferGroup"
