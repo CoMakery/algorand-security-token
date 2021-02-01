@@ -58,3 +58,25 @@ test("admin can upgrade the app while maintaining the global and local state", a
     expect(localState["transfer group"]["ui"]).toEqual(1)
     expect(localState["local-version"]["ui"]).toEqual(2)
 })
+
+test("non admin cannot upgrade", async () => {
+    let info = await util.deploySecurityToken(clientV2, adminAccount)
+    appId = info.appId
+    console.log('Create app: ', appId, adminAccount.addr)
+
+    await util.optInApp(clientV2, newAccount, appId)
+
+    let appArgs = [EncodeBytes("mint"), EncodeUint('27')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [newAccount.addr])
+    localState = await util.readLocalState(clientV2, newAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(27)
+
+    let error = null
+    try {
+        await util.upgradeSecurityToken(clientV2, newAccount, appId)
+    } catch (e) {
+       error = e
+    }
+
+    expect(error.message).toBe("Bad Request")
+})
