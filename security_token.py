@@ -33,8 +33,8 @@ def approval_program():
     ])
 
     # pause all transfers
-    #
-    # sender must be contract admin
+    # goal app call --app-id uint --from account --app-arg 'str:pause' --app-arg "int:${0 for false and 1 for true}"
+    # the sender must be a contract admin
     new_pause_value = Btoi(Txn.application_args[1])
     pause = Seq([
         Assert(Txn.application_args.length() == Int(2)),
@@ -42,25 +42,47 @@ def approval_program():
         Return(is_contract_admin)
     ])
 
+    # Set Permissions
+    # goal app call --app-id uint --from admin --app-account targetAddress --app-arg 'str:set permissions' --app-arg "int:${role-uint}"
+    #
     # set contract permissions for Txn.accounts[1]
-    # Txn.application_args[1] should be a 4-bit permissions integer,
-    # where each bit represents a role:
-    # 1) account transfer restrictions (wallets admin)
-    # 2) transfer rules (transfer rules admin)
-    # 3) mint/burn (assets admin)
-    # 4) granting permissions (contract admin)
+    # Txn.application_args[1] should be a 4-bit permissions integer
+    # permssions can only be set by a contract admin
+
+    # Permissions are set with an integer where each of the first 4 bits represents a role:
+    # Int(0)  | 0000 | No admin role
+    # Int(1)  | 0001 | Wallets
+    # Int(2)  | 0010 | Transfer Rules
+    # Int(4)  | 0100 | Reserve
+    # Int(8)  | 1000 | Contract Admin
+    # Int(10) | 1010 | Contract Admin + Transfer Rules
+
+    # Roles can be combined using the bitmask for the binary representation of the permissions
+    # then converted into the corresponding integer for the bitmask.
+    # For example permission integer 15 grants all roles:
+    # Int(15) | 1111 | Contract Admin + Reserve + Transfer Rules + Wallets
+
+    # Here is the full list of permissions integers and their corresponding bitmask
+    # Role Int| Bits | Roles
+    # Int(0)  | 0000 | No admin role
+    # Int(1)  | 0001 | Wallets
+    # Int(2)  | 0010 | Transfer Rules
+    # Int(3)  | 0011 | Transfer Rules + Wallets
+    # Int(4)  | 0100 | Reserve
+    # Int(5)  | 0101 | Reserve + Wallets
+    # Int(6)  | 0110 | Reserve + Transfer Rules
+    # Int(7)  | 0111 | Reserve + Transfer Rules + Wallets
+    # Int(8)  | 1000 | Contract Admin
+    # Int(9)  | 1001 | Contract Admin + Wallets
+    # Int(10) | 1010 | Contract Admin + Transfer Rules
+    # Int(11) | 1011 | Contract Admin + Transfer Rules + Wallets
+    # Int(12) | 1100 | Contract Admin + Reserve
+    # Int(13) | 1101 | Contract Admin + Reserve + Wallets
+    # Int(14) | 1110 | Contract Admin + Reserve + Transfer Rules
+    # Int(15) | 1111 | Contract Admin + Reserve + Transfer Rules + Wallets
     #
-    # examples:
-    # Int(1) 0001 – access to account transfer restrictions
-    # Int(3) 0011 – access to account transfer restrictions and transfer rules
-    # Int(6) 0110 – access to transfer rules and mint/burn
-    # Int(8) 1000 – access to granting permissions (= contract admin)
-    # Int(15) 1111 – access to everything (= contract admin)
-    #
-    # contract admin permission can only be revoked by other contract admin
-    # to avoid removing all contract admins
-    #
-    # sender must be contract admin
+    # WARNING: contract admin permission can only be revoked by other contract admins
+    # to avoid removing all contract admins.
     permissions = Btoi(Txn.application_args[1])
     set_permissions = Seq([
         Assert(And(
@@ -153,8 +175,7 @@ def approval_program():
         Return(Int(1))
     ])
 
-    # move assets from Txn.accounts[0] to the reserve
-    #
+    # burn moves assets from Txn.accounts[1] to the reserve
     # sender must be assets admin
     burn_amount = Btoi(Txn.application_args[1])
     burn = Seq([
@@ -169,8 +190,9 @@ def approval_program():
         Return(Int(1))
     ])
 
-    # goal app call --app-id $1 --from $2 --app-account $3 --app-arg 'str:transfer' --app-arg "int:${4}"
-    # transfer assets from the sender to Txn.accounts[1]
+    # transfer
+    # transfers assets from the sender to the receiver Txn.accounts[1]
+    # goal app call --app-id uint --from address --app-account receiverAddr --app-arg 'str:transfer' --app-arg "int:amount"
     transfer_amount = Btoi(Txn.application_args[1])
     receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("max balance"))
     transfer = Seq([
