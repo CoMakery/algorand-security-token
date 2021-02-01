@@ -209,13 +209,13 @@ def approval_program():
         [Txn.application_id() == Int(0), on_creation],
 
         # goal app delete --app-id uint --from address
-        # Warning: to preserve critical global application state
+        # WARNING: to preserve critical global application state
         # calling this Algorand required app function will fail with "transaction rejected by ApprovalProgram"
         [Txn.on_completion() == OnComplete.DeleteApplication, Return(Int(0))],
         [Txn.on_completion() == OnComplete.UpdateApplication, Return(is_contract_admin)],
 
         # goal app closeout --app-id uint --from address
-        # to keep from deleting critical token balances held in the addresses local storage
+        # WARNING: to keep from deleting critical token balances held in the addresses local storage
         # do not allow the app to be closed out
         # calling this will fail with "transaction rejected by ApprovalProgram"
         [Txn.on_completion() == OnComplete.CloseOut, Return(Int(0))],
