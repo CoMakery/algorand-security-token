@@ -284,6 +284,7 @@ def approval_program():
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],
         [Txn.application_args[0] == Bytes("transfer"), transfer],
+        [Txn.application_args[0] == Bytes("detectTransferRestriction"), detectTransferRestriction],
     )
 
     return program
