@@ -201,7 +201,7 @@ def approval_program():
         Return(Int(1))
     ])
 
-    # accepts sender and receiver indexes in current Txn.accounts[]
+    # accepts sender and receiver indices in current Txn.accounts[]
     # returns true if all checks are succesfull and transfer is allowed
     def isTransferAllowed(sender_idx, receiver_idx, amount):
         return Not(Or(
