@@ -55,7 +55,7 @@ int 4
 bnz l13
 err
 l13:
-byte "totalSupply"
+byte "cap"
 txna ApplicationArgs 0
 btoi
 app_global_put

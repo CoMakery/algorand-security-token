@@ -5,7 +5,7 @@ from pyteal import *
 def approval_program():
     on_creation = Seq([
         Assert(Txn.application_args.length() == Int(4)),
-        App.globalPut(Bytes("totalSupply"), Btoi(Txn.application_args[0])),
+        App.globalPut(Bytes("cap"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("reserve"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("paused"), Int(0)),
         App.globalPut(Bytes("decimals"), Btoi(Txn.application_args[1])),
@@ -278,7 +278,7 @@ def approval_program():
 # state to avoid loosing your balance. It is implemented because it is required functionality for all Algorand Apps.
 def clear_state_program():
     program = Seq([
-        # To preserve totalSupply integrity, balances are returned to the reserve when the clear state is executed.
+        # To preserve cap integrity, balances are returned to the reserve when the clear state is executed.
         App.globalPut(
             Bytes("reserve"),
             App.globalGet(Bytes("reserve")) + App.localGet(Int(0), Bytes("balance"))
