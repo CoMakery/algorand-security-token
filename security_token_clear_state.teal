@@ -7,5 +7,12 @@ byte "balance"
 app_local_get
 +
 app_global_put
+byte "totalSupply"
+byte "cap"
+app_global_get
+byte "reserve"
+app_global_get
+-
+app_global_put
 int 1
 return

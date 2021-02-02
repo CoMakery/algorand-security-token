@@ -2,9 +2,14 @@
 
 from pyteal import *
 
+# Code reused for setting the totalSupply in the mint, burn and clear state program
+def update_total_supply():
+    return App.globalPut(Bytes("totalSupply"), App.globalGet(Bytes("cap")) - App.globalGet(Bytes("reserve")))
+
 def approval_program():
     on_creation = Seq([
         Assert(Txn.application_args.length() == Int(4)),
+        App.globalPut(Bytes("totalSupply"), Int(0)),
         App.globalPut(Bytes("cap"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("reserve"), Btoi(Txn.application_args[0])),
         App.globalPut(Bytes("paused"), Int(0)),
@@ -180,6 +185,7 @@ def approval_program():
             Return(Int(0))
         ),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) - mint_amount),
+        update_total_supply(),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) + mint_amount),
         Return(Int(1))
     ])
@@ -198,6 +204,7 @@ def approval_program():
         )),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) + burn_amount),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) - burn_amount),
+        update_total_supply(),
         Return(Int(1))
     ])
 
@@ -271,7 +278,7 @@ def approval_program():
 # goal app clear --app-id uint --from address
 #
 # The clear state program handles clearing the app from an addresses local storage, returns tokens to the reserve,
-# and opts out the address from the app.
+# updates the totalSupply, and opts out the address from the app.
 #
 # WARNING: Calling this will return the tokens held by the address to the reserve and the account will no longer have
 # the balance of tokens even if the account opts back in to the account. It is recommended that you never call clear
@@ -283,6 +290,7 @@ def clear_state_program():
             Bytes("reserve"),
             App.globalGet(Bytes("reserve")) + App.localGet(Int(0), Bytes("balance"))
         ),
+        update_total_supply(),
         Return(Int(1))
     ])
 

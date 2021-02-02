@@ -37,6 +37,7 @@ it('when a non admin account runs the clear state program their tokens are retur
 
   // tokens transferred from reserve to receiver
   globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+  expect(globalState['totalSupply']["ui"].toString()).toEqual('27')
   expect(globalState['reserve']["ui"].toString()).toEqual('79999999999999973')
   expect(globalState['cap']["ui"].toString()).toEqual('80000000000000000')
 
@@ -56,6 +57,7 @@ it('when a non admin account runs the clear state program their tokens are retur
   globalState = await util.readGlobalState(clientV2, adminAccount, appId)
   expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
   expect(globalState['cap']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['totalSupply']["ui"]).toEqual(undefined)
 
   // should be able to opt back in and have cleared opt in balance state
   await util.optInApp(clientV2, receiverAccount, appId)
@@ -66,4 +68,6 @@ it('when a non admin account runs the clear state program their tokens are retur
   globalState = await util.readGlobalState(clientV2, adminAccount, appId)
   expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
   expect(globalState['cap']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['totalSupply']["ui"]).toEqual(undefined)
+
 })
