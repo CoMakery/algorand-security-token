@@ -417,24 +417,15 @@ txn NumAccounts
 int 1
 ==
 &&
-txna ApplicationArgs 1
-btoi
 int 0
 byte "balance"
 app_local_get
-<=
-&&
-bnz l29
-err
-l29:
-int 1
-global CurrentApplicationID
-byte "maxBalance"
-app_local_get_ex
-store 2
-store 3
+txna ApplicationArgs 1
+btoi
+<
 byte "paused"
 app_global_get
+||
 int 0
 byte "frozen"
 app_local_get
@@ -475,8 +466,12 @@ app_global_get
 global LatestTimestamp
 >=
 ||
-load 2
-load 3
+int 1
+byte "maxBalance"
+app_local_get
+int 1
+byte "maxBalance"
+app_local_get
 int 1
 byte "balance"
 app_local_get
@@ -486,10 +481,11 @@ btoi
 <
 &&
 ||
-bz l30
-int 0
-return
-l30:
+!
+&&
+bnz l29
+err
+l29:
 int 0
 byte "balance"
 int 0
