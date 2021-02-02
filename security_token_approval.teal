@@ -340,13 +340,6 @@ txna ApplicationArgs 1
 btoi
 -
 app_global_put
-byte "totalSupply"
-byte "cap"
-app_global_get
-byte "reserve"
-app_global_get
--
-app_global_put
 int 1
 byte "balance"
 int 1
@@ -356,6 +349,13 @@ txna ApplicationArgs 1
 btoi
 +
 app_local_put
+byte "totalSupply"
+byte "cap"
+app_global_get
+byte "reserve"
+app_global_get
+-
+app_global_put
 int 1
 return
 b l12

@@ -185,8 +185,8 @@ def approval_program():
             Return(Int(0))
         ),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) - mint_amount),
-        update_total_supply(),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) + mint_amount),
+        update_total_supply(),
         Return(Int(1))
     ])
 
