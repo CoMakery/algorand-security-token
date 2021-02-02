@@ -165,7 +165,7 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | CloseOut | called when closing out of the contract | forbidden |
 | [OptIn](bin/optin.sh) | Called by anyone who will use the app before they use the app | any account |
 | ["pause"](tests/pause_contract.test.js) | Freezes all transfers of the token for all token holders. | contract admin |
-| ["grantRoles"](tests/permissions.test.js) | Sets account contract permissions. Accepts 4-bit permissions integer. See: [Appendix 1: Permissions Matrix](#perm-matrix) for details. | contract admin |
+| ["grantRoles"](tests/permissions.test.js) | Sets account contract permissions. Accepts 4-bit permissions integer. See: [Appendix 1: Roles Matrix](#roles-matrix) for details. | contract admin |
 | ["setAddressPermissions"](tests/set_transfer_restrictions.test.js) | Sets account transfer restrictions: 1) `freeze` – freezes a specific address. 2) `maxBalance` – sets the max number of tokens an account can hold. 3) `lockUntil` – stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. 4) `transfer group` –  sets the category of an address for use in transfer group rules. The default category is 1. | wallets admin |
 | ["setAllowGroupTransfer](bin/transfer-group-lock.sh) | Specifies a lockUntil time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lockUntil time. The lockUntil time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked. | transfer rules admin |
 | ["mint"](bin/mint.sh) | Create new tokens from the reserve | reserve admin |
@@ -221,7 +221,7 @@ The examples of the contract evenly distribute memory allocation types, to allow
 
 If you know the memory requirements that you may need for future versions of the application you may want to vary these. Keep in mind that some of the memory locations may not be initialized at the time of deployment, but the memory will need to be available in order for the values to be stored in global or local memory.
 
-# Appendix 1: Permissions Matrix <span id="perm-matrix"><span>
+# Appendix 1: Roles Matrix <span id="roles-matrix"><span>
 
 | Role Integer | Admin Roles                                           | Bit Mask Representation | Contract Admin | Reserve | Transfer Rules | Wallets |
 | ------------ | ----------------------------------------------------- | ----------------------- | -------------- | --------- | -------------- | ------- |
