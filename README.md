@@ -138,7 +138,13 @@ The Algorand Security Token can be configured after deployment to enforce transf
 ![](diagrams/basic_issuance.png)
 
 
-The Transfer Admin for the Token Contract can provision account addresses to transfer and receive tokens under certain conditions. This is the process for configuring transfer restrictions and transferring tokens:
+The Transfer Admin role and Wallet Admin role for the Token Contract can provision account addresses to transfer and receive tokens under certain conditions. 
+
+The Wallet Admin sets blockchain address permissions including the group, max token balance, address lock until date and if the address is frozen. 
+
+The transfer admin sets the rules for when transferring between wallet group types is allowed. Transfer rules define a rule from a group X to any target group Y. By default transfers between wallet groups are not allowed. The Transfer Admin must call setAllowGroupTransfer with a date after which transfers will be allowed for that pair.
+
+This is the process for configuring transfer restrictions and transferring tokens:
 1. A transfer rules admin configures which transfer groups can transfer to each other with "setAllowTransferGroups". Note that allowing a transfer from group A to group B by default does not allow the reverse transfer from group B to group A. This would have to be done separately. An example is that Reg CF unaccredited investors may be allowed to sell to Accredited US investors but not vice versa.
 2. A potential buyer sends their Anti Money Laundering and Know Your Customer (AML/KYC) information to the Wallet Admin or to a proxy vetting service to verify this information. The benefit of using a qualified third party provider is to avoid needing to store privately identifiable information. This code does not provide a solution for collecting AML/KYC information.
 3. The Wallet Admin configures the "transferGroup", "lockUntil" and "maxBalance" attribute for the buyer account. Initially this will be done for the Primary Issuance of tokens to investors where tokens are distributed directly from the issuer to holder accounts.
@@ -166,7 +172,7 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | [OptIn](bin/optin.sh) | Called by anyone who will use the app before they use the app | any account |
 | ["pause"](tests/pause_contract.test.js) | Freezes all transfers of the token for all token holders. | contract admin |
 | ["grantRoles"](tests/permissions.test.js) | Sets account contract permissions. Accepts 4-bit permissions integer. See: [Appendix 1: Roles Matrix](#roles-matrix) for details. | contract admin |
-| ["setAddressPermissions"](tests/set_transfer_restrictions.test.js) | Sets account transfer restrictions: 1) `freeze` – freezes a specific address. 2) `maxBalance` – sets the max number of tokens an account can hold. 3) `lockUntil` – stop transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time. 4) `transfer group` –  sets the category of an address for use in transfer group rules. The default category is 1. | wallets admin |
+| ["setAddressPermissions"](tests/set_transfer_restrictions.test.js) | Sets account transfer restrictions:<br />1) `freeze` the address from making transfers. It can still receive transfers in.<br />2) `maxBalance` sets the max number of tokens an account can hold. Transfers into the address cannot exceed this amount.<br />3) `lockUntil` stops transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time.<br />4) `transfer group` –  sets the category of an address for use in transfer group rules. The default category is 1. | wallets admin |
 | ["setAllowGroupTransfer](bin/transfer-group-lock.sh) | Specifies a lockUntil time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lockUntil time. The lockUntil time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked. | transfer rules admin |
 | ["mint"](bin/mint.sh) | Create new tokens from the reserve | reserve admin |
 | ["burn"](tests/burn.test.js) | Destroy tokens from a specified address | reserve admin |
@@ -180,12 +186,6 @@ The freezing and locking of accounts applies to transfers out of the account. Th
 
 By default a wallet cannot be transferred to. In order to transfer into a wallet, a transfer rule must be in place allowing transfers from transfer group x to transfer group y. To keep a wallet from receiving any transfers change the transfer group to a group that does not have any group that is allowed to transfer groups to it. It is recommended that the default transfer group 0 does not have a rule that allows transfers to it.
 
-## (QSP-4) Why Is The Total Supply Constant?
-
-The token is assumed to have a fixed supply determined at the time of minting regardless of which account is in control of the tokens. Burning and minting tokens preserves a fixed supply of tokens by issuing and returning tokens to the reserve. The reserve is controlled by the Reserve admins. The total tokens held by non-reserve accounts can be determined by subtracting `cap - reserve`.
-
-Although this does not match the OpenZeppelin ERC20 standard implementation, it is equivalent to the implementation of clawback for Algorand Standard Assets.
-
 ## (QSP-5) Users can have their tokens burnt, what keeps this from happening by accident or unilaterally?
 
 To mitigate the centralization of this power, mint and burn functionality should be controlled by multi-sig accounts that are native to Algorand where possible. It is safer to enforce multi-sig using Algorand's multi-sig keys than it is to implement multi-sig functionality in the Algorand smart contract.
@@ -196,12 +196,16 @@ The contract admin role's purpose is to grant granular roles to accounts. By def
 
 It is recommended that all admin actions should be performed by accounts other than the contract admin account that hold task specific roles. This is a change from the original CoMakery Security Token implemented on Ethereum. While using that contract we learned that greater separation of roles would be significantly more secure than just having a contract admin and transfer admin role.
 
+## QSP-8 Do Algorand Smart Contracts Lack A Standard Like the Ethereum ERC20 Token? 
+
+Yes, to accommodate this we use functionality with the same function names and behavior as the Ethereum ERC20 token standard - with the notable exception that the contract does not implement the `approve()` and `transferFrom` functions. See next question...
+
 ## QSP-9 Why doesn't the contract implement the approve() and transferFrom() functions from the ERC20 standard?
 
-TEAL smart contracts can’t directly call/invoke other contracts. But you can achieve something similar by having a contract only succeed if another stateful contract call is in the same transaction group as it. 
-
-This article describes how grouped transactions can be referenced by multiple contracts: https://developer.algorand.org/articles/linking-algorand-stateful-and-stateless-smart-contracts/ 
-
+TEAL smart contracts can’t directly call/invoke other contracts. But you can achieve something similar by having a contract only succeed if another stateful contract call is in the same transaction group as it. These articles describes how grouped transactions can be referenced by multiple contracts and processed atomically:
+* https://developer.algorand.org/articles/linking-algorand-stateful-and-stateless-smart-contracts
+* https://developer.algorand.org/docs/features/atomic_transfers/
+ 
 This article describes how contracts can reference the state of another contract
 
 ## How much stateful smart contract memory is allocated? Why?
