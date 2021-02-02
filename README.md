@@ -104,8 +104,8 @@ appArgs.push(symbol)
 Note that you may also need to avoid overloading Javscript integer size by using a BigInt. An encoding step would still be necessery even with a small integer. Both cases are made easier with the `lib/algoUtils.js` `bigIntToUint8Array()` function.
 
 ```
-let totalSupply = this.bigIntToUint8Array('8' + '0'.repeat(16))
-appArgs.push(totalSupply)
+let cap = this.bigIntToUint8Array('8' + '0'.repeat(16))
+appArgs.push(cap)
 ```
 
 Some of these rounding errors may show up in the TEAL Javascript SDK because JSON.parse doesn't handle big integers well.
@@ -148,7 +148,7 @@ The Transfer Admin for the Token Contract can provision account addresses to tra
 
 ## WARNING: Maximum Total Supply, Minting and Burning of Tokens
 
-The global variable `totalSupply` is set when the contract is created and limits the total number of tokens that can be minted.
+The global variable `cap` is set when the contract is created and limits the total number of tokens that can be minted.
 
 **Contract admins can mint tokens to and burn tokens from any address. This is primarily to comply with law enforcement, regulations and stock issuance scenarios - but this centralized power could be abused. Transfer admins, authorized by contract admins, can also update the transfer rules at any moment in time as many times as they want.**
 
@@ -182,7 +182,7 @@ By default a wallet cannot be transferred to. In order to transfer into a wallet
 
 ## (QSP-4) Why Is The Total Supply Constant?
 
-The token is assumed to have a fixed supply determined at the time of minting regardless of which account is in control of the tokens. Burning and minting tokens preserves a fixed supply of tokens by issuing and returning tokens to the reserve. The reserve is controlled by the Reserve admins. The total tokens held by non-reserve accounts can be determined by subtracting `totalSupply - reserve`.
+The token is assumed to have a fixed supply determined at the time of minting regardless of which account is in control of the tokens. Burning and minting tokens preserves a fixed supply of tokens by issuing and returning tokens to the reserve. The reserve is controlled by the Reserve admins. The total tokens held by non-reserve accounts can be determined by subtracting `cap - reserve`.
 
 Although this does not match the OpenZeppelin ERC20 standard implementation, it is equivalent to the implementation of clawback for Algorand Standard Assets.
 
@@ -195,6 +195,14 @@ To mitigate the centralization of this power, mint and burn functionality should
 The contract admin role's purpose is to grant granular roles to accounts. By default the contract admin cannot perform the actions of other roles, but has the power to grant these roles to it's own account. The granularity of roles follows the principle of least authority. It is encouraged that the contract admin uses a multi-signature account and is used very infrequently after deplopyment. 
 
 It is recommended that all admin actions should be performed by accounts other than the contract admin account that hold task specific roles. This is a change from the original CoMakery Security Token implemented on Ethereum. While using that contract we learned that greater separation of roles would be significantly more secure than just having a contract admin and transfer admin role.
+
+## QSP-9 Why doesn't the contract implement the approve() and transferFrom() functions from the ERC20 standard?
+
+TEAL smart contracts can’t directly call/invoke other contracts. But you can achieve something similar by having a contract only succeed if another stateful contract call is in the same transaction group as it. 
+
+This article describes how grouped transactions can be referenced by multiple contracts: https://developer.algorand.org/articles/linking-algorand-stateful-and-stateless-smart-contracts/ 
+
+This article describes how contracts can reference the state of another contract
 
 ## How much stateful smart contract memory is allocated? Why?
 

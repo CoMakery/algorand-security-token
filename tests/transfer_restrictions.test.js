@@ -37,7 +37,7 @@ test('has expected starting test state', async () => {
     }).stdout
     console.log(status)
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['totalSupply']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['cap']['ui'].toString()).toEqual('80000000000000000')
     expect(globalState['reserve']['ui'].toString()).toEqual("79999999999999973")
 
     // recipient opted in
@@ -78,7 +78,7 @@ test('simple transfer', async () => {
 
     // check global supply is same
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['totalSupply']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['cap']['ui'].toString()).toEqual('80000000000000000')
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
 })
 

@@ -19,41 +19,35 @@ beforeEach(async () => {
     let info = await util.deploySecurityToken(clientV2, adminAccount)
     appId = info.appId
 
-    //mint
-    appArgs = [EncodeBytes("mint"), EncodeUint('27')]
-    await util.appCall(clientV2, adminAccount, info.appId, appArgs, [adminAccount.addr])
-
     //opt in
     await util.optInApp(clientV2, receiverAccount, appId)
-
-    let earliestPermittedTime = 1
-    // from group 1 -> 1 is allowed
-    let transferGroupLock1 =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setAllowGroupTransfer' ` +
-        `--app-arg "int:1" --app-arg "int:1" ` +
-        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
-
-    await shell.exec(transferGroupLock1, {async: false, silent: false})
 })
 
-test('admin can burn from any account', async () => {
-    //transfer
-    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+it('should have a starting totalSupply of undefined / 0', async function () {
+    let globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['totalSupply']["ui"]).toEqual(undefined)
+})
+
+it('minting and burning updates the total supply', async () => {
+    let appArgs = [EncodeBytes("mint"), EncodeUint('27')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    //burn tokens
+    let localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(27)
+
+    let globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['totalSupply']["ui"]).toEqual(27)
+
     appArgs = [EncodeBytes("burn"), EncodeUint('7')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-    // receiver account has had their token burned
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["balance"]["ui"]).toEqual(4)
+    expect(localState["balance"]["ui"]).toEqual(20)
 
-    // check burned tokens go back to the reserve
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
-    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999980')
-
-    // check global supply is the same
-    expect(globalState['cap']['ui'].toString()).toBe('80000000000000000')
+    expect(globalState['totalSupply']["ui"]).toEqual(20)
 })
+
+// transfer does not update
+// failed mint does not update
+// failed burn does not update

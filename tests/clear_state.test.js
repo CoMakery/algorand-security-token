@@ -24,7 +24,7 @@ it('when a non admin account runs the clear state program their tokens are retur
 
   let globalState = await util.readGlobalState(clientV2, adminAccount, appId)
   expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
-  expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['cap']["ui"].toString()).toEqual('80000000000000000')
 
   //opt in
   await util.optInApp(clientV2, receiverAccount, appId)
@@ -37,8 +37,9 @@ it('when a non admin account runs the clear state program their tokens are retur
 
   // tokens transferred from reserve to receiver
   globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+  expect(globalState['totalSupply']["ui"].toString()).toEqual('27')
   expect(globalState['reserve']["ui"].toString()).toEqual('79999999999999973')
-  expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['cap']["ui"].toString()).toEqual('80000000000000000')
 
   // this also opts out the user
   await util.clearState(clientV2, receiverAccount, appId)
@@ -55,15 +56,18 @@ it('when a non admin account runs the clear state program their tokens are retur
     toBe(`${receiverAccount.addr} has not opted in to application ${appId}`)
   globalState = await util.readGlobalState(clientV2, adminAccount, appId)
   expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
-  expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['cap']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['totalSupply']["ui"]).toEqual(undefined)
 
   // should be able to opt back in and have cleared opt in balance state
   await util.optInApp(clientV2, receiverAccount, appId)
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["balance"]["ui"]).toEqual(undefined)
 
-  // the totalSupply and reserve maintain the total balance from after the receiver account cleared its state
+  // the cap and reserve maintain the total balance from after the receiver account cleared its state
   globalState = await util.readGlobalState(clientV2, adminAccount, appId)
   expect(globalState['reserve']["ui"].toString()).toEqual('80000000000000000')
-  expect(globalState['totalSupply']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['cap']["ui"].toString()).toEqual('80000000000000000')
+  expect(globalState['totalSupply']["ui"]).toEqual(undefined)
+
 })
