@@ -8,7 +8,7 @@ actor "Wallet\nAdmin" as WAdmin
 
 TAdmin -> Token: set "setTransferRule" "lockUntil" time
 Buyer -> WAdmin: send AML/KYC and accreditation info
-WAdmin -> Token: set buyer address permissions\n"lockUntil"\n"maxBalance"\n"transferGroup" // Reg D, S, or CF
+WAdmin -> Token: "setAddressPermissions" for buyer address\n"lockUntil"\n"maxBalance"\n"transferGroup" // Reg D, S, or CF
 activate Token
 Seller -> Token: transfer(buyerAddress, amount)
 Token -> Token: check transfer restrictions\n(from, to, time, maxBalance, lockup)
