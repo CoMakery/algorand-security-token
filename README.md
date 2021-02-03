@@ -214,8 +214,8 @@ Yes, to accommodate this we use functionality with the same function names and b
 TEAL smart contracts can’t directly call/invoke other contracts. But you can achieve something similar by having a contract only succeed if another stateful contract call is in the same transaction group as it. These articles describes how grouped transactions can be referenced by multiple contracts and processed atomically:
 * https://developer.algorand.org/articles/linking-algorand-stateful-and-stateless-smart-contracts
 * https://developer.algorand.org/docs/features/atomic_transfers/
- 
-This article describes how contracts can reference the state of another contract
+
+The teal contracts can also read (but not write to) the state of other contracts. See the [PyTeal documentation](https://pyteal.readthedocs.io/en/stable/state.html#state-operation-table) for State Operations.
 
 ## How much stateful smart contract memory is allocated? Why?
 
