@@ -142,7 +142,7 @@ The Algorand Security Token can be configured after deployment to enforce transf
 
 ![](diagrams/issuer_transfer_restriction_graph.png)
 
-## Basic Issuance
+## Basic Transfer Restrictions Between Buyer and Seller Accounts
 
 ![](diagrams/basic_issuance.png)
 
