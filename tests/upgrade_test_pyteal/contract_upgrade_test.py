@@ -2,6 +2,9 @@
 
 from pyteal import *
 
+def update_total_supply():
+    return App.globalPut(Bytes("totalSupply"), App.globalGet(Bytes("cap")) - App.globalGet(Bytes("reserve")))
+
 def approval_program():
     local_permissions = App.localGet(Int(0), Bytes("roles"))
     is_reserve_admin = BitwiseAnd(local_permissions, Int(4))
@@ -12,29 +15,29 @@ def approval_program():
     # transfer group 1
     register = Seq([
         App.localPut(Int(0), Bytes("balance"), Int(0)),
+        App.localPut(Int(0), Bytes("maxBalance"), Int(0)),
+        App.localPut(Int(0), Bytes("lockUntil"), Int(0)),
         App.localPut(Int(0), Bytes("transferGroup"), Int(1)),
         Return(Int(1))
     ])
 
     mint_amount = Btoi(Txn.application_args[1])
-    receiver_max_balance = App.localGetEx(Int(1), App.id(), Bytes("maxBalance"))
+    receiver_max_balance = App.localGet(Int(1), Bytes("maxBalance"))
     mint = Seq([
         Assert(And(
             is_reserve_admin,
-            Txn.application_args.length() == Int(2),
-            Txn.accounts.length() == Int(1),
+            # Txn.accounts.length() == Int(1),
             mint_amount <= App.globalGet(Bytes("reserve"))
         )),
-        receiver_max_balance,
-        If(
-            And(
-                receiver_max_balance.hasValue(),
-                receiver_max_balance.value() < App.localGet(Int(1), Bytes("balance")) + mint_amount
+        Assert(
+            Or(
+                receiver_max_balance == Int(0),
+                receiver_max_balance >= App.localGet(Int(1), Bytes("balance")) + mint_amount
             ),
-            Return(Int(0))
         ),
         App.globalPut(Bytes("reserve"), App.globalGet(Bytes("reserve")) - mint_amount),
         App.localPut(Int(1), Bytes("balance"), App.localGet(Int(1), Bytes("balance")) + mint_amount),
+        update_total_supply(),
         Return(Int(1))
     ])
 

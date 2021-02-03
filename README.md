@@ -126,6 +126,15 @@ There are a few interrelated account reference quirks to keep in mind:
 * `Txn.accounts[n]` for n > 0 will evaluate to the element at the n-1th index of the --app-account/ForeignAccounts transaction field. 
 * Some versions of `tealdbg` show the Txn.Accounts array incorrectly. If n accounts are present in the transaction’s ForeignAccounts array, the debugger will show the sender’s account following by the first n-1 elements from ForeignAccounts.
 
+## Teal contract size
+
+The maximum size of the compiled teal contract is 1000 bytes.
+
+On Mac OS you can check the file size by running:
+```
+python security_token.py && goal clerk compile security_token_approval.teal && stat -f%z security_token_approval.teal.tok
+```
+
 # Use Cases
 
 ## Issuer Transfer Restrictions

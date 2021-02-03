@@ -117,8 +117,9 @@ test('wallets admin role can be revoked by contract admin', async () => {
     expect(error.message).toEqual("Bad Request")
   }
 
+  //receiver account role set to 0 / undefined
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["maxBalance"]).toEqual(undefined)
+  expect(localState["roles"]["ui"]).toEqual(undefined)
 })
 
 test('transfer rules admin role can be granted by contract admin', async () => {

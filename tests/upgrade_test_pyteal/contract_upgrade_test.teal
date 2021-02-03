@@ -54,6 +54,14 @@ byte "balance"
 int 0
 app_local_put
 int 0
+byte "maxBalance"
+int 0
+app_local_put
+int 0
+byte "lockUntil"
+int 0
+app_local_put
+int 0
 byte "transferGroup"
 int 1
 app_local_put
@@ -66,14 +74,6 @@ byte "roles"
 app_local_get
 int 4
 &
-txn NumAppArgs
-int 2
-==
-&&
-txn NumAccounts
-int 1
-==
-&&
 txna ApplicationArgs 1
 btoi
 byte "reserve"
@@ -84,24 +84,23 @@ bnz l8
 err
 l8:
 int 1
-global CurrentApplicationID
 byte "maxBalance"
-app_local_get_ex
-store 0
-store 1
-load 0
-load 1
+app_local_get
+int 0
+==
+int 1
+byte "maxBalance"
+app_local_get
 int 1
 byte "balance"
 app_local_get
 txna ApplicationArgs 1
 btoi
 +
-<
-&&
-bz l9
-int 0
-return
+>=
+||
+bnz l9
+err
 l9:
 byte "reserve"
 byte "reserve"
@@ -119,6 +118,13 @@ txna ApplicationArgs 1
 btoi
 +
 app_local_put
+byte "totalSupply"
+byte "cap"
+app_global_get
+byte "reserve"
+app_global_get
+-
+app_global_put
 int 1
 return
 b l7
