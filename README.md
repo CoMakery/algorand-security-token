@@ -223,14 +223,14 @@ The Algorand Stateful Smart Contract [documentation](https://developer.algorand.
 
 > The number of global and local byte slices and integers also needs to be specified. These represent the absolute on-chain amount of space that the smart contract will use. Once set, these values can never be changed. Each key-value pair is allowed up to 64 bytes each (64-byte key and 64-byte value). 
 
-The examples of the contract evenly distribute memory allocation types, to allow flexibility for future upgrades of the smart contract by the administrator:
+The following is a reasonable distribution to allow flexibility for future upgrades of the smart contract by the administrator:
 
-| TEAL Contract Memory Type | Allocation |
-| --- | --- |
-| local-ints | 8 |
-| local-byteslices | 8 |
-| global-ints | 32 |
-| global-byteslices | 32 |
+| TEAL Contract Memory Type | Allocation | Why |
+| --- | --- | --- |
+| local-byteslices | 8 of 16 total local | Even local distribution. |
+| local-ints | 8 of 16 total local | Even local distribution. |
+| global-byteslices | 54 of 64 total global | Each transfer rule takes a byteslice. Allocate most of the global memory to byteslices to leave room for many transfer rules between transfer groups. |
+| global-ints | 10 of 64 total global | There are at least 7 global ints. Leave room for a few more global ints in case of upgrades. |
 
 If you know the memory requirements that you may need for future versions of the application you may want to vary these. Keep in mind that some of the memory locations may not be initialized at the time of deployment, but the memory will need to be available in order for the values to be stored in global or local memory.
 

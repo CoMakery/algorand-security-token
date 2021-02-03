@@ -10,8 +10,8 @@ python security_token.py
 export ADDR_CREATOR=$1
 export TEAL_APPROVAL_PROG="security_token_approval.teal"
 export TEAL_CLEAR_PROG="security_token_clear_state.teal"
-export GLOBAL_BYTESLICES=32
-export GLOBAL_INTS=32
+export GLOBAL_BYTESLICES=54
+export GLOBAL_INTS=10
 export LOCAL_BYTESLICES=8
 export LOCAL_INTS=8
 export ALGORAND_DATA="devnet/Primary"
