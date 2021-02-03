@@ -126,6 +126,15 @@ There are a few interrelated account reference quirks to keep in mind:
 * `Txn.accounts[n]` for n > 0 will evaluate to the element at the n-1th index of the --app-account/ForeignAccounts transaction field. 
 * Some versions of `tealdbg` show the Txn.Accounts array incorrectly. If n accounts are present in the transaction’s ForeignAccounts array, the debugger will show the sender’s account following by the first n-1 elements from ForeignAccounts.
 
+## Teal contract size
+
+The maximum size of the compiled teal contract is 1000 bytes.
+
+On Mac OS you can check the file size by running:
+```
+python security_token.py && goal clerk compile security_token_approval.teal && stat -f%z security_token_approval.teal.tok
+```
+
 # Use Cases
 
 ## Issuer Transfer Restrictions
@@ -133,7 +142,7 @@ The Algorand Security Token can be configured after deployment to enforce transf
 
 ![](diagrams/issuer_transfer_restriction_graph.png)
 
-## Basic Issuance
+## Basic Transfer Restrictions Between Buyer and Seller Accounts
 
 ![](diagrams/basic_issuance.png)
 
@@ -142,7 +151,7 @@ The Transfer Admin role and Wallet Admin role for the Token Contract can provisi
 
 The Wallet Admin sets blockchain address permissions including the group, max token balance, address lock until date and if the address is frozen. 
 
-The transfer admin sets the rules for when transferring between wallet group types is allowed. Transfer rules define a rule from a group X to any target group Y. By default transfers between wallet groups are not allowed. The Transfer Admin must call setAllowGroupTransfer with a date after which transfers will be allowed for that pair.
+The transfer admin sets the rules for when transferring between wallet group types is allowed. Transfer rules define a rule from a group X to any target group Y. By default transfers between wallet groups are not allowed. The Transfer Admin must call setTransferRule with a date after which transfers will be allowed for that pair.
 
 This is the process for configuring transfer restrictions and transferring tokens:
 1. A transfer rules admin configures which transfer groups can transfer to each other with "setAllowTransferGroups". Note that allowing a transfer from group A to group B by default does not allow the reverse transfer from group B to group A. This would have to be done separately. An example is that Reg CF unaccredited investors may be allowed to sell to Accredited US investors but not vice versa.
@@ -171,12 +180,13 @@ The TEAL assembly smart contract language uses program branches with no loops (i
 | CloseOut | called when closing out of the contract | forbidden |
 | [OptIn](bin/optin.sh) | Called by anyone who will use the app before they use the app | any account |
 | ["pause"](tests/pause_contract.test.js) | Freezes all transfers of the token for all token holders. | contract admin |
-| ["grantRoles"](tests/permissions.test.js) | Sets account contract permissions. Accepts 4-bit permissions integer. See: [Appendix 1: Roles Matrix](#roles-matrix) for details. | contract admin |
+| ["grantRoles"](tests/permissions.test.js) | Sets account contract permissions. Accepts  an integer between 0 - 15 for the corresponding 4-bit bitmask permissions. See: [Appendix 1: Roles Matrix](#roles-matrix) for details. | contract admin |
 | ["setAddressPermissions"](tests/set_transfer_restrictions.test.js) | Sets account transfer restrictions:<br />1) `freeze` the address from making transfers. It can still receive transfers in.<br />2) `maxBalance` sets the max number of tokens an account can hold. Transfers into the address cannot exceed this amount.<br />3) `lockUntil` stops transfers from the address until the specified date. A locked address can still receive tokens but it cannot send them until the lockup time.<br />4) `transfer group` –  sets the category of an address for use in transfer group rules. The default category is 1. | wallets admin |
-| ["setAllowGroupTransfer](bin/transfer-group-lock.sh) | Specifies a lockUntil time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lockUntil time. The lockUntil time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked. | transfer rules admin |
+| ["setTransferRule"](bin/transfer-group-lock.sh) | Specifies a lockUntil time for transfers between a transfer from-group and a to-group. Transfers can between groups can only occur after the lockUntil time. The lockUntil time is specified as a Unix timestamp integer in seconds since the Unix Epoch. By default transfers beetween groups are not allowed. To allow a transfer set a timestamp in the past such as "1" - for the from and to group pair . The special transfer group default number "0" means the transfer is blocked. | transfer rules admin |
 | ["mint"](bin/mint.sh) | Create new tokens from the reserve | reserve admin |
 | ["burn"](tests/burn.test.js) | Destroy tokens from a specified address | reserve admin |
-| ["transfer"](tests/transfer_restrictions.test.js) | Transfer from one account to another | any opted in account |
+| ["transfer"](tests/transfer_restrictions.test.js) | Transfer from one account to another if the transfer is allowed as determined by the transfer rules and the sender address permissions. | any opted in account |
+| ["detect"](tests/detect_transfer_restrictions.test.js) | Detects if a transfer can be made from one account to another. Contract execution fails if the transfer cannot be made based on the same restriction logic as transfer. This function can be used with `--dry-run` to determine if the transfer can be made or it can be part of a grouped transaction - e.g.for constructing atomic swaps for a dex that honors the transfer restrictions!!<br /><br />Why is it called "detect"? Because the Ethereum ERC-1404 restricted token standard specifies a function interface called "detectTransferRestriction". But TEAL restricts contract bytesize to 1000 bytes and each character referencing the "function" name uses a byte each time it's referenced. So we cut the function name down to "detect" to help keep the compiled TEAL contract under 1000 bytes.  | any opted in account |
 
 # Q&A
 
@@ -205,8 +215,8 @@ Yes, to accommodate this we use functionality with the same function names and b
 TEAL smart contracts can’t directly call/invoke other contracts. But you can achieve something similar by having a contract only succeed if another stateful contract call is in the same transaction group as it. These articles describes how grouped transactions can be referenced by multiple contracts and processed atomically:
 * https://developer.algorand.org/articles/linking-algorand-stateful-and-stateless-smart-contracts
 * https://developer.algorand.org/docs/features/atomic_transfers/
- 
-This article describes how contracts can reference the state of another contract
+
+The teal contracts can also read (but not write to) the state of other contracts. See the [PyTeal documentation](https://pyteal.readthedocs.io/en/stable/state.html#state-operation-table) for State Operations.
 
 ## How much stateful smart contract memory is allocated? Why?
 
@@ -214,14 +224,14 @@ The Algorand Stateful Smart Contract [documentation](https://developer.algorand.
 
 > The number of global and local byte slices and integers also needs to be specified. These represent the absolute on-chain amount of space that the smart contract will use. Once set, these values can never be changed. Each key-value pair is allowed up to 64 bytes each (64-byte key and 64-byte value). 
 
-The examples of the contract evenly distribute memory allocation types, to allow flexibility for future upgrades of the smart contract by the administrator:
+The following is a reasonable distribution to allow flexibility for future upgrades of the smart contract by the administrator:
 
-| TEAL Contract Memory Type | Allocation |
-| --- | --- |
-| local-ints | 8 |
-| local-byteslices | 8 |
-| global-ints | 32 |
-| global-byteslices | 32 |
+| TEAL Contract Memory Type | Allocation | Why |
+| --- | --- | --- |
+| local-byteslices | 8 of 16 total local | Even local distribution. |
+| local-ints | 8 of 16 total local | Even local distribution. |
+| global-byteslices | 54 of 64 total global | Each transfer rule takes a byteslice. Allocate most of the global memory to byteslices to leave room for many transfer rules between transfer groups. |
+| global-ints | 10 of 64 total global | There are at least 7 global ints. Leave room for a few more global ints in case of upgrades. |
 
 If you know the memory requirements that you may need for future versions of the application you may want to vary these. Keep in mind that some of the memory locations may not be initialized at the time of deployment, but the memory will need to be available in order for the values to be stored in global or local memory.
 

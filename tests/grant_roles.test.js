@@ -117,8 +117,9 @@ test('wallets admin role can be revoked by contract admin', async () => {
     expect(error.message).toEqual("Bad Request")
   }
 
+  //receiver account role set to 0 / undefined
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
-  expect(localState["maxBalance"]).toEqual(undefined)
+  expect(localState["roles"]["ui"]).toEqual(undefined)
 })
 
 test('transfer rules admin role can be granted by contract admin', async () => {
@@ -131,7 +132,7 @@ test('transfer rules admin role can be granted by contract admin', async () => {
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["roles"]["ui"]).toEqual(2)
 
-  appArgs = [EncodeBytes("setAllowGroupTransfer"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
+  appArgs = [EncodeBytes("setTransferRule"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
   await util.appCall(clientV2, receiverAccount, appId, appArgs)
 })
 
@@ -148,7 +149,7 @@ test('transfer rules admin role can be revoked by contract admin', async () => {
   ]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-  appArgs = [EncodeBytes("setAllowGroupTransfer"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
+  appArgs = [EncodeBytes("setTransferRule"), EncodeUint('1'), EncodeUint('1'), EncodeUint('1610126036')]
   try {
     await util.appCall(clientV2, receiverAccount, appId, appArgs)
   } catch (error) {
