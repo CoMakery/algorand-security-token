@@ -48,7 +48,25 @@ test('has expected starting test state', async () => {
     expect(localState["transfer admin"]).toEqual(undefined)
 })
 
-test('simple transfer', async () => {
+test('cannot transfer by default from and to the default group 1 -> 1', async () => {
+    try {
+        appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+        await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+    } catch (e) {
+        expect(e.message).toEqual("Bad Request")
+    }
+    // check first receiver got no tokens and is in group 1
+    let localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+
+    // check sender sent no tokens and is in group 1
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["transferGroup"]["ui"]).toEqual(1)
+    expect(localState["balance"]["ui"]).toEqual(27)
+})
+
+test('simple transfer back and forth: with group 1 -> 1 permitted', async () => {
     let fromGroupId = 1
     let toGroupId = 1
     let earliestPermittedTime = 1
@@ -75,6 +93,24 @@ test('simple transfer', async () => {
     // check sender has less tokens
     localState = await util.readLocalState(clientV2, adminAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(16)
+
+    // check global supply is same
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['cap']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
+
+    // ======
+    //transfer back
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [adminAccount.addr])
+
+    // check original sender got tokens back
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(27)
+
+    // check tokens deducted
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
 
     // check global supply is same
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
@@ -107,6 +143,64 @@ test('can lock the default address category for transfers', async () => {
     expect(localState["balance"]["ui"]).toEqual(undefined)
 })
 
+test('simple transfer from group 0 -> 0 works when permitted', async () => {
+    let fromGroupId = 0
+    let toGroupId = 0
+    let earliestPermittedTime = 1
+
+    let transferGroupLock =
+        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+        `--app-arg 'str:setTransferRule' ` +
+        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
+        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
+
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('0')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [adminAccount.addr])
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    await shell.exec(transferGroupLock, {async: false, silent: false})
+
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
+
+    //transfer
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // check receiver got tokens
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(11)
+    expect(localState["transferGroup"]["ui"]).toEqual(undefined)
+
+    // check sender has less tokens
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(16)
+    expect(localState["transferGroup"]["ui"]).toEqual(undefined)
+
+    // check global supply is same
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['cap']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
+
+    // ======
+    //transfer back
+    appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [adminAccount.addr])
+
+    // check original sender got tokens back
+    localState = await util.readLocalState(clientV2, adminAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(27)
+
+    // check tokens deducted
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+
+    // check global supply is same
+    globalState = await util.readGlobalState(clientV2, adminAccount, appId)
+    expect(globalState['cap']['ui'].toString()).toEqual('80000000000000000')
+    expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
+})
+
 test('can transfer to an account if the transfer rule lock has expired', async () => {
     let fromGroupId = 1
     let toGroupId = 1
@@ -126,24 +220,6 @@ test('can transfer to an account if the transfer rule lock has expired', async (
 
     let localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(11)
-})
-
-test('cannot transfer by default from and to the default group 1', async () => {
-    try {
-        appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
-        await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
-    } catch (e) {
-        expect(e.message).toEqual("Bad Request")
-    }
-    // check first receiver got no tokens and is in group 1
-    let localState = await util.readLocalState(clientV2, receiverAccount, appId)
-    expect(localState["transferGroup"]["ui"]).toEqual(1)
-    expect(localState["balance"]["ui"]).toEqual(undefined)
-
-    // check sender sent no tokens and is in group 1
-    localState = await util.readLocalState(clientV2, adminAccount, appId)
-    expect(localState["transferGroup"]["ui"]).toEqual(1)
-    expect(localState["balance"]["ui"]).toEqual(27)
 })
 
 test('can transfer between permitted account groups', async () => {
