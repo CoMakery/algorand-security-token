@@ -129,8 +129,8 @@ def approval_program():
     def getRuleKey(sendGroup, receiveGroup):
         return Concat(Bytes("rule"), Itob(sendGroup), Itob(receiveGroup))
 
-    # setAllowGroupTransfer
-    # goal app call --app-id $APP_ID --from $FROM --app-arg 'str:setAllowGroupTransfer' --app-arg "int:$FROM_GROUP_ID" \
+    # setTransferRule
+    # goal app call --app-id $APP_ID --from $FROM --app-arg 'str:setTransferRule' --app-arg "int:$FROM_GROUP_ID" \
     # --app-arg "int:$TO_GROUP_ID" --app-arg "int:$LOCK_UNTIL_UNIX_TIMESTAMP"
     #
     # set a lockUntil time for transfers between a transfer from-group and a to-group
@@ -154,7 +154,7 @@ def approval_program():
     mint = Seq([
         Assert(And(
             is_reserve_admin,
-            # Txn.accounts.length() == Int(1),
+            Txn.accounts.length() == Int(1),
             mint_amount <= App.globalGet(Bytes("reserve"))
         )),
         Assert(
@@ -252,7 +252,7 @@ def approval_program():
         [Txn.on_completion() == OnComplete.OptIn, register],
         [Txn.application_args[0] == Bytes("pause"), pause],
         [Txn.application_args[0] == Bytes("grantRoles"), grant_roles],
-        [Txn.application_args[0] == Bytes("setAllowGroupTransfer"), set_transfer_rules],
+        [Txn.application_args[0] == Bytes("setTransferRule"), set_transfer_rules],
         [Txn.application_args[0] == Bytes("setAddressPermissions"), set_address_permissions],
         [Txn.application_args[0] == Bytes("mint"), mint],
         [Txn.application_args[0] == Bytes("burn"), burn],

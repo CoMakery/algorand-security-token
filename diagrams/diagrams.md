@@ -6,7 +6,7 @@ participant "Token Contract" as Token
 actor "Transfer\nAdmin" as TAdmin
 actor "Wallet\nAdmin" as WAdmin
 
-TAdmin -> Token: set "setAllowGroupTransfer" "lockUntil" time
+TAdmin -> Token: set "setTransferRule" "lockUntil" time
 Buyer -> WAdmin: send AML/KYC and accreditation info
 WAdmin -> Token: set buyer address permissions\n"lockUntil"\n"maxBalance"\n"transferGroup" // Reg D, S, or CF
 activate Token

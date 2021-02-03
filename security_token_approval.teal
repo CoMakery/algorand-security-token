@@ -28,7 +28,7 @@ byte "grantRoles"
 ==
 bnz l6
 txna ApplicationArgs 0
-byte "setAllowGroupTransfer"
+byte "setTransferRule"
 ==
 bnz l7
 txna ApplicationArgs 0
@@ -244,6 +244,10 @@ byte "roles"
 app_local_get
 int 4
 &
+txn NumAccounts
+int 1
+==
+&&
 txna ApplicationArgs 1
 btoi
 byte "reserve"

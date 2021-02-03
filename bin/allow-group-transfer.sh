@@ -10,9 +10,9 @@ TO_GROUP_ID=$4
 LOCK_UNTIL_UNIX_TIMESTAMP=$5
 
 # values passed to the app are:
-# app-arg0: "str:setAllowGroupTransfer"
+# app-arg0: "str:setTransferRule"
 # app-arg1: "int:from group id"
 # app-arg2: "int:to group id"
 # timestamp: unixtimestamp
 
-goal app call --app-id $APP_ID --from $FROM --app-arg 'str:setAllowGroupTransfer' --app-arg "int:$FROM_GROUP_ID" --app-arg "int:$TO_GROUP_ID" --app-arg "int:$LOCK_UNTIL_UNIX_TIMESTAMP"  -d devnet/Primary
+goal app call --app-id $APP_ID --from $FROM --app-arg 'str:setTransferRule' --app-arg "int:$FROM_GROUP_ID" --app-arg "int:$TO_GROUP_ID" --app-arg "int:$LOCK_UNTIL_UNIX_TIMESTAMP"  -d devnet/Primary
