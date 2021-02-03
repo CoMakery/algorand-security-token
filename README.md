@@ -122,9 +122,9 @@ There are lots of other reasons you may get a bad request error, such as TEAL ex
 There are a few interrelated account reference quirks to keep in mind:
 * `Txn.accounts[0]` will always evaluate to `Txn.sender()`
 * `Txn.accounts[1]` is the first `--app-account` item. 
-* If no `--app-account` items are included, Txn.accounts.length() will be 0 but `Txn.accounts[0]` still resolves to the sender.
-* `Txn.accounts[n]` for n > 0 will evaluate to the element at the n-1th index of the --app-account/ForeignAccounts transaction field. 
-* Some versions of `tealdbg` show the Txn.Accounts array incorrectly. If n accounts are present in the transaction’s ForeignAccounts array, the debugger will show the sender’s account following by the first n-1 elements from ForeignAccounts.
+* If no `--app-account` items are included, `Txn.accounts.length()` will be 0 but `Txn.accounts[0]` still resolves to the sender.
+* `Txn.accounts[n]` for n > 0 will evaluate to the element at the n-1th index of the `--app-account` or `ForeignAccounts` transaction field. For example `Txn.accounts[2]` would refer to `appAccount[1]`. Another way to put it is the `--from` address is shifted into Txn.accounts[0] and `--app-accounts` are shifted right by 1 position.
+* Some versions of `tealdbg` show the `Txn.accounts` array incorrectly. If n accounts are present in the transaction’s `ForeignAccounts` array, the debugger will show the sender’s account following by the first n-1 elements from `ForeignAccounts`.
 
 ## Teal contract size
 
@@ -208,7 +208,7 @@ It is recommended that all admin actions should be performed by accounts other t
 
 ## QSP-8 Do Algorand Smart Contracts Lack A Standard Like the Ethereum ERC20 Token? 
 
-Yes, to accommodate this we use functionality with the same function names and behavior as the Ethereum ERC20 token standard - with the notable exception that the contract does not implement the `approve()` and `transferFrom` functions. See next question...
+Yes, to accommodate this we use functionality with the same function names and behavior as the Ethereum ERC20 token standard - with the notable exception that the contract does not implement the `approve()` and `transferFrom()` functions. See next question...
 
 ## QSP-9 Why doesn't the contract implement the approve() and transferFrom() functions from the ERC20 standard?
 
