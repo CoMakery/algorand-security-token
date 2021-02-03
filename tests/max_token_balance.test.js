@@ -73,3 +73,25 @@ test('blocks transfers that exceed the addresses maxBalance but not lesser amoun
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["balance"]["ui"]).toEqual(undefined)
 })
+
+test('maxBalance of 0 is treated as no max balance', async () => {
+    let maxTokenBalance = 0
+    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint(`${maxTokenBalance}`), EncodeUint('0'), EncodeUint('1')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // allow token transfers to address with 0 maxBalance
+    appArgs = [EncodeBytes("transfer"), EncodeUint('10')]
+    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+
+    // tokens sent to receiver
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(10)
+
+    // allow tokens to be transferred out of the account
+    appArgs = [EncodeBytes("transfer"), EncodeUint('10')]
+    await util.appCall(clientV2, receiverAccount, appId, appArgs, [adminAccount.addr])
+
+    // tokens sent back to admin
+    localState = await util.readLocalState(clientV2, receiverAccount, appId)
+    expect(localState["balance"]["ui"]).toEqual(undefined)
+})

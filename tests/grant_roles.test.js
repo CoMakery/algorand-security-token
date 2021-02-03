@@ -8,7 +8,7 @@ const { describe } = require('yargs')
 const server = "http://127.0.0.1"
 const port = 8080
 
-var adminAccount, receiverAccount, token, clientV2, appId
+var adminAccount, receiverAccount, token, clientV2, appId, localState
 
 beforeEach(async () => {
   await privateTestNetSetup(appId)
@@ -23,17 +23,23 @@ beforeEach(async () => {
   await util.optInApp(clientV2, receiverAccount, appId)
 })
 
-test('contract admin role can be granted by contract admin', async () => {
+async function grantRoles(roleId, from=adminAccount, target=receiverAccount) {
   appArgs = [
     EncodeBytes("grantRoles"),
-    EncodeUint('8')
+    EncodeUint(roleId)
   ]
-  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  await util.appCall(clientV2, from, appId, appArgs, [target.addr])
+}
+
+test('contract admin role can be granted by contract admin', async () => {
+  await grantRoles(8, adminAccount, receiverAccount)
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["roles"]["ui"]).toEqual(8)
 
-  await util.appCall(clientV2, receiverAccount, appId, appArgs, [receiverAccount.addr])
+  await grantRoles(15, receiverAccount, receiverAccount)
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["roles"]["ui"]).toEqual(15)
 })
 
 test('contract admin role can be revoked by contract admin', async () => {
