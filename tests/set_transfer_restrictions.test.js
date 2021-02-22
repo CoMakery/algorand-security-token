@@ -24,11 +24,9 @@ beforeEach(async () => {
 })
 
 test('admin can setAddressPermissions', async () => {
-    // call
-    appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('1'), EncodeUint('199'), EncodeUint('1610126036'), EncodeUint('7')]
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+    await util.setAddressPermissions(clientV2, appId, adminAccount, receiverAccount, 1, 199,1610126036, 7)
 
-    // account transfer restrictions has been updated
+    // account address permissions have been updated
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
     expect(localState["frozen"]["ui"]).toEqual(1)
     expect(localState["maxBalance"]["ui"]).toEqual(199)

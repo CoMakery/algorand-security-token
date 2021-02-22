@@ -1,8 +1,11 @@
 #!/usr/bin/env node
+// This script can only be run after the admin, sub reserve and hot wallet accounts
+// have opted in to the algorand application.
+
+
 require('dotenv').config()
 const algosdk = require('algosdk')
 const util = require('../lib/algoUtil')
-const JSONbig = require('json-bigint')
 
 const baseServer = process.env.BASE_SERVER
 const port = ""
@@ -14,15 +17,9 @@ const token = {
 
 ;(async() => {
     let algodClient = new algosdk.Algodv2(token, baseServer, port);
-    var deployerAccount = algosdk.mnemonicToSecretKey(mnemonic)
+    let deployerAccount = algosdk.mnemonicToSecretKey(mnemonic)
 
-    await util.setTransferRule(
-        algodClient,
-        deployerAccount,
-        appId,
-        fromGroupId,
-        toGroupId,
-        earliestPermittedTime)
+    // check all accounts to be configured have opted in to the application
 
     // set contract admins
     // await util.grantRoles(clientV2, appId, adminAccount, receiverAccount, 8)
@@ -30,6 +27,10 @@ const token = {
     // set reserve admins
     // set transfer rule admins
     // set wallet admins
+
+    // set sub reserve permissions
+    // await util.setAddressPermissions(clientV2, appId, adminAccount, receiverAccount, 1, 199,1610126036, 7)
+
     // set hot wallet permissions
 })().catch(e => {
     console.log(e)
