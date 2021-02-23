@@ -91,10 +91,9 @@ def approval_program():
     grant_roles = Seq([
         Assert(And(
             is_contract_admin,
-            Txn.accounts.length() == Int(1),
             roles <= Int(15)
         )),
-        If( 
+        If(
             Eq(Txn.sender(), Txn.accounts[1]),
             Assert(BitwiseAnd(roles, Int(8)))
         ),
@@ -193,6 +192,7 @@ def approval_program():
             Lt(App.localGet(sender_idx, Bytes("balance")), amount), # check sender balance
             App.globalGet(Bytes("paused")), # can't transfer when the contract is paused
             App.localGet(sender_idx, Bytes("frozen")), # sender account can't be frozen
+            App.localGet(receiver_idx, Bytes("frozen")), # receiver account can't be frozen
             App.localGet(sender_idx, Bytes("lockUntil")) >= Global.latest_timestamp(), # sender account can't be locked
 
             # check that a transfer rule exists and allows the transfer from the sender to the receiver at the current time

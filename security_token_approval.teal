@@ -146,10 +146,6 @@ byte "roles"
 app_local_get
 int 8
 &
-txn NumAccounts
-int 1
-==
-&&
 txna ApplicationArgs 1
 btoi
 int 15
@@ -365,6 +361,10 @@ int 0
 byte "frozen"
 app_local_get
 ||
+int 1
+byte "frozen"
+app_local_get
+||
 int 0
 byte "lockUntil"
 app_local_get
@@ -455,6 +455,10 @@ byte "paused"
 app_global_get
 ||
 int 1
+byte "frozen"
+app_local_get
+||
+int 2
 byte "frozen"
 app_local_get
 ||
