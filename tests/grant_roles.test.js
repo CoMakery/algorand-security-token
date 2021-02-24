@@ -42,6 +42,29 @@ test('contract admin role can be granted by contract admin', async () => {
   expect(localState["roles"]["ui"]).toEqual(15)
 })
 
+test('passing in two app-accounts only sets the role for the first account', async () => {
+  // the guard clause checking the number of accounts was removed
+  // but there is not side effect to calling grant role with a second address
+
+  let extraAccount = accounts[2]
+  expect(extraAccount.addr.length).toBe(58)
+  await util.optInApp(clientV2, extraAccount, appId)
+
+  let transferGroupLock1 =
+      `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
+      `--app-account ${receiverAccount.addr} --app-account ${extraAccount.addr} ` +
+      `--app-arg 'str:grantRoles' --app-arg "int:8" ` +
+      `-d devnet/Primary`
+
+  await shell.exec(transferGroupLock1, {async: false, silent: true})
+
+  localState = await util.readLocalState(clientV2, receiverAccount, appId)
+  expect(localState["roles"]["ui"]).toEqual(8)
+
+  localState = await util.readLocalState(clientV2, extraAccount, appId)
+  expect(localState["roles"]).toEqual(undefined)
+})
+
 test('contract admin role can be revoked by contract admin', async () => {
   appArgs = [
     EncodeBytes("grantRoles"),
