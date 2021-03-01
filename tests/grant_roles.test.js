@@ -24,12 +24,12 @@ beforeEach(async () => {
 })
 
 test('contract admin role can be granted by contract admin', async () => {
-  await util.grantRoles(clientV2, appId, adminAccount, receiverAccount, 8)
+  await util.grantRoles(clientV2, appId, adminAccount, receiverAccount.addr, 8)
 
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["roles"]["ui"]).toEqual(8)
 
-  await util.grantRoles(clientV2, appId, receiverAccount, receiverAccount, 15)
+  await util.grantRoles(clientV2, appId, receiverAccount, receiverAccount.addr, 15)
   // await util.grantRoles(15, receiverAccount, receiverAccount)
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["roles"]["ui"]).toEqual(15)

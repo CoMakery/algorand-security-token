@@ -48,7 +48,7 @@ test('test initial deployment state', async () => {
 
     // setup tempLaunchAccount that will configure everything by script and then have role removed
     // tempLaunchAccount has no token balance and no transfer group
-    await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount, 15)
+    await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount.addr, 15)
 
     // set the transfer rules
     let transferRules = [{from: 2, to: 3, after: 1}]
@@ -65,18 +65,18 @@ test('test initial deployment state', async () => {
     )
 
     // manualAdmin account: transferRules, walletAdmin, hotWallet group
-    await util.grantRoles(client, appId, tempLaunchAccount, manualAdminAccount, 3)
+    await util.grantRoles(client, appId, tempLaunchAccount, manualAdminAccount.addr, 3)
     await util.setAddressPermissions(client, appId, tempLaunchAccount, manualAdminAccount, 0, 0, 0, 2)
 
     // hotWallet: walletAdmin, hotWallet group
-    await util.grantRoles(client, appId, tempLaunchAccount, hotWalletAccount, 1)
+    await util.grantRoles(client, appId, tempLaunchAccount, hotWalletAccount.addr, 1)
     await util.setAddressPermissions(client, appId, tempLaunchAccount, hotWalletAccount, 0, 0, 0, 2)
 
     // the reserve admin mints initial tokens needed for hot wallet distribution into the hot wallet
     await util.mint(client, appId, tempLaunchAccount, hotWalletAccount, 1000)
 
     // remove launch account, this may need to be done manually by a multi-sig contract admin account
-    await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount, 0)
+    await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount.addr, 0)
 
     // assert validation, for use after actual deployment
 })
