@@ -29,13 +29,25 @@ beforeAll(async () => {
 //
 // }
 
+async function checkOptedInAndHasAlgos(_client, _addr, appId) {
+    let accountInfo = await _client.accountInformation(_addr).do()
+    console.log(accountInfo)
+
+    expect(accountInfo.amount).toBeGreaterThan(10000)
+    expect(accountInfo['apps-local-state']).toEqual(
+        expect.arrayContaining([
+                expect.objectContaining({id: appId})
+            ]
+        )
+    )
+}
+
 test('test deployment configuration script', async () => {
     let info = await util.deploySecurityToken(client, reserveContractAdminAccount)
     let appId = info.appId
     console.log(info)
 
-    let accountInfo = await client.accountInformation(reserveContractAdminAccount.addr).do();
-    console.log("Account balance: %d microAlgos", accountInfo.amount);
+    await checkOptedInAndHasAlgos(client, reserveContractAdminAccount.addr, appId)
 
     // all initial accounts opt in before the tempLaunchAccount configures everything
     await Promise.all([
@@ -43,8 +55,11 @@ test('test deployment configuration script', async () => {
         util.optInApp(client, manualAdminAccount, appId),
         util.optInApp(client, hotWalletAccount, appId)
     ])
+    await checkOptedInAndHasAlgos(client, tempLaunchAccount.addr, appId)
+    await checkOptedInAndHasAlgos(client, manualAdminAccount.addr, appId)
+    await checkOptedInAndHasAlgos(client, hotWalletAccount.addr, appId)
 
-    // TODO: check all accounts to be configured have opted in to the application
+    // check all accounts to be configured have opted in to the application and have algos for gas
 
     // setup tempLaunchAccount that will configure everything by script and then have role removed
     // tempLaunchAccount has no token balance and no transfer group
