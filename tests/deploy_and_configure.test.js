@@ -20,16 +20,16 @@ beforeAll(async () => {
     client = new algosdk.Algodv2(token, server, port)
 })
 
-async function transferAlgos(from, to, amount) {
-    await shell.exec(
-        `goal clerk send --from ${from} --to ${to} --amount=${amount} -d devnet/Primary/`, {
-            async: false,
-            silent: false
-        })
+// async function transferAlgos(from, to, amount) {
+//     await shell.exec(
+//         `goal clerk send --from ${from} --to ${to} --amount=${amount} -d devnet/Primary/`, {
+//             async: false,
+//             silent: false
+//         })
+//
+// }
 
-}
-
-test('test initial deployment state', async () => {
+test('test deployment configuration script', async () => {
     let info = await util.deploySecurityToken(client, reserveContractAdminAccount)
     let appId = info.appId
     console.log(info)
@@ -51,7 +51,7 @@ test('test initial deployment state', async () => {
     await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount.addr, 15)
 
     // set the transfer rules
-    let transferRules = [{from: 2, to: 3, after: 1}]
+    let transferRules = [{from: 2, to: 3, after: 1}, {from: 3, to: 4, after: 1}]
 
     await Promise.all(transferRules.map(rule => {
             util.setTransferRule(
@@ -64,11 +64,11 @@ test('test initial deployment state', async () => {
         })
     )
 
-    // manualAdmin account: transferRules, walletAdmin, hotWallet group
+    // manualAdmin account: transferRules, walletAdmin, admin transfer group
     await util.grantRoles(client, appId, tempLaunchAccount, manualAdminAccount.addr, 3)
     await util.setAddressPermissions(client, appId, tempLaunchAccount, manualAdminAccount.addr, 0, 0, 0, 2)
 
-    // hotWallet: walletAdmin, hotWallet group
+    // hotWallet: walletAdmin, admin transfer group
     await util.grantRoles(client, appId, tempLaunchAccount, hotWalletAccount.addr, 1)
     await util.setAddressPermissions(client, appId, tempLaunchAccount, hotWalletAccount.addr, 0, 0, 0, 2)
 
