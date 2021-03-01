@@ -2,6 +2,7 @@ require('dotenv').config()
 const shell = require('shelljs')
 const util = require('../lib/algoUtil')
 const algosdk = require('algosdk')
+jest.setTimeout(180000)
 
 const server = "http://127.0.0.1"
 const port = 8080
@@ -11,13 +12,22 @@ var reserveContractAdminAccount, tempLaunchAccount, manualAdminAccount, hotWalle
 beforeAll(async () => {
     await privateTestNetSetup()
     reserveContractAdminAccount = accounts[0]
-    tempLaunchAccount = algosdk.generateAccount()
-    manualAdminAccount = algosdk.generateAccount()
+    tempLaunchAccount = accounts[1]
+    manualAdminAccount = accounts[2]
 
-    hotWalletAccount = algosdk.generateAccount()
+    hotWalletAccount = accounts[3]
     token = await shell.cat(`devnet/Primary/algod.token`).stdout
     client =  new algosdk.Algodv2(token, server, port)
 })
+
+async function transferAlgos(from, to, amount) {
+    await shell.exec(
+        `goal clerk send --from ${from} --to ${to} --amount=${amount} -d devnet/Primary/`, {
+        async: false,
+        silent: false
+    })
+    
+}
 
 test('test initial deployment state', async () => {
     let info = await util.deploySecurityToken(client, reserveContractAdminAccount)
@@ -26,14 +36,6 @@ test('test initial deployment state', async () => {
 
     let accountInfo = await client.accountInformation(reserveContractAdminAccount.addr).do();
     console.log("Account balance: %d microAlgos", accountInfo.amount);
-
-    // transfer Algos for gas to the admin accounts
-    console.log("fundTempLaunch", tempLaunchAccount)
-    await util.transfer(client, reserveContractAdminAccount, tempLaunchAccount.addr, 9000)
-    console.log("fundManualAdmin")
-    await util.transfer(client, reserveContractAdminAccount, manualAdminAccount.addr, 9000)
-    console.log("fundHotWallet")
-    await util.transfer(client, reserveContractAdminAccount, hotWalletAccount.addr, 9000)
 
     // all initial accounts opt in before the tempLaunchAccount configures everything
     await util.optInApp(client, tempLaunchAccount, appId)
@@ -44,8 +46,7 @@ test('test initial deployment state', async () => {
 
     // setup tempLaunchAccount that will configure everything by script and then have role removed
     // tempLaunchAccount has no token balance and no transfer group
-    // tempLaunchAccount needs Transfer Admin, Wallet Admin
-    await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount, 7)
+    await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount, 15)
 
     // set the transfer rules
     let fromGroupId = 1
@@ -63,7 +64,6 @@ test('test initial deployment state', async () => {
     // let application = await client.getApplicationByID(appId).do()
     // let globalState = application['params']['global-state']
     // console.log(util.decodeState(globalState))
-
 
     // manualAdmin account: transferRules, walletAdmin, hotWallet group
     await util.grantRoles(client, appId, tempLaunchAccount, manualAdminAccount, 3)
