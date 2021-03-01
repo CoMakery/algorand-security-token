@@ -17,16 +17,16 @@ beforeAll(async () => {
 
     hotWalletAccount = accounts[3]
     token = await shell.cat(`devnet/Primary/algod.token`).stdout
-    client =  new algosdk.Algodv2(token, server, port)
+    client = new algosdk.Algodv2(token, server, port)
 })
 
 async function transferAlgos(from, to, amount) {
     await shell.exec(
         `goal clerk send --from ${from} --to ${to} --amount=${amount} -d devnet/Primary/`, {
-        async: false,
-        silent: false
-    })
-    
+            async: false,
+            silent: false
+        })
+
 }
 
 test('test initial deployment state', async () => {
@@ -38,9 +38,11 @@ test('test initial deployment state', async () => {
     console.log("Account balance: %d microAlgos", accountInfo.amount);
 
     // all initial accounts opt in before the tempLaunchAccount configures everything
-    await util.optInApp(client, tempLaunchAccount, appId)
-    await util.optInApp(client, manualAdminAccount, appId)
-    await util.optInApp(client, hotWalletAccount, appId)
+    await Promise.all([
+        util.optInApp(client, tempLaunchAccount, appId),
+        util.optInApp(client, manualAdminAccount, appId),
+        util.optInApp(client, hotWalletAccount, appId)
+    ])
 
     // TODO: check all accounts to be configured have opted in to the application
 
@@ -49,29 +51,26 @@ test('test initial deployment state', async () => {
     await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount, 15)
 
     // set the transfer rules
-    let fromGroupId = 1
-    let toGroupId = 1
-    let earliestPermittedTime = 1
-    // tempLaunchAccount sets up the transfer rules
-    await util.setTransferRule(
-        client,
-        reserveContractAdminAccount,
-        appId,
-        fromGroupId,
-        toGroupId,
-        earliestPermittedTime)
+    let transferRules = [{from: 2, to: 3, after: 1}]
 
-    // let application = await client.getApplicationByID(appId).do()
-    // let globalState = application['params']['global-state']
-    // console.log(util.decodeState(globalState))
+    await Promise.all(transferRules.map(rule => {
+            util.setTransferRule(
+                client,
+                reserveContractAdminAccount,
+                appId,
+                rule.from,
+                rule.to,
+                rule.after)
+        })
+    )
 
     // manualAdmin account: transferRules, walletAdmin, hotWallet group
     await util.grantRoles(client, appId, tempLaunchAccount, manualAdminAccount, 3)
-    await util.setAddressPermissions(client, appId, tempLaunchAccount, manualAdminAccount, 1, 0,0, 2)
+    await util.setAddressPermissions(client, appId, tempLaunchAccount, manualAdminAccount, 0, 0, 0, 2)
 
     // hotWallet: walletAdmin, hotWallet group
     await util.grantRoles(client, appId, tempLaunchAccount, hotWalletAccount, 1)
-    await util.setAddressPermissions(client, appId, tempLaunchAccount, hotWalletAccount, 1, 0,0, 2)
+    await util.setAddressPermissions(client, appId, tempLaunchAccount, hotWalletAccount, 0, 0, 0, 2)
 
     // the reserve admin mints initial tokens needed for hot wallet distribution into the hot wallet
     await util.mint(client, appId, tempLaunchAccount, hotWalletAccount, 1000)
