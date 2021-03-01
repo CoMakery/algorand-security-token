@@ -66,11 +66,11 @@ test('test initial deployment state', async () => {
 
     // manualAdmin account: transferRules, walletAdmin, hotWallet group
     await util.grantRoles(client, appId, tempLaunchAccount, manualAdminAccount.addr, 3)
-    await util.setAddressPermissions(client, appId, tempLaunchAccount, manualAdminAccount, 0, 0, 0, 2)
+    await util.setAddressPermissions(client, appId, tempLaunchAccount, manualAdminAccount.addr, 0, 0, 0, 2)
 
     // hotWallet: walletAdmin, hotWallet group
     await util.grantRoles(client, appId, tempLaunchAccount, hotWalletAccount.addr, 1)
-    await util.setAddressPermissions(client, appId, tempLaunchAccount, hotWalletAccount, 0, 0, 0, 2)
+    await util.setAddressPermissions(client, appId, tempLaunchAccount, hotWalletAccount.addr, 0, 0, 0, 2)
 
     // the reserve admin mints initial tokens needed for hot wallet distribution into the hot wallet
     await util.mint(client, appId, tempLaunchAccount, hotWalletAccount, 1000)

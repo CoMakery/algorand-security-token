@@ -24,7 +24,7 @@ beforeEach(async () => {
 })
 
 test('admin can setAddressPermissions', async () => {
-    await util.setAddressPermissions(clientV2, appId, adminAccount, receiverAccount, 1, 199,1610126036, 7)
+    await util.setAddressPermissions(clientV2, appId, adminAccount, receiverAccount.addr, 1, 199,1610126036, 7)
 
     // account address permissions have been updated
     localState = await util.readLocalState(clientV2, receiverAccount, appId)
