@@ -73,7 +73,7 @@ test('test initial deployment state', async () => {
     await util.setAddressPermissions(client, appId, tempLaunchAccount, hotWalletAccount.addr, 0, 0, 0, 2)
 
     // the reserve admin mints initial tokens needed for hot wallet distribution into the hot wallet
-    await util.mint(client, appId, tempLaunchAccount, hotWalletAccount, 1000)
+    await util.mint(client, appId, tempLaunchAccount, hotWalletAccount.addr, 1000)
 
     // remove launch account, this may need to be done manually by a multi-sig contract admin account
     await util.grantRoles(client, appId, reserveContractAdminAccount, tempLaunchAccount.addr, 0)
