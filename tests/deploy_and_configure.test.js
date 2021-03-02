@@ -24,7 +24,6 @@ beforeAll(async () => {
         tempLaunchAccount: tempLaunchAccount,
         manualAdminAccountAddress: manualAdminAccount.addr,
         hotWalletAccountAddress: hotWalletAccount.addr,
-        reserveContractAdminAddress: reserveContractAdminAccount.addr,
         transferRules: [
             {from: 2, to: 3, after: 1},
             {from: 3, to: 4, after: 1}
@@ -53,8 +52,5 @@ test('test deployment configuration script', async () => {
     await util.grantRoles(client, appId, reserveContractAdminAccount, config.tempLaunchAccount.addr, 15)
 
     deployUtil.configureContract(client, appId, config)
-
-    // remove launch account, this may need to be done manually by a multi-sig contract admin account
-    // await util.grantRoles(client, appId, reserveContractAdminAccount, config.tempLaunchAccountAddress, 0)
 
 })
