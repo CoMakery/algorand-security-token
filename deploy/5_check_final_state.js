@@ -3,18 +3,18 @@
 const config = require('./deploy.config.js')
 const util = require('../lib/algoUtil')
 
-async function checkAccountConfig(name, address, _config = config) {
-    let accountInfo = await _config.client.accountInformation(address).do()
+async function checkAccountConfig(name, address, appId = config.appId, _client = config.client) {
+    let accountInfo = await _client.accountInformation(address).do()
     let values = {
         name: name,
         address: address,
-        optedIn: accountInfo['apps-local-state'].some(y => y['id'] == _config.appId),
+        optedIn: accountInfo['apps-local-state'].some(y => y['id'] == appId),
         algoBalance: accountInfo.amount
     }
     values.ready = values.algoBalance > 3000 && values.optedIn == true
 
     if(values.optedIn) {
-        let localState = util.decodeState(accountInfo['apps-local-state'].find(y => y['id'] == _config.appId)['key-value'])
+        let localState = util.decodeState(accountInfo['apps-local-state'].find(y => y['id'] == appId)['key-value'])
         values.roles = localState.roles.uint
         values.transferGroup = localState.uint
         values.balance = localState.balance.uint
@@ -25,7 +25,7 @@ async function checkAccountConfig(name, address, _config = config) {
     return values
 }
 
-async function getGlobalAppState(client, appId) {
+async function getGlobalAppState(client = config.client, appId = client.appId) {
     let application = await client.getApplicationByID(appId).do()
     let globalState = application['params']['global-state']
     let dState = util.decodeState(globalState)
@@ -42,6 +42,7 @@ async function getGlobalAppState(client, appId) {
 
 
 ;(async() => {
+
     let tempLaunchAccountInfo = await checkAccountConfig("Temp Launch Account", config.tempLaunchAccount.addr)
     let checks = await Promise.all([
         getGlobalAppState(config.client, config.appId),
