@@ -4,12 +4,13 @@ const util = require('../lib/algoUtil')
 const fs = require('fs')
 const path = require('path')
 
-// this script outputs three transactions to be used by OREID
+// this script outputs grant and revoke transactions to be used by OREID multi-sig
 // They should be signed by the reserve / contract admin account
+// To gran roles to the tempLaunchAccount
 async function rawGrantRolesTxn(roleId) {
     let appArgsGrantAllRoles = [
         util.EncodeBytes("grantRoles"),
-        util.EncodeUint(15)
+        util.EncodeUint(roleId)
     ]
 
     let tx = await util.rawAppCall(
