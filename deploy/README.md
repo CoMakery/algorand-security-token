@@ -1,4 +1,4 @@
-# Deployment Scripts
+# How To Deploy The Smart Contracts With An OREID Multi-Sig Reserve Account
 
 Here are the steps for deploying using a multi-signature ORE wallet and the scripts in the `deploy` directory.
 
