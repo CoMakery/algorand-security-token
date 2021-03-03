@@ -11,10 +11,11 @@ const tempLaunchAccount = algosdk.mnemonicToSecretKey(mnemonic)
 
 module.exports = {
     client: client,
-    appId: 1,
+    appId: 14395337,
     tempLaunchAccount: tempLaunchAccount,
-    manualAdminAccountAddress: 'address',
-    hotWalletAccountAddress: 'address',
+    contractAdminReserveAccountAddress: 'algorand address',
+    manualAdminAccountAddress: 'algorand address',
+    hotWalletAccountAddress: 'algorand address',
     transferRules: [
         {from: 2, to: 3, after: 1},
         {from: 3, to: 4, after: 1}

@@ -5,3 +5,5 @@ net1/
 devnet/
 node_modules/
 privTestNet/
+deploy/deploy.config.js
+deploy/build/*
