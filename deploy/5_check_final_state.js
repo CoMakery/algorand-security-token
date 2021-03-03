@@ -1,55 +1,16 @@
 #!/usr/bin/env node
 
 const config = require('./deploy.config.js')
-const util = require('../lib/algoUtil')
-
-async function checkAccountConfig(name, address, appId = config.appId, _client = config.client) {
-    let accountInfo = await _client.accountInformation(address).do()
-    let values = {
-        name: name,
-        address: address,
-        optedIn: accountInfo['apps-local-state'].some(y => y['id'] == appId),
-        algoBalance: accountInfo.amount
-    }
-    values.ready = values.algoBalance > 3000 && values.optedIn == true
-
-    if(values.optedIn) {
-        let localState = util.decodeState(accountInfo['apps-local-state'].find(y => y['id'] == appId)['key-value'])
-        values.roles = localState.roles.uint
-        values.transferGroup = localState.uint
-        values.balance = localState.balance.uint
-    } else {
-        values.localState = null
-    }
-
-    return values
-}
-
-async function getGlobalAppState(client = config.client, appId = client.appId) {
-    let application = await client.getApplicationByID(appId).do()
-    let globalState = application['params']['global-state']
-    let dState = util.decodeState(globalState)
-    return {
-        symbol: dState.symbol.bytes,
-        totalSupply: dState.totalSupply.uint,
-        cap: dState.cap.uint,
-        decimals: dState.decimals.uint,
-        name: dState.name.bytes,
-        paused: dState.paused.uint,
-        reserve: dState.reserve.uint
-    }
-}
-
+const { checkAccountConfig, getGlobalAppState } = require('../lib/algoUtil')
 
 ;(async() => {
-
-    let tempLaunchAccountInfo = await checkAccountConfig("Temp Launch Account", config.tempLaunchAccount.addr)
+    let tempLaunchAccountInfo = await checkAccountConfig("Temp Launch Account", config.tempLaunchAccount.addr, config)
     let checks = await Promise.all([
-        getGlobalAppState(config.client, config.appId),
-        checkAccountConfig("Contract Admin Reserve Account", config.contractAdminReserveAccountAddress),
+        getGlobalAppState(config),
+        checkAccountConfig("Contract Admin Reserve Account", config.contractAdminReserveAccountAddress, config),
         tempLaunchAccountInfo,
-        checkAccountConfig("Manual Admin Account Address", config.manualAdminAccountAddress),
-        checkAccountConfig("Hot Wallet Account Address", config.hotWalletAccountAddress)
+        checkAccountConfig("Manual Admin Account Address", config.manualAdminAccountAddress, config),
+        checkAccountConfig("Hot Wallet Account Address", config.hotWalletAccountAddress, config)
     ])
 
     console.log(checks)
