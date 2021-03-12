@@ -17,8 +17,17 @@ module.exports = {
     manualAdminAccountAddress: 'algorand address',
     hotWalletAccountAddress: 'algorand address',
     transferRules: [
-        {from: 2, to: 3, after: 1},
-        {from: 3, to: 4, after: 1}
+        {from: 100, to: 100, after: 1619827200},
+        {from: 100, to: 102, after: 1619827200},
+        {from: 101, to: 100, after: 1619827200},
+        {from: 101, to: 102, after: 1619827200},
+        {from: 102, to: 102, after: 1619827200},
+        {from: 102, to: 100, after: 1648771200},
+        {from: 103, to: 100, after: 0},
+        {from: 103, to: 101, after: 0},
+        {from: 103, to: 102, after: 0},
+        {from: 104, to: 103, after: 0},
+        {from: 105, to: 105, after: 0},
     ],
     hotWalletBalance: 1000,
     token: {
