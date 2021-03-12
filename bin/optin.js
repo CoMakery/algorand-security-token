@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// bin/grant-roles.js --app-id theAppId --to targetAddress --roles roleNumber
+// bin/optin.js --app-id theAppId
 require('dotenv').config()
 const algosdk = require('algosdk')
 const util = require('../lib/algoUtil')
@@ -9,13 +9,6 @@ const {hideBin} = require('yargs/helpers')
 const args = yargs(hideBin(process.argv))
     .option('app-id', {
         description: 'the id of the security token app to call',
-        number: true
-    })
-    .option('to', {
-        description: 'the algorand address to grant roles to',
-        string: true
-    })
-    .option('roles', {
         number: true
     })
     .argv
@@ -33,9 +26,7 @@ const token = {
 ;(async() => {
     let client = new algosdk.Algodv2(token, baseServer, port);
     var adminFromAccount = algosdk.mnemonicToSecretKey(mnemonic)
-    await util.grantRoles(client,  args.appId, adminFromAccount, args.to, args.roles)
-    // let info = await util.deploySecurityToken(algodClient, recoveredAccount)
-    // console.log(info)
+    await util.optInApp(client, adminFromAccount, args.appId)
 })().catch(e => {
     console.log(e)
 })
