@@ -4,6 +4,7 @@ NETWORK_DIR=${1:-"$(pwd)/devnet"}
 NETWORK_PRIMARY_KEY="${NETWORK_DIR}/Primary"
 DEVNET_KMD="${NETWORK_PRIMARY_KEY}/kmd-v0.5"
 CONFIG_DIR=./config/genesis.devnet.json
+CONSENSUS_DIR=./config/consensus.json
 
 mkdir -p $NETWORK_DIR
 goal network stop -r $NETWORK_DIR
@@ -11,6 +12,7 @@ goal kmd stop -d $NETWORK_PRIMARY_KEY
 rm -rf $NETWORK_DIR
 goal network create -r $NETWORK_DIR -n private -t $CONFIG_DIR
 cp ./config/config.json devnet/Primary #to enable TEAL compilation, copy in a config with "EnableDeveloperAPI": true
+cp ./config/consensus.json devnet/Primary #custom consensus file for faster block time and faster private network tests
 ln -s $NETWORK_PRIMARY_KEY/algod.net $NETWORK_PRIMARY_KEY/algod-listen.net
 goal network start -r $NETWORK_DIR -k $DEVNET_KMD -d $NETWORK_PRIMARY_KEY
 goal kmd start -d $NETWORK_PRIMARY_KEY
