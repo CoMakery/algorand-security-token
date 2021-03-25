@@ -71,13 +71,7 @@ test('simple transfer back and forth: with group 1 -> 1 permitted', async () => 
     let toGroupId = 1
     let earliestPermittedTime = 1
 
-    let transferGroupLock =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setTransferRule' ` +
-        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
-        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
-
-    await shell.exec(transferGroupLock, {async: false, silent: false})
+    await util.setTransferRule(clientV2, adminAccount, appId, fromGroupId, toGroupId, earliestPermittedTime)
 
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
@@ -123,13 +117,7 @@ test('can lock the default address category for transfers', async () => {
     let toGroupId = 1
     let lockUntilUnixTimestampTomorrow = Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24)
 
-    let transferGroupLock =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setTransferRule' ` +
-        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
-        `--app-arg "int:${lockUntilUnixTimestampTomorrow}"  -d devnet/Primary`
-
-    await shell.exec(transferGroupLock, {async: false, silent: false})
+    await util.setTransferRule(clientV2, adminAccount, appId, fromGroupId, toGroupId, lockUntilUnixTimestampTomorrow)
 
     // transfer should be rejected
     try {
@@ -148,17 +136,11 @@ test('simple transfer from group 0 -> 0 works when permitted', async () => {
     let toGroupId = 0
     let earliestPermittedTime = 1
 
-    let transferGroupLock =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setTransferRule' ` +
-        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
-        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
+    await util.setTransferRule(clientV2, adminAccount, appId, fromGroupId, toGroupId, earliestPermittedTime)
 
     appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('0')]
     await util.appCall(clientV2, adminAccount, appId, appArgs, [adminAccount.addr])
     await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
-
-    await shell.exec(transferGroupLock, {async: false, silent: false})
 
     globalState = await util.readGlobalState(clientV2, adminAccount, appId)
     expect(globalState['reserve']['ui'].toString()).toEqual('79999999999999973')
@@ -206,13 +188,7 @@ test('can transfer to an account if the transfer rule lock has expired', async (
     let toGroupId = 1
     let lockUntilAMinuteAgo = Math.floor(new Date().getTime() / 1000) - 60
 
-    let transferGroupLock =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setTransferRule' ` +
-        `--app-arg "int:${fromGroupId}" --app-arg "int:${toGroupId}" ` +
-        `--app-arg "int:${lockUntilAMinuteAgo}"  -d devnet/Primary`
-
-    await shell.exec(transferGroupLock, {async: false, silent: false})
+    await util.setTransferRule(clientV2, adminAccount, appId, fromGroupId, toGroupId, lockUntilAMinuteAgo)
 
     // transfer should go through
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
@@ -225,22 +201,10 @@ test('can transfer to an account if the transfer rule lock has expired', async (
 test('can transfer between permitted account groups', async () => {
     let earliestPermittedTime = 1
     // from group 1 -> 1 is allowed
-    let transferGroupLock1 =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setTransferRule' ` +
-        `--app-arg "int:1" --app-arg "int:1" ` +
-        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
-
-    await shell.exec(transferGroupLock1, {async: false, silent: false})
+    await util.setTransferRule(clientV2, adminAccount, appId, 1, 1, earliestPermittedTime)
 
     // from group 1 -> 2 is allowed
-    let transferGroupLock2 =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setTransferRule' ` +
-        `--app-arg "int:1" --app-arg "int:2" ` +
-        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
-
-    await shell.exec(transferGroupLock2, {async: false, silent: false})
+    await util.setTransferRule(clientV2, adminAccount, appId, 1, 2, earliestPermittedTime)
 
     //transfer
     appArgs = [EncodeBytes("transfer"), EncodeUint('11')]
@@ -278,13 +242,7 @@ test('transferRule allowing transfer from group 1 to 2 does not allow transfers 
     let earliestPermittedTime = 1
 
     // from group 1 -> 2 is allowed
-    let transferGroupLock2 =
-        `goal app call --app-id ${appId} --from ${adminAccount.addr} ` +
-        `--app-arg 'str:setTransferRule' ` +
-        `--app-arg "int:1" --app-arg "int:2" ` +
-        `--app-arg "int:${earliestPermittedTime}"  -d devnet/Primary`
-
-    await shell.exec(transferGroupLock2, {async: false, silent: false})
+    await util.setTransferRule(clientV2, adminAccount, appId, 1, 2, earliestPermittedTime)
 
     // put receiver in group 2
     appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('0'), EncodeUint('0'), EncodeUint('2')]

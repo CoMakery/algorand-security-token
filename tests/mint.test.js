@@ -24,8 +24,8 @@ beforeEach(async () => {
 })
 
 it('mints when receiver maxBalance is not set', async () => {
-  appArgs = [EncodeBytes("mint"), EncodeUint('27')]
-  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  await util.mint(clientV2, appId, adminAccount, receiverAccount.addr, 27)
+
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["balance"]["ui"]).toEqual(27)
 })
@@ -34,8 +34,7 @@ it('mints when receiver maxBalance is below balance after mint', async () => {
   appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('50'), EncodeUint('0'), EncodeUint('1')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
 
-  appArgs = [EncodeBytes("mint"), EncodeUint('27')]
-  await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+  await util.mint(clientV2, appId, adminAccount, receiverAccount.addr, 27)
   localState = await util.readLocalState(clientV2, receiverAccount, appId)
   expect(localState["balance"]["ui"]).toEqual(27)
 })
@@ -44,9 +43,8 @@ it('does not mint when receiver maxBalance is above balance after mint', async (
   appArgs = [EncodeBytes("setAddressPermissions"), EncodeUint('0'), EncodeUint('50'), EncodeUint('0'), EncodeUint('1')]
   await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
   
-  appArgs = [EncodeBytes("mint"), EncodeUint('57')]
   try {
-    await util.appCall(clientV2, adminAccount, appId, appArgs, [receiverAccount.addr])
+    await util.mint(clientV2, appId, adminAccount, receiverAccount.addr, 57)
   } catch (error) {
     expect(error.message).toEqual("Bad Request")
   }
