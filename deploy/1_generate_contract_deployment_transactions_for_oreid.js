@@ -11,7 +11,7 @@ const path = require('path')
 ;(async() => {
     let tx = await util.rawDeploySecurityTokenTx(
         config.client,
-        config.tempLaunchAccount,
+        config.contractAdminReserveAccountAddress,
         config.token.cap,
         config.token.decimals,
         config.token.symbol,
