@@ -1,58 +1,441 @@
-#pragma version 2
+#pragma version 8
 txn ApplicationID
 int 0
 ==
-bnz l0
+bnz main_l28
 txn OnCompletion
 int DeleteApplication
 ==
-bnz l1
+bnz main_l27
 txn OnCompletion
 int UpdateApplication
 ==
-bnz l2
+bnz main_l26
 txn OnCompletion
 int CloseOut
 ==
-bnz l3
+bnz main_l25
 txn OnCompletion
 int OptIn
 ==
-bnz l4
+bnz main_l24
 txna ApplicationArgs 0
 byte "pause"
 ==
-bnz l5
+bnz main_l23
 txna ApplicationArgs 0
 byte "grantRoles"
 ==
-bnz l6
+bnz main_l20
 txna ApplicationArgs 0
 byte "setTransferRule"
 ==
-bnz l7
+bnz main_l19
 txna ApplicationArgs 0
 byte "setAddressPermissions"
 ==
-bnz l8
+bnz main_l18
 txna ApplicationArgs 0
 byte "mint"
 ==
-bnz l9
+bnz main_l17
 txna ApplicationArgs 0
 byte "burn"
 ==
-bnz l10
+bnz main_l16
 txna ApplicationArgs 0
 byte "transfer"
 ==
-bnz l11
+bnz main_l15
 txna ApplicationArgs 0
 byte "detect"
 ==
-bnz l12
+bnz main_l14
 err
-l0:
+main_l14:
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
+<
+byte "paused"
+app_global_get
+||
+int 1
+byte "frozen"
+app_local_get
+||
+int 2
+byte "frozen"
+app_local_get
+||
+int 1
+byte "lockUntil"
+app_local_get
+global LatestTimestamp
+>=
+||
+byte "rule"
+int 1
+byte "transferGroup"
+app_local_get
+itob
+concat
+int 2
+byte "transferGroup"
+app_local_get
+itob
+concat
+box_get
+store 1
+store 0
+load 1
+assert
+load 0
+btoi
+global LatestTimestamp
+>=
+||
+int 1
+byte "maxBalance"
+app_local_get
+int 0
+>
+int 2
+byte "maxBalance"
+app_local_get
+int 2
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+<
+&&
+||
+!
+assert
+int 1
+return
+main_l15:
+txn NumAccounts
+int 1
+==
+int 0
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
+<
+byte "paused"
+app_global_get
+||
+int 0
+byte "frozen"
+app_local_get
+||
+int 1
+byte "frozen"
+app_local_get
+||
+int 0
+byte "lockUntil"
+app_local_get
+global LatestTimestamp
+>=
+||
+byte "rule"
+int 0
+byte "transferGroup"
+app_local_get
+itob
+concat
+int 1
+byte "transferGroup"
+app_local_get
+itob
+concat
+box_get
+store 3
+store 2
+load 3
+assert
+load 2
+btoi
+global LatestTimestamp
+>=
+||
+int 1
+byte "maxBalance"
+app_local_get
+int 0
+>
+int 1
+byte "maxBalance"
+app_local_get
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+<
+&&
+||
+!
+&&
+assert
+int 0
+byte "balance"
+int 0
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
+-
+app_local_put
+int 1
+byte "balance"
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+app_local_put
+int 1
+return
+main_l16:
+int 0
+byte "roles"
+app_local_get
+int 4
+&
+txn NumAccounts
+int 1
+==
+&&
+txna ApplicationArgs 1
+btoi
+int 1
+byte "balance"
+app_local_get
+<=
+&&
+assert
+byte "reserve"
+byte "reserve"
+app_global_get
+txna ApplicationArgs 1
+btoi
++
+app_global_put
+int 1
+byte "balance"
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
+-
+app_local_put
+byte "totalSupply"
+byte "cap"
+app_global_get
+byte "reserve"
+app_global_get
+-
+app_global_put
+int 1
+return
+main_l17:
+int 0
+byte "roles"
+app_local_get
+int 4
+&
+txn NumAccounts
+int 1
+==
+&&
+txna ApplicationArgs 1
+btoi
+byte "reserve"
+app_global_get
+<=
+&&
+assert
+int 1
+byte "maxBalance"
+app_local_get
+int 0
+==
+int 1
+byte "maxBalance"
+app_local_get
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+>=
+||
+assert
+byte "reserve"
+byte "reserve"
+app_global_get
+txna ApplicationArgs 1
+btoi
+-
+app_global_put
+int 1
+byte "balance"
+int 1
+byte "balance"
+app_local_get
+txna ApplicationArgs 1
+btoi
++
+app_local_put
+byte "totalSupply"
+byte "cap"
+app_global_get
+byte "reserve"
+app_global_get
+-
+app_global_put
+int 1
+return
+main_l18:
+int 0
+byte "roles"
+app_local_get
+int 1
+&
+txn NumAccounts
+int 1
+==
+&&
+assert
+int 1
+byte "frozen"
+txna ApplicationArgs 1
+btoi
+app_local_put
+int 1
+byte "maxBalance"
+txna ApplicationArgs 2
+btoi
+app_local_put
+int 1
+byte "lockUntil"
+txna ApplicationArgs 3
+btoi
+app_local_put
+int 1
+byte "transferGroup"
+txna ApplicationArgs 4
+btoi
+app_local_put
+int 1
+return
+main_l19:
+int 0
+byte "roles"
+app_local_get
+int 2
+&
+assert
+byte "rule"
+txna ApplicationArgs 1
+btoi
+itob
+concat
+txna ApplicationArgs 2
+btoi
+itob
+concat
+txna ApplicationArgs 3
+box_put
+int 1
+return
+main_l20:
+int 0
+byte "roles"
+app_local_get
+int 8
+&
+txna ApplicationArgs 1
+btoi
+int 15
+<=
+&&
+assert
+txn Sender
+txna Accounts 1
+==
+bnz main_l22
+main_l21:
+int 1
+byte "roles"
+txna ApplicationArgs 1
+btoi
+app_local_put
+int 1
+return
+main_l22:
+txna ApplicationArgs 1
+btoi
+int 8
+&
+assert
+b main_l21
+main_l23:
+byte "paused"
+txna ApplicationArgs 1
+btoi
+app_global_put
+int 0
+byte "roles"
+app_local_get
+int 8
+&
+return
+main_l24:
+int 0
+byte "balance"
+int 0
+app_local_put
+int 0
+byte "maxBalance"
+int 0
+app_local_put
+int 0
+byte "lockUntil"
+int 0
+app_local_put
+int 0
+byte "transferGroup"
+int 1
+app_local_put
+int 1
+return
+main_l25:
+int 0
+return
+main_l26:
+int 0
+byte "roles"
+app_local_get
+int 8
+&
+return
+main_l27:
+int 0
+return
+main_l28:
 byte "totalSupply"
 int 0
 app_global_put
@@ -91,434 +474,3 @@ int 15
 app_local_put
 int 1
 return
-b l13
-l1:
-int 0
-return
-b l13
-l2:
-int 0
-byte "roles"
-app_local_get
-int 8
-&
-return
-b l13
-l3:
-int 0
-return
-b l13
-l4:
-int 0
-byte "balance"
-int 0
-app_local_put
-int 0
-byte "maxBalance"
-int 0
-app_local_put
-int 0
-byte "lockUntil"
-int 0
-app_local_put
-int 0
-byte "transferGroup"
-int 1
-app_local_put
-int 1
-return
-b l13
-l5:
-byte "paused"
-txna ApplicationArgs 1
-btoi
-app_global_put
-int 0
-byte "roles"
-app_local_get
-int 8
-&
-return
-b l13
-l6:
-int 0
-byte "roles"
-app_local_get
-int 8
-&
-txna ApplicationArgs 1
-btoi
-int 15
-<=
-&&
-bnz l14
-err
-l14:
-txn Sender
-txna Accounts 1
-==
-bz l15
-txna ApplicationArgs 1
-btoi
-int 8
-&
-bnz l16
-err
-l16:
-l15:
-int 1
-byte "roles"
-txna ApplicationArgs 1
-btoi
-app_local_put
-int 1
-return
-b l13
-l7:
-int 0
-byte "roles"
-app_local_get
-int 2
-&
-bnz l17
-err
-l17:
-byte "rule"
-txna ApplicationArgs 1
-btoi
-itob
-concat
-txna ApplicationArgs 2
-btoi
-itob
-concat
-txna ApplicationArgs 3
-btoi
-app_global_put
-int 1
-return
-b l13
-l8:
-int 0
-byte "roles"
-app_local_get
-int 1
-&
-txn NumAccounts
-int 1
-==
-&&
-bnz l18
-err
-l18:
-int 1
-byte "frozen"
-txna ApplicationArgs 1
-btoi
-app_local_put
-int 1
-byte "maxBalance"
-txna ApplicationArgs 2
-btoi
-app_local_put
-int 1
-byte "lockUntil"
-txna ApplicationArgs 3
-btoi
-app_local_put
-int 1
-byte "transferGroup"
-txna ApplicationArgs 4
-btoi
-app_local_put
-int 1
-return
-b l13
-l9:
-int 0
-byte "roles"
-app_local_get
-int 4
-&
-txn NumAccounts
-int 1
-==
-&&
-txna ApplicationArgs 1
-btoi
-byte "reserve"
-app_global_get
-<=
-&&
-bnz l19
-err
-l19:
-int 1
-byte "maxBalance"
-app_local_get
-int 0
-==
-int 1
-byte "maxBalance"
-app_local_get
-int 1
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
-+
->=
-||
-bnz l20
-err
-l20:
-byte "reserve"
-byte "reserve"
-app_global_get
-txna ApplicationArgs 1
-btoi
--
-app_global_put
-int 1
-byte "balance"
-int 1
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
-+
-app_local_put
-byte "totalSupply"
-byte "cap"
-app_global_get
-byte "reserve"
-app_global_get
--
-app_global_put
-int 1
-return
-b l13
-l10:
-int 0
-byte "roles"
-app_local_get
-int 4
-&
-txn NumAccounts
-int 1
-==
-&&
-txna ApplicationArgs 1
-btoi
-int 1
-byte "balance"
-app_local_get
-<=
-&&
-bnz l21
-err
-l21:
-byte "reserve"
-byte "reserve"
-app_global_get
-txna ApplicationArgs 1
-btoi
-+
-app_global_put
-int 1
-byte "balance"
-int 1
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
--
-app_local_put
-byte "totalSupply"
-byte "cap"
-app_global_get
-byte "reserve"
-app_global_get
--
-app_global_put
-int 1
-return
-b l13
-l11:
-txn NumAccounts
-int 1
-==
-int 0
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
-<
-byte "paused"
-app_global_get
-||
-int 0
-byte "frozen"
-app_local_get
-||
-int 1
-byte "frozen"
-app_local_get
-||
-int 0
-byte "lockUntil"
-app_local_get
-global LatestTimestamp
->=
-||
-byte "rule"
-int 0
-byte "transferGroup"
-app_local_get
-itob
-concat
-int 1
-byte "transferGroup"
-app_local_get
-itob
-concat
-app_global_get
-int 1
-<
-||
-byte "rule"
-int 0
-byte "transferGroup"
-app_local_get
-itob
-concat
-int 1
-byte "transferGroup"
-app_local_get
-itob
-concat
-app_global_get
-global LatestTimestamp
->=
-||
-int 1
-byte "maxBalance"
-app_local_get
-int 0
->
-int 1
-byte "maxBalance"
-app_local_get
-int 1
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
-+
-<
-&&
-||
-!
-&&
-bnz l22
-err
-l22:
-int 0
-byte "balance"
-int 0
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
--
-app_local_put
-int 1
-byte "balance"
-int 1
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
-+
-app_local_put
-int 1
-return
-b l13
-l12:
-int 1
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
-<
-byte "paused"
-app_global_get
-||
-int 1
-byte "frozen"
-app_local_get
-||
-int 2
-byte "frozen"
-app_local_get
-||
-int 1
-byte "lockUntil"
-app_local_get
-global LatestTimestamp
->=
-||
-byte "rule"
-int 1
-byte "transferGroup"
-app_local_get
-itob
-concat
-int 2
-byte "transferGroup"
-app_local_get
-itob
-concat
-app_global_get
-int 1
-<
-||
-byte "rule"
-int 1
-byte "transferGroup"
-app_local_get
-itob
-concat
-int 2
-byte "transferGroup"
-app_local_get
-itob
-concat
-app_global_get
-global LatestTimestamp
->=
-||
-int 1
-byte "maxBalance"
-app_local_get
-int 0
->
-int 2
-byte "maxBalance"
-app_local_get
-int 2
-byte "balance"
-app_local_get
-txna ApplicationArgs 1
-btoi
-+
-<
-&&
-||
-!
-bnz l23
-err
-l23:
-int 1
-return
-l13:

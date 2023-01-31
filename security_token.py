@@ -137,10 +137,10 @@ def approval_program():
     # by default transfers between groups are not allowed between groups
     # only at transfer rules admin can set transfer rules
     lock_transfer_key = getRuleKey(Btoi(Txn.application_args[1]), Btoi(Txn.application_args[2]))
-    lock_transfer_until = Btoi(Txn.application_args[3])
+    lock_transfer_until = Txn.application_args[3]
     set_transfer_rules = Seq([
         Assert(is_transfer_rules_admin,),
-        App.globalPut(lock_transfer_key, lock_transfer_until),
+        App.box_put(lock_transfer_key, lock_transfer_until),
         Return(Int(1))
     ])
 
@@ -188,6 +188,16 @@ def approval_program():
     # accepts sender and receiver indices in current Txn.accounts[]
     # returns true if all checks are successful and transfer is allowed
     def isTransferAllowed(sender_idx, receiver_idx, amount):
+        lock_transfer_key = getRuleKey(
+            App.localGet(sender_idx, Bytes("transferGroup")),
+            App.localGet(receiver_idx, Bytes("transferGroup"))
+        )
+        trasnsfer_rule = Seq(
+            contents := App.box_get(lock_transfer_key),
+            Assert(contents.hasValue()),
+            contents.value()
+        )
+
         return Not(Or(
             Lt(App.localGet(sender_idx, Bytes("balance")), amount), # check sender balance
             App.globalGet(Bytes("paused")), # can't transfer when the contract is paused
@@ -196,8 +206,7 @@ def approval_program():
             App.localGet(sender_idx, Bytes("lockUntil")) >= Global.latest_timestamp(), # sender account can't be locked
 
             # check that a transfer rule exists and allows the transfer from the sender to the receiver at the current time
-            App.globalGet(getRuleKey(App.localGet(sender_idx, Bytes("transferGroup")), App.localGet(receiver_idx, Bytes("transferGroup")))) < Int(1),
-            App.globalGet(getRuleKey(App.localGet(sender_idx, Bytes("transferGroup")), App.localGet(receiver_idx, Bytes("transferGroup")))) >= Global.latest_timestamp(),
+            Btoi(trasnsfer_rule) >= Global.latest_timestamp(),
 
             # check that max balance is not exceeded
             And(
@@ -287,9 +296,9 @@ def clear_state_program():
 
 if __name__ == "__main__":
     with open('security_token_approval.teal', 'w') as f:
-        compiled = compileTeal(approval_program(), Mode.Application)
+        compiled = compileTeal(approval_program(), Mode.Application, version=8)
         f.write(compiled)
 
     with open('security_token_clear_state.teal', 'w') as f:
-        compiled = compileTeal(clear_state_program(), Mode.Application)
+        compiled = compileTeal(clear_state_program(), Mode.Application, version=8)
         f.write(compiled)
