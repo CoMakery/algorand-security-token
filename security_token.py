@@ -17,6 +17,8 @@ def approval_program():
         App.localPut(Int(0), Bytes("transferGroup"), Int(1)),
         App.localPut(Int(0), Bytes("balance"), Int(0)),
         App.localPut(Int(0), Bytes("roles"), Int(15)),
+
+        Pop(App.box_create(Bytes("rules"), Int(32000))),
         Return(Int(1))
     ])
 
@@ -128,6 +130,30 @@ def approval_program():
     def getRuleKey(sendGroup, receiveGroup):
         return Concat(Bytes("rule"), Itob(sendGroup), Itob(receiveGroup))
 
+    @Subroutine(TealType.none)
+    def storeRuleKey(lock_transfer_key):
+        # Get current number of rules stored in the first byte
+        number_of_lock_transfer_keys = App.box_extract(
+            Bytes("rules"),
+            Int(0),
+            Int(1)
+        )
+
+        return Seq(
+            # Update current number of rules stored in the first byte
+            App.box_replace(
+                Bytes("rules"),
+                Int(0),
+                Itob(Btoi(number_of_lock_transfer_keys) + Int(1))
+            ),
+            # Append a new rule key stored at (1 + rule_key_size_in_bytes * number_of_rules)
+            App.box_replace(
+                Bytes("rules"),
+                Int(1) + (Int(8) * Btoi(number_of_lock_transfer_keys)),
+                lock_transfer_key
+            ),
+        )
+
     # setTransferRule
     # goal app call --app-id $APP_ID --from $FROM --app-arg 'str:setTransferRule' --app-arg "int:$FROM_GROUP_ID" \
     # --app-arg "int:$TO_GROUP_ID" --app-arg "int:$LOCK_UNTIL_UNIX_TIMESTAMP"
@@ -141,6 +167,7 @@ def approval_program():
     set_transfer_rules = Seq([
         Assert(is_transfer_rules_admin,),
         App.box_put(lock_transfer_key, lock_transfer_until),
+        storeRuleKey(lock_transfer_key),
         Return(Int(1))
     ])
 

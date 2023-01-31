@@ -359,6 +359,16 @@ itob
 concat
 txna ApplicationArgs 3
 box_put
+byte "rule"
+txna ApplicationArgs 1
+btoi
+itob
+concat
+txna ApplicationArgs 2
+btoi
+itob
+concat
+callsub storeRuleKey_0
 int 1
 return
 main_l20:
@@ -472,5 +482,37 @@ int 0
 byte "roles"
 int 15
 app_local_put
+byte "rules"
+int 32000
+box_create
+pop
 int 1
 return
+
+// storeRuleKey
+storeRuleKey_0:
+proto 1 0
+byte "rules"
+int 0
+byte "rules"
+int 0
+int 1
+box_extract
+btoi
+int 1
++
+itob
+box_replace
+byte "rules"
+int 1
+int 8
+byte "rules"
+int 0
+int 1
+box_extract
+btoi
+*
++
+frame_dig -1
+box_replace
+retsub
