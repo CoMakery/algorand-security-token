@@ -27,7 +27,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest pyteal
+        pip install pytest 'pyteal>=0.20.0'
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Compile to TEAL
